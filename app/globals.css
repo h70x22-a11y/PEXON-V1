@@ -344,3 +344,15 @@ html[data-theme='dark'] .btn.add:hover, html[data-theme='dark'] .btn.done { back
 .quote-table th { background: var(--bg); }
 .quote-table td:first-child, .quote-table td:last-child { white-space: nowrap; width: 1%; }
 .quote-table a { color: var(--primary); font-weight: 600; }
+
+/* ---------- الجوال: منتجين جنب بعض ---------- */
+@media (max-width: 600px) {
+  .grid:has(.product-card) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .grid:has(.product-card) .card .body { padding: 10px 12px 12px; gap: 2px; }
+  .grid:has(.product-card) .card h3 { font-size: 0.92rem; line-height: 1.4; overflow-wrap: anywhere; }
+  .grid:has(.product-card) .card p { font-size: 0.78rem; line-height: 1.5; }
+  .grid:has(.product-card) .card .more { font-size: 0.8rem; padding-top: 6px; }
+  .grid:has(.product-card) .card-actions { padding: 0 10px 12px; }
+  .grid:has(.product-card) .btn.add { padding: 7px 8px; font-size: 0.78rem; gap: 4px; }
+  .grid:has(.product-card) .card .thumb { aspect-ratio: 1 / 1; }
+}
