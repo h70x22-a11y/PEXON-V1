@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getLang, t } from '@/lib/i18n';
-import { VENDOR_ACTIVITIES } from '@/lib/vendor';
+import { VENDOR_GROUPS, VENDOR_OTHER } from '@/lib/vendor';
 import { submitVendor } from '@/app/actions';
 import Consent from '@/components/Consent';
 
@@ -67,9 +67,14 @@ export default async function VendorPage({ searchParams }) {
                   <label htmlFor="activity">{v.activity} *</label>
                   <select id="activity" name="activity" required defaultValue="">
                     <option value="" disabled>{v.activityPh}</option>
-                    {VENDOR_ACTIVITIES.map((a) => (
-                      <option key={a.key} value={a.key}>{a[lang]}</option>
+                    {VENDOR_GROUPS.map((g) => (
+                      <optgroup key={g.en} label={g[lang]}>
+                        {g.items.map((a) => (
+                          <option key={a.key} value={a.key}>{a[lang]}</option>
+                        ))}
+                      </optgroup>
                     ))}
+                    <option value={VENDOR_OTHER.key}>{VENDOR_OTHER[lang]}</option>
                   </select>
                 </div>
               </div>
