@@ -213,6 +213,6 @@ label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem
 .payments-title { color: #fff; font-weight: 600; }
 .payments-list { display: flex; flex-wrap: wrap; gap: 10px; }
 .pay { background: #fff; color: var(--ink); border-radius: 8px; height: 38px; min-width: 58px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 0.9rem; }
-.pay img { max-height: 24px; max-width: 70px; object-fit: contain; }
+.pay img { height: 22px; width: auto; max-width: 74px; object-fit: contain; }
 .payments + .copy { margin-top: 22px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

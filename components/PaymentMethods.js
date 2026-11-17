@@ -21,8 +21,7 @@ export default function PaymentMethods({ value }) {
   if (!items.length) return null;
 
   return (
-    <div className="payments">
-      <span className="payments-title">وسائل الدفع</span>
+    <div className="payments" aria-label="وسائل الدفع">
       <div className="payments-list">
         {items.map((item) => {
           const match = ICONS.find((i) => i.test.test(item.name));
