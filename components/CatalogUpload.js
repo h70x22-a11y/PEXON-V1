@@ -55,7 +55,7 @@ export default function CatalogUpload({ current, onSaved, onRemove }) {
       {current ? (
         <p>
           الملف الحالي:{' '}
-          <a href={current} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', fontWeight: 600 }}>
+          <a href="/catalog.pdf" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', fontWeight: 600 }}>
             فتح الكتالوج ↗
           </a>
         </p>
