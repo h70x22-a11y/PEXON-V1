@@ -14,6 +14,7 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
   const [busy, setBusy] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [armClear, setArmClear] = useState(false);
 
   useEffect(() => {
     setItems(readCart());
@@ -79,8 +80,21 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
       <div className="panel">
         <div className="section-head" style={{ marginBottom: 12 }}>
           <h2 style={{ fontSize: '1.2rem' }}>{labels.items} ({items.length})</h2>
-          <button type="button" className="btn danger small" onClick={() => window.confirm(labels.clearConfirm) && clearCart()}>
-            {labels.clear}
+          <button
+            type="button"
+            className={`btn danger small${armClear ? ' armed' : ''}`}
+            title={armClear ? labels.clearConfirm : undefined}
+            onClick={() => {
+              if (armClear) {
+                clearCart();
+                setArmClear(false);
+              } else {
+                setArmClear(true);
+                setTimeout(() => setArmClear(false), 4000);
+              }
+            }}
+          >
+            {armClear ? labels.clearConfirmShort : labels.clear}
           </button>
         </div>
         <ul className="quote-items">

@@ -374,3 +374,4 @@ html[data-theme='dark'] .btn.add:hover, html[data-theme='dark'] .btn.done { back
 .vendors-table { margin: 0; min-width: 760px; }
 .vendors-table td { vertical-align: middle; }
 .vendors-table td:first-child, .vendors-table td:last-child { white-space: nowrap; }
+.btn.danger.armed { background: var(--danger); color: #fff; }

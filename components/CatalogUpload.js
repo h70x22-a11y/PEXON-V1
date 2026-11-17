@@ -8,6 +8,7 @@ export default function CatalogUpload({ current, onSaved, onRemove }) {
   const input = useRef(null);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [armRemove, setArmRemove] = useState(false);
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -39,7 +40,12 @@ export default function CatalogUpload({ current, onSaved, onRemove }) {
   }
 
   async function handleRemove() {
-    if (!window.confirm('إزالة رابط الكتالوج من الموقع؟')) return;
+    if (!armRemove) {
+      setArmRemove(true);
+      setTimeout(() => setArmRemove(false), 4000);
+      return;
+    }
+    setArmRemove(false);
     setBusy(true);
     await onRemove();
     setBusy(false);
@@ -72,7 +78,7 @@ export default function CatalogUpload({ current, onSaved, onRemove }) {
         </button>
         {current ? (
           <button type="button" className="btn danger small" onClick={handleRemove} disabled={busy}>
-            إزالة الكتالوج
+            {armRemove ? 'تأكيد الإزالة' : 'إزالة الكتالوج'}
           </button>
         ) : null}
       </div>

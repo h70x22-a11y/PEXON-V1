@@ -18,6 +18,7 @@ export default async function QuotePage() {
     addMore: tr.addMore,
     clear: tr.clearCart,
     clearConfirm: tr.clearConfirm,
+    clearConfirmShort: tr.clearConfirmShort,
     remove: tr.remove,
     qty: tr.qty,
     details: tr.yourDetails,
