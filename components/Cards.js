@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { productPrice, productShort, t } from '@/lib/i18n';
 
 function Thumb({ image, name }) {
   return (
@@ -8,28 +9,32 @@ function Thumb({ image, name }) {
   );
 }
 
-export function CategoryCard({ category, count }) {
+export function CategoryCard({ category, count, lang = 'ar' }) {
+  const tr = t(lang);
   return (
     <Link href={`/category/${category.id}`} className="card">
       <Thumb image={category.image} name={category.name} />
       <div className="body">
         <h3>{category.name}</h3>
         {category.description ? <p>{category.description}</p> : null}
-        <span className="more">{count} منتج ←</span>
+        <span className="more">{tr.productsCount(count)} {tr.arrow}</span>
       </div>
     </Link>
   );
 }
 
-export function ProductCard({ product }) {
+export function ProductCard({ product, lang = 'ar' }) {
+  const tr = t(lang);
+  const short = productShort(product, lang);
+  const price = productPrice(product, lang);
   return (
     <Link href={`/product/${product.id}`} className="card">
       <Thumb image={product.image} name={product.name} />
       <div className="body">
         <h3>{product.name}</h3>
-        {product.short ? <p>{product.short}</p> : null}
-        {product.price ? <span className="price">{product.price}</span> : null}
-        <span className="more">التفاصيل ←</span>
+        {short ? <p>{short}</p> : null}
+        {price ? <span className="price">{price}</span> : null}
+        <span className="more">{tr.details} {tr.arrow}</span>
       </div>
     </Link>
   );

@@ -1,12 +1,21 @@
 import Link from 'next/link';
 import { getSettings } from '@/lib/db';
+import { getLang, pick, t } from '@/lib/i18n';
 import SocialIcons from '@/components/SocialIcons';
 import PaymentMethods from '@/components/PaymentMethods';
 import SiteNav from '@/components/SiteNav';
 import ThemeToggle from '@/components/ThemeToggle';
+import LangToggle from '@/components/LangToggle';
 
 export default async function SiteLayout({ children }) {
-  const s = await getSettings();
+  const [s, lang] = await Promise.all([getSettings(), getLang()]);
+  const tr = t(lang);
+  const links = [
+    { href: '/', label: tr.home },
+    { href: '/products', label: tr.allProducts },
+    { href: '/#about', label: tr.about },
+    { href: '/contact', label: tr.contact },
+  ];
   return (
     <>
       <header className="site-header">
@@ -15,8 +24,11 @@ export default async function SiteLayout({ children }) {
             {s.logo ? <img src={s.logo} alt={s.siteName} /> : null}
             {s.logo ? null : <span>{s.siteName}</span>}
           </Link>
-          <SiteNav />
-          <ThemeToggle />
+          <SiteNav links={links} openLabel={tr.menuOpen} closeLabel={tr.menuClose} />
+          <div className="header-tools">
+            <LangToggle lang={lang} label={tr.switchLang} title={tr.switchLangLabel} />
+            <ThemeToggle labels={{ toDark: tr.toDark, toLight: tr.toLight, dark: tr.dark, light: tr.light }} />
+          </div>
         </div>
       </header>
 
@@ -27,34 +39,34 @@ export default async function SiteLayout({ children }) {
           <div className="cols">
             <div>
               <h4>{s.siteName}</h4>
-              <p>{s.tagline}</p>
+              <p>{pick(s, 'tagline', lang)}</p>
               <SocialIcons settings={s} />
             </div>
             <div>
-              <h4>روابط</h4>
+              <h4>{tr.links}</h4>
               <ul>
-                <li><Link href="/products">جميع المنتجات</Link></li>
-                <li><Link href="/contact">تواصل معنا</Link></li>
+                <li><Link href="/products">{tr.allProducts}</Link></li>
+                <li><Link href="/contact">{tr.contact}</Link></li>
                 {s.catalogUrl ? (
                   <li>
                     <a href="/catalog.pdf" target="_blank" rel="noopener noreferrer" className="catalog-link">
-                      تحميل كتالوج المنتجات (PDF)
+                      {tr.catalog}
                     </a>
                   </li>
                 ) : null}
               </ul>
             </div>
             <div>
-              <h4>التواصل</h4>
+              <h4>{tr.contactInfo}</h4>
               <ul>
                 {s.phone ? <li><a href={`tel:${s.phone}`} dir="ltr">{s.phone}</a></li> : null}
                 {s.email ? <li><a href={`mailto:${s.email}`} dir="ltr">{s.email}</a></li> : null}
-                {s.address ? <li>{s.address}</li> : null}
+                {s.address ? <li>{pick(s, 'address', lang)}</li> : null}
               </ul>
             </div>
           </div>
-          <PaymentMethods value={s.payments} />
-          <div className="copy">© {new Date().getFullYear()} {s.siteName}. جميع الحقوق محفوظة.</div>
+          <PaymentMethods value={s.payments} lang={lang} label={tr.payments} />
+          <div className="copy">© {new Date().getFullYear()} {s.siteName}. {tr.rights}</div>
         </div>
       </footer>
     </>

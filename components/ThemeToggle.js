@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { FiMoon, FiSun } from 'react-icons/fi';
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ labels }) {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
@@ -24,8 +24,8 @@ export default function ThemeToggle() {
       type="button"
       className="theme-toggle"
       onClick={toggle}
-      aria-label={dark ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الداكن'}
-      title={dark ? 'الوضع الفاتح' : 'الوضع الداكن'}
+      aria-label={dark ? labels.toLight : labels.toDark}
+      title={dark ? labels.light : labels.dark}
     >
       {dark ? <FiSun size={18} aria-hidden="true" /> : <FiMoon size={18} aria-hidden="true" />}
     </button>

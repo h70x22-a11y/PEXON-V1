@@ -1,5 +1,6 @@
 import './globals.css';
 import { getSettings } from '@/lib/db';
+import { getLang } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,10 +10,10 @@ export async function generateMetadata() {
 }
 
 export default async function RootLayout({ children }) {
-  const s = await getSettings();
+  const [s, lang] = await Promise.all([getSettings(), getLang()]);
   const color = /^#[0-9a-fA-F]{6}$/.test(s.primaryColor) ? s.primaryColor : '#0f4c5c';
   return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning style={{ '--primary': color }}>
+    <html lang={lang} dir={lang === 'en' ? 'ltr' : 'rtl'} suppressHydrationWarning style={{ '--primary': color }}>
       <head>
         <script
           dangerouslySetInnerHTML={{

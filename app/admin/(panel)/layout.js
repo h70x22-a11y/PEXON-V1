@@ -8,7 +8,7 @@ export const metadata = { title: 'لوحة التحكم', robots: { index: false
 export default async function AdminLayout({ children }) {
   await requireAdmin();
   return (
-    <div className="admin">
+    <div className="admin" dir="rtl" lang="ar">
       <aside className="admin-side">
         <div className="title">لوحة التحكم</div>
         <Link href="/admin">نظرة عامة</Link>

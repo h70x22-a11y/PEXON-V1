@@ -1,17 +1,19 @@
 import Link from 'next/link';
 import { getCategories, getProducts, getSettings } from '@/lib/db';
 import { CategoryCard, ProductCard } from '@/components/Cards';
+import { getLang, pick, t } from '@/lib/i18n';
 
 export default async function HomePage() {
-  const [s, categories, products] = await Promise.all([getSettings(), getCategories(), getProducts()]);
+  const [s, categories, products, lang] = await Promise.all([getSettings(), getCategories(), getProducts(), getLang()]);
+  const tr = t(lang);
   const featured = products.filter((p) => p.featured).slice(0, 8);
   const countOf = (id) => products.filter((p) => p.categoryId === id).length;
   const lines = (value) => String(value || '').split('\n').map((l) => l.trim()).filter(Boolean);
-  const values = lines(s.values).map((l) => {
+  const values = lines(pick(s, 'values', lang)).map((l) => {
     const [title, ...rest] = l.split('|');
     return { title: title.trim(), text: rest.join('|').trim() };
   });
-  const services = lines(s.services);
+  const services = lines(pick(s, 'services', lang));
   const brands = lines(s.brands);
   const partners = lines(s.partners).map((l) => {
     const [name, ...rest] = l.split('|');
@@ -22,12 +24,12 @@ export default async function HomePage() {
     <>
       <section className="hero">
         <div className="container">
-          {s.tagline ? <span className="tag">{s.tagline}</span> : null}
-          <h1>{s.heroTitle}</h1>
-          <p>{s.heroText}</p>
+          {pick(s, 'tagline', lang) ? <span className="tag">{pick(s, 'tagline', lang)}</span> : null}
+          <h1>{pick(s, 'heroTitle', lang)}</h1>
+          <p>{pick(s, 'heroText', lang)}</p>
           <div className="actions">
-            <Link href="/products" className="btn light">تصفح المنتجات</Link>
-            <Link href="/contact" className="btn ghost">اطلب عرض سعر</Link>
+            <Link href="/products" className="btn light">{tr.browse}</Link>
+            <Link href="/contact" className="btn ghost">{tr.quote}</Link>
           </div>
         </div>
       </section>
@@ -35,16 +37,16 @@ export default async function HomePage() {
       <section className="section">
         <div className="container">
           <div className="section-head">
-            <h2>أقسام المنتجات</h2>
+            <h2>{tr.categories}</h2>
           </div>
           <div className="grid cats-4">
             {categories.slice(0, 4).map((c) => (
-              <CategoryCard key={c.id} category={c} count={countOf(c.id)} />
+              <CategoryCard key={c.id} category={c} count={countOf(c.id)} lang={lang} />
             ))}
           </div>
           {categories.length > 4 ? (
             <div style={{ textAlign: 'center', marginTop: 28 }}>
-              <Link href="/products" className="btn">عرض كل الأقسام ({categories.length})</Link>
+              <Link href="/products" className="btn">{tr.allCategories(categories.length)}</Link>
             </div>
           ) : null}
         </div>
@@ -54,11 +56,11 @@ export default async function HomePage() {
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="container">
             <div className="section-head">
-              <h2>منتجات مميزة</h2>
+              <h2>{tr.featured}</h2>
             </div>
             <div className="grid">
               {featured.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p.id} product={p} lang={lang} />
               ))}
             </div>
           </div>
@@ -68,7 +70,7 @@ export default async function HomePage() {
       {services.length ? (
         <section className="band">
           <div className="container">
-            <h2>خدمات تميزنا</h2>
+            <h2>{tr.services}</h2>
             <ul className="ticks">
               {services.map((item) => (
                 <li key={item}>{item}</li>
@@ -82,7 +84,7 @@ export default async function HomePage() {
         <section className="section">
           <div className="container">
             <div className="section-head">
-              <h2>العلامات التجارية</h2>
+              <h2>{tr.brands}</h2>
             </div>
             <div className="chips">
               {brands.map((item) => (
@@ -97,7 +99,7 @@ export default async function HomePage() {
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="container">
             <div className="section-head">
-              <h2>قيمنا</h2>
+              <h2>{tr.values}</h2>
             </div>
             <div className="grid">
               {values.map((v) => (
@@ -117,7 +119,7 @@ export default async function HomePage() {
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="container">
             <div className="section-head">
-              <h2>شركاء النجاح</h2>
+              <h2>{tr.partners}</h2>
             </div>
             <div className="logos">
               {partners.map((item) =>
@@ -136,9 +138,9 @@ export default async function HomePage() {
 
       <section className="section" id="about" style={{ background: 'var(--surface)', borderBlock: '1px solid var(--line)' }}>
         <div className="container" style={{ maxWidth: 780 }}>
-          <h2>من نحن</h2>
-          <p className="muted" style={{ whiteSpace: 'pre-line', fontSize: '1.05rem' }}>{s.about}</p>
-          <Link href="/contact" className="btn">تواصل معنا</Link>
+          <h2>{tr.about}</h2>
+          <p className="muted" style={{ whiteSpace: 'pre-line', fontSize: '1.05rem' }}>{pick(s, 'about', lang)}</p>
+          <Link href="/contact" className="btn">{tr.contact}</Link>
         </div>
       </section>
     </>

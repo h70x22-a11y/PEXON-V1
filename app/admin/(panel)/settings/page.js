@@ -105,6 +105,41 @@ export default async function AdminSettings({ searchParams }) {
             </div>
           ))}
         </div>
+        <h2>النسخة الإنجليزية</h2>
+        <p className="muted">تظهر لما يختار الزائر English من أعلى الموقع. أي خانة فاضية يظهر مكانها النص العربي.</p>
+        <div dir="ltr" lang="en">
+          <div className="form-grid">
+            <div className="field">
+              <label>Tagline</label>
+              <input type="text" name="taglineEn" defaultValue={s.taglineEn} maxLength={160} />
+            </div>
+            <div className="field">
+              <label>Address</label>
+              <input type="text" name="addressEn" defaultValue={s.addressEn} maxLength={200} />
+            </div>
+          </div>
+          <div className="field">
+            <label>Hero title</label>
+            <input type="text" name="heroTitleEn" defaultValue={s.heroTitleEn} maxLength={160} />
+          </div>
+          <div className="field">
+            <label>Hero text</label>
+            <textarea name="heroTextEn" defaultValue={s.heroTextEn} maxLength={400} style={{ minHeight: 80 }} />
+          </div>
+          <div className="field">
+            <label>About us</label>
+            <textarea name="aboutEn" defaultValue={s.aboutEn} maxLength={2000} />
+          </div>
+          <div className="field">
+            <label>Our values (one per line: Title | Description)</label>
+            <textarea name="valuesEn" defaultValue={s.valuesEn} maxLength={2000} />
+          </div>
+          <div className="field">
+            <label>Our services (one per line)</label>
+            <textarea name="servicesEn" defaultValue={s.servicesEn} maxLength={2000} />
+          </div>
+        </div>
+
         <button className="btn" type="submit">حفظ الإعدادات</button>
       </form>
     </>

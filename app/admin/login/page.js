@@ -9,7 +9,7 @@ export default async function LoginPage({ searchParams }) {
   if (await isAdmin()) redirect('/admin');
 
   return (
-    <div className="login-box panel">
+    <div className="login-box panel" dir="rtl" lang="ar">
       <h1 style={{ fontSize: '1.4rem' }}>لوحة التحكم</h1>
       {!passwordConfigured ? (
         <div className="flash warn">

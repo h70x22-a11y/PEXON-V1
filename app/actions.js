@@ -121,6 +121,13 @@ export async function saveSettingsAction(formData) {
       brands: text(formData, 'brands', 2000),
       partners: text(formData, 'partners', 2000),
       payments: text(formData, 'payments', 1000),
+      taglineEn: text(formData, 'taglineEn', 160),
+      heroTitleEn: text(formData, 'heroTitleEn', 160),
+      heroTextEn: text(formData, 'heroTextEn', 400),
+      aboutEn: text(formData, 'aboutEn', 2000),
+      valuesEn: text(formData, 'valuesEn', 2000),
+      servicesEn: text(formData, 'servicesEn', 2000),
+      addressEn: text(formData, 'addressEn', 200),
     });
   });
 }

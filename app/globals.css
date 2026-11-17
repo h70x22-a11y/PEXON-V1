@@ -280,3 +280,14 @@ html[data-theme='dark'] .section-head a, html[data-theme='dark'] .card .more, ht
   .nav-toggle { order: 3; }
   .nav { order: 4; }
 }
+
+/* ---------- تبديل اللغة ---------- */
+.header-tools { display: flex; align-items: center; gap: 8px; }
+.lang-toggle {
+  height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font: inherit; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: border-color 0.15s, color 0.15s;
+}
+.lang-toggle:hover { border-color: var(--primary); color: var(--primary); }
+@media (max-width: 760px) {
+  .header-tools { order: 2; }
+}
