@@ -375,3 +375,9 @@ html[data-theme='dark'] .btn.add:hover, html[data-theme='dark'] .btn.done { back
 .vendors-table td { vertical-align: middle; }
 .vendors-table td:first-child, .vendors-table td:last-child { white-space: nowrap; }
 .btn.danger.armed { background: var(--danger); color: #fff; }
+.policy-intro { font-size: 1.08rem; line-height: 2; margin-bottom: 20px; }
+.policy .row > summary { font-size: 1.02rem; }
+.policy .row > summary::after { content: '+'; margin-inline-start: auto; font-size: 1.3rem; color: var(--primary); }
+.policy .row[open] > summary::after { content: '−'; }
+.policy .inner p { margin: 0 0 10px; line-height: 1.95; }
+.policy .quote-table td:first-child, .policy .quote-table td:last-child { white-space: normal; width: auto; }

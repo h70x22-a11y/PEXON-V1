@@ -8,44 +8,140 @@ export async function generateMetadata() {
 
 const UPDATED = { ar: '18 نوفمبر 2026', en: '18 November 2026' };
 
-function content(lang, s) {
+// كل قسم: [العنوان، فقرات، جدول اختياري]
+function sections(lang, s) {
   const company = (lang === 'en' ? s.legalNameEn : s.legalName) || s.siteName;
   const cr = s.crNumber;
+  const vat = s.vatNumber;
   const email = s.email;
+  const phone = s.phone;
   const address = pick(s, 'address', lang);
+
   if (lang === 'en') {
-    return [
-      ['Who we are', `This website (${s.siteName}) is operated by ${company}${cr ? `, Unified National Number ${cr}` : ''}${address ? `, ${address}` : ''}. We are responsible for the personal data you submit through this website.`],
-      ['Data we collect', 'We only collect the data you choose to send us through the website forms:\n• Contact form: name, mobile number, email (optional), the product you ask about, and your message.\n• Quote request via the website: name, mobile number, company name and email (optional), notes, and the products and quantities in your cart.\n• Vendor registration: company name, first and last name, email, mobile number (optional), commercial registration number, and business activity.\nWe do not collect payment card data, and we do not use advertising or tracking cookies.'],
-      ['Why we use it', 'We use your data only to reply to your inquiry, prepare and send quotations, review vendor registrations, and communicate with you about them. We do not use it for any other purpose without your consent.'],
-      ['Legal basis', 'We process your data based on your consent, which you give by ticking the consent box before submitting a form. You may withdraw your consent at any time by contacting us.'],
-      ['Sharing your data', 'We do not sell or share your data with third parties for marketing. The website is hosted with technical service providers (website hosting and database) that store data on our behalf under security commitments; their servers may be located outside the Kingdom of Saudi Arabia. If you choose to send a quote request via WhatsApp, it is handled by WhatsApp under its own privacy policy.'],
-      ['Retention', 'We keep your data only for as long as needed to handle your request and our business relationship, or as required by law, and then delete it.'],
-      ['Security', 'All communication with the website is encrypted (HTTPS), and access to the submitted data is limited to authorized staff through a password-protected dashboard.'],
-      ['Your rights', 'Under the Saudi Personal Data Protection Law, you have the right to be informed about how your data is processed, to access and obtain a copy of your data, to request correction of inaccurate data, to request deletion of data that is no longer needed, and to withdraw your consent. To exercise any of these rights, contact us and we will respond within the legally required period. You may also file a complaint with the Saudi Data & AI Authority (SDAIA).'],
-      ['Data stored on your device', 'The website stores a few settings in your own browser only: your language and display (dark/light) preference, and the products in your quote cart. This data stays on your device and is not sent to us unless you submit a quote request.'],
-      ['Contact us', `For any question or request about your personal data${email ? `, email us at ${email}` : ''}, or use the contact page.`],
-      ['Changes to this policy', 'We may update this policy from time to time. The date of the latest update is shown at the top of this page.'],
-    ];
+    return {
+      intro: `At ${s.siteName}, your privacy matters to us. This notice explains what personal data we collect through this website, why we collect it, how we protect it, and the rights you have under the Personal Data Protection Law of the Kingdom of Saudi Arabia.`,
+      list: [
+        ['1. The company', [`This website is operated by ${company}${cr ? `, Unified National Number ${cr}` : ''}${vat ? `, VAT No. ${vat}` : ''}${address ? `, ${address}` : ''}. ${company} is the controller responsible for the personal data processed through this website.`]],
+        ['2. Scope of this notice', [`This notice applies to ${s.siteName}'s website and all its pages, forms and services, including the contact form, quote requests and vendor registration. It does not apply to third-party websites or services linked from our website, such as WhatsApp or social media platforms, which are governed by their own policies.`]],
+        ['3. Our data protection principles', ['We process personal data lawfully and transparently; we collect only what we need for a clear and specified purpose; we do not use data for purposes incompatible with the one it was collected for; we keep data accurate and up to date; we keep it only as long as necessary; and we protect it with appropriate technical and organizational measures.']],
+        ['4. What we collect and why', [
+          'Identification and contact data: name, mobile number, email address and company name, so we can reply to you and communicate with you.',
+          'Business and request data: the products and quantities in your quote request, the product you ask about, and the content of your message, so we can prepare quotations and answer inquiries.',
+          'Vendor registration data: company name, commercial registration number, business activity, and the contact person\'s name, email and mobile number, so we can review the registration and contact the vendor.',
+          'Technical data: when you browse the website, our hosting provider may automatically record technical information such as IP address, browser type and visit time, for security and service operation purposes.',
+          'We do not request sensitive personal data, and we do not collect payment card data through the website.',
+        ]],
+        ['5. How we use your data and the legal basis', [
+          'We use your data to: reply to inquiries; prepare and send quotations and follow up on them; review vendor registrations and communicate with vendors; operate the website, keep it secure and prevent misuse; and comply with our legal obligations.',
+          'Legal basis: your consent, which you give by ticking the consent box before submitting any form; taking steps at your request before entering into a business relationship (such as preparing a quotation); and complying with applicable laws. You may withdraw your consent at any time, without affecting processing carried out before withdrawal.',
+        ]],
+        ['6. Data sharing and third parties', [
+          'We do not sell your personal data or share it for marketing purposes. We only share it with:',
+          '• Technical service providers that operate the website on our behalf (hosting and database), bound by confidentiality and security commitments.',
+          '• Government or judicial authorities, when required by law or an official request.',
+          'If you choose to send a quote request via WhatsApp, the message is handled by WhatsApp under its own privacy policy.',
+        ]],
+        ['7. Cross-border data transfer', ['The servers of our hosting and database providers may be located outside the Kingdom of Saudi Arabia. Where personal data is transferred outside the Kingdom, we do so only in the cases and under the controls set out in the Personal Data Protection Law and its regulations, ensuring an adequate level of protection and limiting the transfer to what is necessary.']],
+        ['8. Cookies and similar technologies', [
+          'We do not use advertising or tracking cookies, and we do not use third-party analytics tools on this website. We only use what is necessary for the website to work:',
+          '• A cookie that remembers your preferred language.',
+          '• Browser storage (on your device only) that remembers your display preference (light/dark) and the products in your quote cart.',
+          '• A login session cookie used only by authorized staff in the dashboard.',
+          'You can delete these at any time from your browser settings; the website will continue to work with the default settings.',
+        ]],
+        ['9. Automated decisions and profiling', ['We do not make decisions based solely on automated processing of your data, and we do not use your data to build profiles of you.']],
+        ['10. Your rights', [
+          'Under the Personal Data Protection Law, you have the right to:',
+          '• Be informed of how and why your personal data is collected and processed.',
+          '• Access your personal data and obtain a copy of it in a readable format.',
+          '• Request correction, completion or update of your personal data.',
+          '• Request destruction of your personal data when it is no longer needed.',
+          '• Withdraw your consent to processing at any time.',
+          'To exercise any of these rights, contact us using the details below. We will respond within the period set by law and may ask you to verify your identity. You also have the right to file a complaint with the Saudi Data & AI Authority (SDAIA).',
+        ]],
+        ['11. Data retention', [
+          'We keep personal data only for as long as needed for the purposes described in this notice, or as required by applicable law. When it is no longer needed, it is securely deleted or anonymized. The retention periods are:',
+        ], [
+          ['Record type', 'Retention period'],
+          ['Inquiries and contact messages', 'Until the inquiry is resolved + 2 years'],
+          ['Quote requests', 'Date of request + 3 years, or longer if they become part of a contract or transaction'],
+          ['Vendor registrations', 'Duration of the vendor relationship + 3 years, or 3 years from registration if no dealings take place'],
+          ['Contracts, invoices and accounting records', 'As required by applicable laws'],
+          ['Technical website records', 'As set by the hosting provider, for security and operation purposes'],
+        ]],
+        ['12. Data security', ['We protect your data with appropriate technical and organizational measures, including: encrypting all communication with the website (HTTPS); restricting access to submitted data to authorized staff only through a password-protected dashboard; and protecting the website\'s forms against misuse.']],
+        ['13. Personal data breach notification', ['If a breach of personal data occurs, we will take the necessary measures to contain it and limit its impact, notify the competent authority within the periods set by law, and notify you without undue delay if the breach is likely to cause you harm, explaining what happened and the steps you can take.']],
+        ['14. Changes to this notice', ['We may update this notice from time to time to reflect changes in our practices or legal requirements. The latest version is always published on this page with its update date, and we will highlight material changes on the website.']],
+        ['15. Children', ['This website is directed at businesses and adult individuals, and is not intended for children under 18. We do not knowingly collect personal data from children; if we learn that we have, we will delete it.']],
+        ['16. Contact us', [`For any question about this notice or to exercise your rights, contact the person responsible for personal data protection at ${s.siteName}${email ? ` by email at ${email}` : ''}${phone ? `, by phone at ${phone}` : ''}, or through the contact page.`]],
+      ],
+    };
   }
-  return [
-    ['من نحن', `يُدار هذا الموقع (${s.siteName}) من قِبل ${company}${cr ? `، الرقم الوطني الموحد ${cr}` : ''}${address ? `، ${address}` : ''}. ونحن المسؤولون عن البيانات الشخصية التي ترسلها عبر هذا الموقع.`],
-    ['البيانات التي نجمعها', 'نجمع فقط البيانات التي تختار إرسالها إلينا عبر نماذج الموقع:\n• نموذج التواصل: الاسم، رقم الجوال، البريد الإلكتروني (اختياري)، المنتج المستفسر عنه، ونص الرسالة.\n• طلب عرض السعر عبر الموقع: الاسم، رقم الجوال، اسم الشركة والبريد الإلكتروني (اختياريان)، الملاحظات، والمنتجات وكمياتها في السلة.\n• تسجيل الموردين: اسم الشركة، الاسم الأول واسم العائلة، البريد الإلكتروني، رقم الجوال (اختياري)، رقم السجل التجاري، والنشاط التجاري.\nلا نجمع بيانات بطاقات الدفع، ولا نستخدم ملفات تتبّع أو إعلانات.'],
-    ['الغرض من استخدامها', 'نستخدم بياناتك فقط للرد على استفسارك، وإعداد عروض الأسعار وإرسالها، ومراجعة طلبات تسجيل الموردين، والتواصل معك بخصوصها. ولا نستخدمها لأي غرض آخر بدون موافقتك.'],
-    ['الأساس النظامي للمعالجة', 'نعالج بياناتك بناءً على موافقتك التي تمنحها بتأشير خانة الموافقة قبل إرسال أي نموذج. ويحق لك سحب موافقتك في أي وقت بالتواصل معنا.'],
-    ['مشاركة البيانات', 'لا نبيع بياناتك ولا نشاركها مع أي جهة لأغراض تسويقية. الموقع مستضاف لدى مزودي خدمات تقنية (استضافة الموقع وقاعدة البيانات) يحفظون البيانات نيابة عنا وفق التزامات أمنية، وقد تكون خوادمهم خارج المملكة العربية السعودية. وإذا اخترت إرسال طلب عرض السعر عبر واتساب، فتتم معالجته لدى واتساب وفق سياسة الخصوصية الخاصة به.'],
-    ['مدة الاحتفاظ', 'نحتفظ ببياناتك فقط المدة اللازمة لمعالجة طلبك وعلاقتنا التجارية، أو المدة التي تتطلبها الأنظمة، ثم نحذفها.'],
-    ['حماية البيانات', 'كل الاتصال بالموقع مشفّر (HTTPS)، والوصول للبيانات المرسلة مقصور على الموظفين المخوّلين عبر لوحة تحكم محمية بكلمة مرور.'],
-    ['حقوقك', 'وفق نظام حماية البيانات الشخصية في المملكة، يحق لك: العلم بكيفية معالجة بياناتك، والوصول إليها والحصول على نسخة منها، وطلب تصحيح البيانات غير الدقيقة، وطلب إتلاف البيانات التي لم تعد هناك حاجة إليها، وسحب موافقتك. ولممارسة أي من هذه الحقوق تواصل معنا وسنرد عليك خلال المدة النظامية. كما يحق لك تقديم شكوى للهيئة السعودية للبيانات والذكاء الاصطناعي (سدايا).'],
-    ['البيانات المحفوظة في جهازك', 'يحفظ الموقع بعض الإعدادات في متصفحك فقط: اللغة المفضلة، ووضع العرض (فاتح/داكن)، والمنتجات المضافة لسلة عرض السعر. هذه البيانات تبقى في جهازك ولا تُرسل لنا إلا إذا أرسلت طلب عرض السعر.'],
-    ['التواصل معنا', `لأي استفسار أو طلب يخص بياناتك الشخصية${email ? `، راسلنا على ${email}` : ''} أو عبر صفحة تواصل معنا.`],
-    ['التعديلات على هذه السياسة', 'قد نحدّث هذه السياسة من وقت لآخر، ويُوضَّح تاريخ آخر تحديث أعلى الصفحة.'],
-  ];
+
+  return {
+    intro: `في ${s.siteName}، خصوصيتك تهمنا. يوضح هذا الإشعار البيانات الشخصية التي نجمعها عبر هذا الموقع، وسبب جمعها، وكيف نحميها، والحقوق المكفولة لك وفق نظام حماية البيانات الشخصية في المملكة العربية السعودية.`,
+    list: [
+      ['١. الشركة', [`يُدار هذا الموقع من قِبل ${company}${cr ? `، الرقم الوطني الموحد ${cr}` : ''}${vat ? `، الرقم الضريبي ${vat}` : ''}${address ? `، ${address}` : ''}. وتُعد ${company} جهة التحكم المسؤولة عن البيانات الشخصية التي تُعالج عبر هذا الموقع.`]],
+      ['٢. نطاق هذا الإشعار', [`ينطبق هذا الإشعار على موقع ${s.siteName} بجميع صفحاته ونماذجه وخدماته، بما فيها نموذج التواصل وطلبات عروض الأسعار وتسجيل الموردين. ولا ينطبق على مواقع أو خدمات الجهات الأخرى المرتبطة بموقعنا، مثل واتساب ومنصات التواصل الاجتماعي، والتي تخضع لسياساتها الخاصة.`]],
+      ['٣. مبادئنا لحماية البيانات', ['نعالج البيانات الشخصية بشكل مشروع وشفاف، ونجمع فقط ما نحتاجه لغرض واضح ومحدد، ولا نستخدم البيانات لغرض لا يتوافق مع الغرض الذي جُمعت من أجله، ونحرص على دقتها وتحديثها، ونحتفظ بها للمدة اللازمة فقط، ونحميها بتدابير تقنية وتنظيمية مناسبة.']],
+      ['٤. ما المعلومات التي نجمعها ولماذا', [
+        'بيانات التعريف والتواصل: الاسم ورقم الجوال والبريد الإلكتروني واسم الشركة، للرد عليك والتواصل معك.',
+        'بيانات الطلبات والأعمال: المنتجات وكمياتها في طلب عرض السعر، والمنتج المستفسر عنه، ومحتوى رسالتك، لإعداد عروض الأسعار والرد على الاستفسارات.',
+        'بيانات تسجيل الموردين: اسم الشركة ورقم السجل التجاري والنشاط التجاري، واسم المسؤول وبريده الإلكتروني ورقم جواله، لمراجعة طلب التسجيل والتواصل مع المورد.',
+        'البيانات التقنية: عند تصفحك للموقع قد يسجّل مزود الاستضافة تلقائياً معلومات تقنية مثل عنوان IP ونوع المتصفح ووقت الزيارة، لأغراض الأمان وتشغيل الخدمة.',
+        'لا نطلب بيانات شخصية حساسة، ولا نجمع بيانات بطاقات الدفع عبر الموقع.',
+      ]],
+      ['٥. كيف نستخدم بياناتك والأسس النظامية', [
+        'نستخدم بياناتك من أجل: الرد على الاستفسارات، وإعداد عروض الأسعار وإرسالها ومتابعتها، ومراجعة طلبات تسجيل الموردين والتواصل معهم، وتشغيل الموقع وحمايته ومنع إساءة استخدامه، والالتزام بالمتطلبات النظامية.',
+        'الأساس النظامي: موافقتك التي تمنحها بتأشير خانة الموافقة قبل إرسال أي نموذج، واتخاذ إجراءات بناءً على طلبك قبل الدخول في علاقة تجارية (مثل إعداد عرض السعر)، والالتزام بالأنظمة المعمول بها. ويحق لك سحب موافقتك في أي وقت، دون أن يؤثر ذلك على المعالجة التي تمت قبل السحب.',
+      ]],
+      ['٦. مشاركة البيانات والأطراف الثالثة', [
+        'لا نبيع بياناتك الشخصية ولا نشاركها لأغراض تسويقية، ونشاركها فقط مع:',
+        '• مزودي الخدمات التقنية الذين يشغّلون الموقع نيابة عنا (الاستضافة وقاعدة البيانات)، وفق التزامات بالسرية والأمان.',
+        '• الجهات الحكومية أو القضائية، متى ما تطلّب النظام ذلك أو بناءً على طلب رسمي.',
+        'وإذا اخترت إرسال طلب عرض السعر عبر واتساب، فتتم معالجة الرسالة لدى واتساب وفق سياسة الخصوصية الخاصة به.',
+      ]],
+      ['٧. نقل البيانات عبر الحدود', ['قد تكون خوادم مزودي خدمات الاستضافة وقاعدة البيانات خارج المملكة العربية السعودية. وعند نقل بيانات شخصية خارج المملكة، فإننا نلتزم بالحالات والضوابط المنصوص عليها في نظام حماية البيانات الشخصية ولوائحه، بما يضمن مستوى حماية مناسباً، ونقتصر على الحد الأدنى من البيانات اللازمة.']],
+      ['٨. ملفات تعريف الارتباط والتقنيات المشابهة', [
+        'لا نستخدم ملفات تعريف ارتباط إعلانية أو تتبّعية، ولا نستخدم أدوات تحليل من جهات خارجية في هذا الموقع. ونستخدم فقط ما يلزم لعمل الموقع:',
+        '• ملف تعريف ارتباط يحفظ لغة العرض المفضلة لديك.',
+        '• تخزين في متصفحك (على جهازك فقط) يحفظ وضع العرض (فاتح/داكن) والمنتجات المضافة لسلة عرض السعر.',
+        '• ملف تعريف ارتباط لجلسة الدخول، يستخدمه الموظفون المخوّلون فقط في لوحة التحكم.',
+        'ويمكنك حذفها في أي وقت من إعدادات متصفحك، وسيستمر الموقع بالعمل بالإعدادات الافتراضية.',
+      ]],
+      ['٩. القرارات الآلية والتصنيف', ['لا نتخذ قرارات تعتمد كلياً على المعالجة الآلية لبياناتك، ولا نستخدم بياناتك لبناء ملفات تعريفية أو تصنيفات عنك.']],
+      ['١٠. حقوقك', [
+        'وفق نظام حماية البيانات الشخصية، يحق لك:',
+        '• العلم بكيفية جمع بياناتك الشخصية ومعالجتها والغرض من ذلك.',
+        '• الوصول إلى بياناتك الشخصية والحصول على نسخة منها بصيغة مقروءة.',
+        '• طلب تصحيح بياناتك الشخصية أو إكمالها أو تحديثها.',
+        '• طلب إتلاف بياناتك الشخصية متى ما انتفت الحاجة إليها.',
+        '• سحب موافقتك على المعالجة في أي وقت.',
+        'ولممارسة أي من هذه الحقوق، تواصل معنا عبر البيانات الموضحة أدناه، وسنرد خلال المدة المحددة نظاماً، وقد نطلب التحقق من هويتك. كما يحق لك تقديم شكوى إلى الهيئة السعودية للبيانات والذكاء الاصطناعي (سدايا).',
+      ]],
+      ['١١. الاحتفاظ بالبيانات', [
+        'نحتفظ بالبيانات الشخصية فقط للمدة اللازمة لتحقيق الأغراض الموضحة في هذا الإشعار، أو للمدة التي تتطلبها الأنظمة المعمول بها. وعند انتفاء الحاجة إليها، تُحذف بشكل آمن أو تُخفى هويتها. وفيما يلي مدد الاحتفاظ:',
+      ], [
+        ['نوع السجل', 'مدة الاحتفاظ'],
+        ['الاستفسارات ورسائل التواصل', 'حتى انتهاء الاستفسار + سنتان'],
+        ['طلبات عروض الأسعار', 'تاريخ الطلب + ٣ سنوات، أو أكثر إذا أصبحت جزءاً من عقد أو معاملة'],
+        ['تسجيلات الموردين', 'مدة التعامل مع المورد + ٣ سنوات، أو ٣ سنوات من التسجيل إذا لم يتم التعامل'],
+        ['العقود والفواتير والسجلات المحاسبية', 'وفق ما تتطلبه الأنظمة المعمول بها'],
+        ['السجلات التقنية للموقع', 'وفق ما يحدده مزود الاستضافة لأغراض الأمان والتشغيل'],
+      ]],
+      ['١٢. أمن البيانات', ['نحمي بياناتك بتدابير تقنية وتنظيمية مناسبة، منها: تشفير كل الاتصال بالموقع (HTTPS)، وقصر الوصول إلى البيانات المرسلة على الموظفين المخوّلين فقط عبر لوحة تحكم محمية بكلمة مرور، وحماية نماذج الموقع من إساءة الاستخدام.']],
+      ['١٣. الإخطار بخرق البيانات الشخصية', ['في حال وقوع خرق للبيانات الشخصية، سنتخذ الإجراءات اللازمة لاحتوائه والحد من آثاره، ونُخطر الجهة المختصة خلال المدد المحددة نظاماً، ونُخطرك دون تأخير إذا كان الخرق قد يُلحق بك ضرراً، مع توضيح ما حدث والإجراءات التي يمكنك اتخاذها.']],
+      ['١٤. التغييرات على هذا الإشعار', ['قد نحدّث هذا الإشعار من وقت لآخر لمواكبة التغييرات في ممارساتنا أو المتطلبات النظامية. وتُنشر النسخة المحدثة دائماً في هذه الصفحة مع تاريخ التحديث، وسننبّه إلى التغييرات الجوهرية عبر الموقع.']],
+      ['١٥. الأطفال', ['هذا الموقع موجّه للمنشآت والأفراد البالغين، وليس موجهاً لمن هم دون ١٨ عاماً. ولا نجمع عن علمٍ بيانات شخصية من الأطفال، وإذا تبيّن لنا ذلك فسنحذفها.']],
+      ['١٦. التواصل معنا', [`لأي استفسار حول هذا الإشعار أو لممارسة حقوقك، تواصل مع المسؤول عن حماية البيانات الشخصية في ${s.siteName}${email ? ` عبر البريد الإلكتروني ${email}` : ''}${phone ? `، أو الهاتف ${phone}` : ''}، أو من خلال صفحة تواصل معنا.`]],
+    ],
+  };
 }
 
 export default async function PrivacyPage() {
   const [s, lang] = await Promise.all([getSettings(), getLang()]);
   const tr = t(lang);
+  const { intro, list } = sections(lang, s);
   return (
     <>
       <div className="page-head">
@@ -56,13 +152,34 @@ export default async function PrivacyPage() {
         </div>
       </div>
       <section className="section" style={{ paddingTop: 32 }}>
-        <div className="container policy" style={{ maxWidth: 820 }}>
-          {content(lang, s).map(([title, body]) => (
-            <div key={title}>
-              <h2>{title}</h2>
-              <p>{body}</p>
-            </div>
-          ))}
+        <div className="container policy" style={{ maxWidth: 860 }}>
+          <p className="policy-intro">{intro}</p>
+          <div className="rows">
+            {list.map(([title, paras, table], i) => (
+              <details className="row" key={title} open={i === 0}>
+                <summary>{title}</summary>
+                <div className="inner">
+                  {paras.map((p) => (
+                    <p key={p}>{p}</p>
+                  ))}
+                  {table ? (
+                    <div className="table-wrap">
+                      <table className="quote-table">
+                        <thead>
+                          <tr>{table[0].map((h) => <th key={h}>{h}</th>)}</tr>
+                        </thead>
+                        <tbody>
+                          {table.slice(1).map((r) => (
+                            <tr key={r[0]}>{r.map((c) => <td key={c}>{c}</td>)}</tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : null}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
     </>
