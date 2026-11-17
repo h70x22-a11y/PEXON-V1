@@ -67,6 +67,12 @@ export default async function AdminSettings({ searchParams }) {
           </div>
         </div>
 
+        <div className="field">
+          <label>وسائل الدفع المقبولة</label>
+          <textarea name="payments" defaultValue={s.payments} maxLength={1000} dir="auto" style={{ minHeight: 120 }} />
+          <small>كل وسيلة في سطر، وتظهر في أسفل الموقع. Visa و Mastercard و Apple Pay والنقد والتحويل البنكي تظهر بأيقونتها تلقائياً. لشعار مخصص: الاسم | رابط صورة الشعار.</small>
+        </div>
+
         <h2>بيانات التواصل</h2>
         <div className="form-grid">
           <div className="field">

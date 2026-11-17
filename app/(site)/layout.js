@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getSettings } from '@/lib/db';
 import SocialIcons from '@/components/SocialIcons';
+import PaymentMethods from '@/components/PaymentMethods';
 
 export default async function SiteLayout({ children }) {
   const s = await getSettings();
@@ -47,6 +48,7 @@ export default async function SiteLayout({ children }) {
               </ul>
             </div>
           </div>
+          <PaymentMethods value={s.payments} />
           <div className="copy">© {new Date().getFullYear()} {s.siteName}. جميع الحقوق محفوظة.</div>
         </div>
       </footer>
