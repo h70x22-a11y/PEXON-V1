@@ -29,7 +29,7 @@ export default async function HomePage() {
           <p>{pick(s, 'heroText', lang)}</p>
           <div className="actions">
             <Link href="/products" className="btn light">{tr.browse}</Link>
-            <Link href="/contact" className="btn ghost">{tr.quote}</Link>
+            <Link href="/quote" className="btn ghost">{tr.quote}</Link>
           </div>
         </div>
       </section>

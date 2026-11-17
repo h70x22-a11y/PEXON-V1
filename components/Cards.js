@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { productPrice, productShort, t } from '@/lib/i18n';
+import AddToQuote from '@/components/AddToQuote';
 
 function Thumb({ image, name }) {
   return (
@@ -28,14 +29,22 @@ export function ProductCard({ product, lang = 'ar' }) {
   const short = productShort(product, lang);
   const price = productPrice(product, lang);
   return (
-    <Link href={`/product/${product.id}`} className="card">
-      <Thumb image={product.image} name={product.name} />
-      <div className="body">
-        <h3>{product.name}</h3>
-        {short ? <p>{short}</p> : null}
-        {price ? <span className="price">{price}</span> : null}
-        <span className="more">{tr.details} {tr.arrow}</span>
+    <div className="card product-card">
+      <Link href={`/product/${product.id}`} className="card-link">
+        <Thumb image={product.image} name={product.name} />
+        <div className="body">
+          <h3>{product.name}</h3>
+          {short ? <p>{short}</p> : null}
+          {price ? <span className="price">{price}</span> : null}
+          <span className="more">{tr.details} {tr.arrow}</span>
+        </div>
+      </Link>
+      <div className="card-actions">
+        <AddToQuote
+          product={{ id: product.id, name: product.name, short, image: product.image }}
+          labels={{ add: tr.addToQuote, added: tr.added, qty: tr.qty }}
+        />
       </div>
-    </Link>
+    </div>
   );
 }

@@ -31,7 +31,28 @@ export default async function AdminMessages({ searchParams }) {
               {m.email ? <> · <a href={`mailto:${m.email}`} dir="ltr">{m.email}</a></> : null}
               {m.product ? <> · المنتج: {m.product}</> : null}
             </div>
-            <p>{m.message}</p>
+            {m.type === 'quote' ? <span className="badge" style={{ display: 'inline-block', marginTop: 8 }}>طلب عرض سعر</span> : null}
+            {m.company ? <div className="muted">الشركة: {m.company}</div> : null}
+            {m.items?.length ? (
+              <table className="quote-table">
+                <thead>
+                  <tr><th>#</th><th>المنتج</th><th>الكمية</th></tr>
+                </thead>
+                <tbody>
+                  {m.items.map((it, n) => (
+                    <tr key={it.id + n}>
+                      <td>{n + 1}</td>
+                      <td>
+                        <a href={`/product/${it.id}`} target="_blank" rel="noopener noreferrer">{it.name}</a>
+                        {it.short ? <div className="muted" style={{ fontSize: '0.85rem' }}>{it.short}</div> : null}
+                      </td>
+                      <td>{it.qty}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : null}
+            {m.message ? <p>{m.message}</p> : null}
             <form action={deleteMessageAction}>
               <input type="hidden" name="id" value={m.id} />
               <ConfirmButton message="حذف هذه الرسالة؟">حذف</ConfirmButton>

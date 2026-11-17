@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCategories, getProducts, getSettings } from '@/lib/db';
 import { getLang, productDescription, productPrice, productShort, t } from '@/lib/i18n';
+import AddToQuote from '@/components/AddToQuote';
 
 export default async function ProductPage({ params }) {
   const { id } = await params;
@@ -36,15 +37,20 @@ export default async function ProductPage({ params }) {
             {product.short ? <p style={{ fontSize: '1.1rem', fontWeight: 500 }}>{productShort(product, lang)}</p> : null}
             {product.price ? <p className="price" style={{ fontSize: '1.4rem' }}>{productPrice(product, lang)}</p> : null}
             {product.description ? <p className="desc muted">{productDescription(product, lang)}</p> : null}
+            <AddToQuote
+              withQty
+              product={{ id: product.id, name: product.name, short: productShort(product, lang), image: product.image }}
+              labels={{ add: tr.addToQuote, added: tr.added, qty: tr.qty }}
+            />
             <div className="actions">
+              <Link className="btn ghost" href="/quote">
+                {tr.quoteCart} {tr.arrow}
+              </Link>
               {s.whatsapp ? (
-                <a className="btn" href={`https://wa.me/${s.whatsapp}?text=${waText}`} target="_blank" rel="noopener noreferrer">
+                <a className="btn ghost" href={`https://wa.me/${s.whatsapp}?text=${waText}`} target="_blank" rel="noopener noreferrer">
                   {tr.orderWhatsapp}
                 </a>
               ) : null}
-              <Link className="btn ghost" href={`/contact?product=${encodeURIComponent(product.name)}`}>
-                {tr.quote}
-              </Link>
             </div>
           </div>
         </div>

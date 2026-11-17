@@ -254,6 +254,43 @@ export async function deleteMessageAction(formData) {
   });
 }
 
+// طلب عرض سعر لعدة منتجات (من سلة الموقع)
+export async function submitQuote(input) {
+  const data = input && typeof input === 'object' ? input : {};
+  if (data.website) return { ok: true };
+  const clean = (v, max) => String(v ?? '').trim().slice(0, max);
+  const name = clean(data.name, 100);
+  const phone = clean(data.phone, 30);
+  if (!name || !phone) return { error: 'missing' };
+  const products = await getProducts();
+  const byId = new Map(products.map((p) => [p.id, p]));
+  const items = (Array.isArray(data.items) ? data.items : [])
+    .slice(0, 300)
+    .map((i) => {
+      const p = byId.get(String(i?.id || ''));
+      const qty = Math.max(1, Math.min(100000, Math.floor(Number(i?.qty) || 1)));
+      return p ? { id: p.id, name: p.name, short: p.short || '', qty } : null;
+    })
+    .filter(Boolean);
+  if (!items.length) return { error: 'empty' };
+  try {
+    await addMessage({
+      id: randomUUID(),
+      type: 'quote',
+      name,
+      phone,
+      email: clean(data.email, 120),
+      company: clean(data.company, 120),
+      message: clean(data.notes, 2000),
+      items,
+      date: new Date().toISOString(),
+    });
+  } catch {
+    return { error: 'failed' };
+  }
+  return { ok: true };
+}
+
 // نموذج "تواصل معنا" العام
 export async function sendMessage(formData) {
   // حقل مخفي لصد الروبوتات
