@@ -36,13 +36,17 @@ export default async function HomePage() {
         <div className="container">
           <div className="section-head">
             <h2>أقسام المنتجات</h2>
-            <Link href="/products">عرض الكل ←</Link>
           </div>
-          <div className="grid">
-            {categories.map((c) => (
+          <div className="grid cats-4">
+            {categories.slice(0, 4).map((c) => (
               <CategoryCard key={c.id} category={c} count={countOf(c.id)} />
             ))}
           </div>
+          {categories.length > 4 ? (
+            <div style={{ textAlign: 'center', marginTop: 28 }}>
+              <Link href="/products" className="btn">عرض كل الأقسام ({categories.length})</Link>
+            </div>
+          ) : null}
         </div>
       </section>
 

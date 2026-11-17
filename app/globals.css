@@ -216,3 +216,6 @@ label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem
 .pay img { height: 22px; width: auto; max-width: 74px; object-fit: contain; }
 .payments + .copy { margin-top: 22px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.grid.cats-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 900px) { .grid.cats-4 { grid-template-columns: repeat(2, 1fr); } }
