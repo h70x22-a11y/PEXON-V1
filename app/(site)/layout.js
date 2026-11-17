@@ -3,6 +3,7 @@ import { getSettings } from '@/lib/db';
 import SocialIcons from '@/components/SocialIcons';
 import PaymentMethods from '@/components/PaymentMethods';
 import SiteNav from '@/components/SiteNav';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default async function SiteLayout({ children }) {
   const s = await getSettings();
@@ -15,6 +16,7 @@ export default async function SiteLayout({ children }) {
             {s.logo ? null : <span>{s.siteName}</span>}
           </Link>
           <SiteNav />
+          <ThemeToggle />
         </div>
       </header>
 

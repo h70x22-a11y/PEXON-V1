@@ -12,8 +12,14 @@ export default async function RootLayout({ children }) {
   const s = await getSettings();
   const color = /^#[0-9a-fA-F]{6}$/.test(s.primaryColor) ? s.primaryColor : '#0f4c5c';
   return (
-    <html lang="ar" dir="rtl" style={{ '--primary': color }}>
+    <html lang="ar" dir="rtl" suppressHydrationWarning style={{ '--primary': color }}>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}",
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

@@ -134,7 +134,7 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      <section className="section" id="about" style={{ background: '#fff', borderBlock: '1px solid var(--line)' }}>
+      <section className="section" id="about" style={{ background: 'var(--surface)', borderBlock: '1px solid var(--line)' }}>
         <div className="container" style={{ maxWidth: 780 }}>
           <h2>من نحن</h2>
           <p className="muted" style={{ whiteSpace: 'pre-line', fontSize: '1.05rem' }}>{s.about}</p>
