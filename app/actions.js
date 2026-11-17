@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
 import { checkPassword, requireAdmin, sessionToken } from '@/lib/auth';
+import { VENDOR_ACTIVITIES } from '@/lib/vendor';
 import {
   addMessage,
   deleteMessage,
@@ -295,29 +296,26 @@ export async function submitQuote(input) {
 export async function submitVendor(formData) {
   if (formData.get('website_hp')) redirect('/vendor-registration?ok=1');
   const company = text(formData, 'company', 150);
-  const cr = text(formData, 'cr', 30);
-  const name = text(formData, 'name', 100);
-  const phone = text(formData, 'phone', 30);
+  const firstName = text(formData, 'firstName', 60);
+  const lastName = text(formData, 'lastName', 60);
   const email = text(formData, 'email', 120);
-  const supplies = text(formData, 'supplies', 2000);
-  let ok = Boolean(company && cr && name && phone && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && supplies);
+  const cr = text(formData, 'cr', 30);
+  const activity = text(formData, 'activity', 40);
+  let ok = Boolean(
+    company && firstName && lastName && cr && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+      VENDOR_ACTIVITIES.some((a) => a.key === activity)
+  );
   if (ok) {
     try {
       await addMessage({
         id: randomUUID(),
         type: 'vendor',
-        name,
-        phone,
+        name: `${firstName} ${lastName}`,
+        phone: text(formData, 'phone', 30),
         email,
         company,
-        vendor: {
-          cr,
-          vat: text(formData, 'vat', 30),
-          city: text(formData, 'city', 80),
-          website: text(formData, 'website', 200),
-          supplies,
-        },
-        message: text(formData, 'notes', 2000),
+        vendor: { cr, activity },
+        message: '',
         date: new Date().toISOString(),
       });
     } catch {

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getLang, t } from '@/lib/i18n';
+import { VENDOR_ACTIVITIES } from '@/lib/vendor';
 import { submitVendor } from '@/app/actions';
 
 export async function generateMetadata() {
@@ -22,7 +23,7 @@ export default async function VendorPage({ searchParams }) {
         </div>
       </div>
       <section className="section" style={{ paddingTop: 32 }}>
-        <div className="container" style={{ maxWidth: 860 }}>
+        <div className="container" style={{ maxWidth: 760 }}>
           {sp?.ok ? (
             <div className="panel">
               <div className="flash ok">{v.sent}</div>
@@ -32,55 +33,44 @@ export default async function VendorPage({ searchParams }) {
             <form action={submitVendor} className="panel">
               {sp?.error ? <div className="flash err">{v.error}</div> : null}
               <input className="hp" type="text" name="website_hp" tabIndex={-1} autoComplete="off" />
-
-              <h2 style={{ fontSize: '1.15rem' }}>{v.companySection}</h2>
-              <div className="form-grid">
-                <div className="field">
-                  <label htmlFor="company">{v.company} *</label>
-                  <input id="company" type="text" name="company" required maxLength={150} />
-                </div>
-                <div className="field">
-                  <label htmlFor="cr">{v.cr} *</label>
-                  <input id="cr" type="text" name="cr" required maxLength={30} dir="ltr" />
-                </div>
-                <div className="field">
-                  <label htmlFor="vat">{v.vat}</label>
-                  <input id="vat" type="text" name="vat" maxLength={30} dir="ltr" />
-                </div>
-                <div className="field">
-                  <label htmlFor="city">{v.city}</label>
-                  <input id="city" type="text" name="city" maxLength={80} />
-                </div>
-              </div>
               <div className="field">
-                <label htmlFor="website">{v.website}</label>
-                <input id="website" type="text" name="website" maxLength={200} dir="ltr" placeholder="https://" />
+                <label htmlFor="company">{v.company} *</label>
+                <input id="company" type="text" name="company" required maxLength={150} />
               </div>
-
-              <h2 style={{ fontSize: '1.15rem' }}>{v.contactSection}</h2>
               <div className="form-grid">
                 <div className="field">
-                  <label htmlFor="name">{v.contactName} *</label>
-                  <input id="name" type="text" name="name" required maxLength={100} />
+                  <label htmlFor="firstName">{v.firstName} *</label>
+                  <input id="firstName" type="text" name="firstName" required maxLength={60} />
                 </div>
                 <div className="field">
-                  <label htmlFor="phone">{v.phone} *</label>
-                  <input id="phone" type="tel" name="phone" required maxLength={30} dir="ltr" />
+                  <label htmlFor="lastName">{v.lastName} *</label>
+                  <input id="lastName" type="text" name="lastName" required maxLength={60} />
                 </div>
+              </div>
+              <div className="form-grid">
                 <div className="field">
                   <label htmlFor="email">{v.email} *</label>
                   <input id="email" type="email" name="email" required maxLength={120} dir="ltr" />
                 </div>
+                <div className="field">
+                  <label htmlFor="phone">{v.phone}</label>
+                  <input id="phone" type="tel" name="phone" maxLength={30} dir="ltr" />
+                </div>
               </div>
-
-              <h2 style={{ fontSize: '1.15rem' }}>{v.supplySection}</h2>
-              <div className="field">
-                <label htmlFor="supplies">{v.supplies} *</label>
-                <textarea id="supplies" name="supplies" required maxLength={2000} placeholder={v.suppliesPh} />
-              </div>
-              <div className="field">
-                <label htmlFor="notes">{v.notes}</label>
-                <textarea id="notes" name="notes" maxLength={2000} />
+              <div className="form-grid">
+                <div className="field">
+                  <label htmlFor="cr">{v.cr} *</label>
+                  <input id="cr" type="text" name="cr" required maxLength={30} dir="ltr" inputMode="numeric" />
+                </div>
+                <div className="field">
+                  <label htmlFor="activity">{v.activity} *</label>
+                  <select id="activity" name="activity" required defaultValue="">
+                    <option value="" disabled>{v.activityPh}</option>
+                    {VENDOR_ACTIVITIES.map((a) => (
+                      <option key={a.key} value={a.key}>{a[lang]}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <button className="btn" type="submit">{v.submit}</button>
             </form>

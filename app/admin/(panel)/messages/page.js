@@ -2,6 +2,7 @@ import { getMessages } from '@/lib/db';
 import { deleteMessageAction } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ConfirmButton from '@/components/ConfirmButton';
+import { activityLabel } from '@/lib/vendor';
 
 function formatDate(iso) {
   try {
@@ -27,8 +28,8 @@ export default async function AdminMessages({ searchParams }) {
               <span className="muted">{formatDate(m.date)}</span>
             </div>
             <div className="muted">
-              <a href={`tel:${m.phone}`} dir="ltr">{m.phone}</a>
-              {m.email ? <> · <a href={`mailto:${m.email}`} dir="ltr">{m.email}</a></> : null}
+              {m.phone ? <a href={`tel:${m.phone}`} dir="ltr">{m.phone}</a> : null}
+              {m.email ? <>{m.phone ? ' · ' : ''}<a href={`mailto:${m.email}`} dir="ltr">{m.email}</a></> : null}
               {m.product ? <> · المنتج: {m.product}</> : null}
             </div>
             {m.type === 'quote' ? <span className="badge" style={{ display: 'inline-block', marginTop: 8 }}>طلب عرض سعر</span> : null}
@@ -37,10 +38,7 @@ export default async function AdminMessages({ searchParams }) {
             {m.vendor ? (
               <ul className="vendor-info">
                 <li><span>السجل التجاري:</span> <bdi>{m.vendor.cr}</bdi></li>
-                {m.vendor.vat ? <li><span>الرقم الضريبي:</span> <bdi>{m.vendor.vat}</bdi></li> : null}
-                {m.vendor.city ? <li><span>المدينة:</span> {m.vendor.city}</li> : null}
-                {m.vendor.website ? <li><span>الموقع:</span> <bdi>{m.vendor.website}</bdi></li> : null}
-                <li><span>المنتجات:</span> {m.vendor.supplies}</li>
+                {m.vendor.activity ? <li><span>النشاط:</span> {activityLabel(m.vendor.activity)}</li> : null}
               </ul>
             ) : null}
             {m.items?.length ? (
