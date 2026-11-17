@@ -27,8 +27,8 @@ export default async function SiteLayout({ children }) {
           </Link>
           <SiteNav links={links} openLabel={tr.menuOpen} closeLabel={tr.menuClose} />
           <div className="header-tools">
-            <CartButton label={tr.quoteCart} />
             <LangToggle lang={lang} label={tr.switchLang} title={tr.switchLangLabel} />
+            <CartButton label={tr.quoteCart} />
             <ThemeToggle labels={{ toDark: tr.toDark, toLight: tr.toLight, dark: tr.dark, light: tr.light }} />
           </div>
         </div>
