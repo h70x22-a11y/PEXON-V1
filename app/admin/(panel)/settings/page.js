@@ -75,6 +75,27 @@ export default async function AdminSettings({ searchParams }) {
           <small>كل وسيلة في سطر، وتظهر في أسفل الموقع. Visa و Mastercard و Apple Pay والنقد والتحويل البنكي تظهر بأيقونتها تلقائياً. لشعار مخصص: الاسم | رابط صورة الشعار.</small>
         </div>
 
+        <h2>البيانات النظامية</h2>
+        <p className="muted">تظهر أسفل الموقع وفي سياسة الخصوصية.</p>
+        <div className="form-grid">
+          <div className="field">
+            <label>الاسم النظامي للشركة</label>
+            <input type="text" name="legalName" defaultValue={s.legalName} maxLength={150} />
+          </div>
+          <div className="field">
+            <label>الاسم النظامي بالإنجليزي</label>
+            <input type="text" name="legalNameEn" defaultValue={s.legalNameEn} maxLength={150} dir="ltr" />
+          </div>
+          <div className="field">
+            <label>الرقم الوطني الموحد (السجل التجاري)</label>
+            <input type="text" name="crNumber" defaultValue={s.crNumber} maxLength={20} dir="ltr" inputMode="numeric" />
+          </div>
+          <div className="field">
+            <label>الرقم الضريبي</label>
+            <input type="text" name="vatNumber" defaultValue={s.vatNumber} maxLength={20} dir="ltr" inputMode="numeric" />
+          </div>
+        </div>
+
         <h2>بيانات التواصل</h2>
         <div className="form-grid">
           <div className="field">

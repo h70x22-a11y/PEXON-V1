@@ -50,6 +50,7 @@ export default async function SiteLayout({ children }) {
                 <li><Link href="/products">{tr.allProducts}</Link></li>
                 <li><Link href="/contact">{tr.contact}</Link></li>
                 <li><Link href="/vendor-registration">{tr.vendorTitle}</Link></li>
+                <li><Link href="/privacy">{tr.privacyTitle}</Link></li>
                 {s.catalogUrl ? (
                   <li>
                     <a href="/catalog.pdf" target="_blank" rel="noopener noreferrer" className="catalog-link">
@@ -69,7 +70,16 @@ export default async function SiteLayout({ children }) {
             </div>
           </div>
           <PaymentMethods value={s.payments} lang={lang} label={tr.payments} />
-          <div className="copy">© {new Date().getFullYear()} {s.siteName}. {tr.rights}</div>
+          <div className="copy">
+            <div>© {new Date().getFullYear()} {s.siteName}. {tr.rights}</div>
+            {s.legalName || s.crNumber || s.vatNumber ? (
+              <div className="legal">
+                {(lang === 'en' ? s.legalNameEn : s.legalName) || s.legalName ? <span>{(lang === 'en' ? s.legalNameEn : s.legalName) || s.legalName}</span> : null}
+                {s.crNumber ? <span>{tr.crLabel}: <bdi>{s.crNumber}</bdi></span> : null}
+                {s.vatNumber ? <span>{tr.vatLabel}: <bdi>{s.vatNumber}</bdi></span> : null}
+              </div>
+            ) : null}
+          </div>
         </div>
       </footer>
     </>

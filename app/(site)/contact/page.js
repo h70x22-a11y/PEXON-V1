@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getSettings } from '@/lib/db';
 import { sendMessage } from '@/app/actions';
 import { getLang, pick, t } from '@/lib/i18n';
+import Consent from '@/components/Consent';
 
 export async function generateMetadata() {
   return { title: t(await getLang()).contact };
@@ -52,6 +53,7 @@ export default async function ContactPage({ searchParams }) {
                 <label htmlFor="message">{tr.message}</label>
                 <textarea id="message" name="message" required maxLength={2000} />
               </div>
+              <Consent label={tr.consent} linkText={tr.consentLink} />
               <button className="btn" type="submit">{tr.send}</button>
             </form>
           </div>

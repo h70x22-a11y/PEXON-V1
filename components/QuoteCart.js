@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FaWhatsapp } from 'react-icons/fa6';
 import { FiMinus, FiPlus, FiTrash2 } from 'react-icons/fi';
+import Consent from '@/components/Consent';
 import { clearCart, onCartChange, readCart, removeFromCart, setQty } from '@/lib/cart';
 
 export default function QuoteCart({ labels, whatsapp, submitQuote }) {
@@ -12,6 +13,7 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
   const [status, setStatus] = useState({ type: '', text: '' });
   const [busy, setBusy] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   useEffect(() => {
     setItems(readCart());
@@ -25,6 +27,10 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
       setStatus({ type: 'err', text: labels.needDetails });
       return false;
     }
+    if (!consent) {
+      setStatus({ type: 'err', text: labels.consentError });
+      return false;
+    }
     return true;
   }
 
@@ -34,11 +40,12 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
     setBusy(true);
     setStatus({ type: '', text: '' });
     try {
-      const res = await submitQuote({ ...form, items: items.map((i) => ({ id: i.id, qty: i.qty })) });
+      const res = await submitQuote({ ...form, consent, items: items.map((i) => ({ id: i.id, qty: i.qty })) });
       if (!res?.ok) throw new Error();
       clearCart();
       setForm({ name: '', phone: '', email: '', company: '', notes: '', website: '' });
       setShowForm(false);
+      setConsent(false);
       setStatus({ type: 'ok', text: labels.sent });
     } catch {
       setStatus({ type: 'err', text: labels.error });
@@ -141,6 +148,7 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
             <textarea id="q-notes" maxLength={2000} {...field('notes')} />
           </div>
           <div className="quote-actions">
+            <Consent label={labels.consent} linkText={labels.consentLink} controlled={{ checked: consent, onChange: (e) => setConsent(e.target.checked) }} />
             <button type="submit" className="btn" disabled={busy}>{busy ? '...' : labels.sendSite}</button>
             <button type="button" className="btn ghost" onClick={() => setShowForm(false)} disabled={busy}>{labels.back}</button>
           </div>

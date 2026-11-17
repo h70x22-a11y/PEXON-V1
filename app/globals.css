@@ -359,3 +359,13 @@ html[data-theme='dark'] .btn.add:hover, html[data-theme='dark'] .btn.done { back
 
 .vendor-info { list-style: none; margin: 10px 0; padding: 12px 14px; background: var(--bg); border-radius: 10px; display: grid; gap: 4px; white-space: pre-line; }
 .vendor-info span { color: var(--muted); }
+
+/* ---------- الخصوصية والبيانات النظامية ---------- */
+.consent .check { align-items: flex-start; font-size: 0.92rem; font-weight: 400; line-height: 1.7; }
+.consent .check input { margin-top: 4px; flex-shrink: 0; }
+.consent a { color: var(--primary); font-weight: 600; text-decoration: underline; }
+.site-footer .copy { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; }
+.site-footer .legal { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.policy h2 { font-size: 1.2rem; margin: 28px 0 8px; color: var(--primary); }
+.policy h2:first-child { margin-top: 0; }
+.policy p { white-space: pre-line; color: var(--ink); line-height: 1.95; }

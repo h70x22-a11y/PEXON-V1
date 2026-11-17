@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getLang, t } from '@/lib/i18n';
 import { VENDOR_ACTIVITIES } from '@/lib/vendor';
 import { submitVendor } from '@/app/actions';
+import Consent from '@/components/Consent';
 
 export async function generateMetadata() {
   return { title: t(await getLang()).vendorTitle };
@@ -72,6 +73,7 @@ export default async function VendorPage({ searchParams }) {
                   </select>
                 </div>
               </div>
+              <Consent label={tr.consent} linkText={tr.consentLink} />
               <button className="btn" type="submit">{v.submit}</button>
             </form>
           )}

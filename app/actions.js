@@ -129,6 +129,10 @@ export async function saveSettingsAction(formData) {
       valuesEn: text(formData, 'valuesEn', 2000),
       servicesEn: text(formData, 'servicesEn', 2000),
       addressEn: text(formData, 'addressEn', 200),
+      legalName: text(formData, 'legalName', 150),
+      legalNameEn: text(formData, 'legalNameEn', 150),
+      crNumber: text(formData, 'crNumber', 20).replace(/[^0-9]/g, ''),
+      vatNumber: text(formData, 'vatNumber', 20).replace(/[^0-9]/g, ''),
     });
   });
 }
@@ -262,6 +266,7 @@ export async function submitQuote(input) {
   const clean = (v, max) => String(v ?? '').trim().slice(0, max);
   const name = clean(data.name, 100);
   const phone = clean(data.phone, 30);
+  if (data.consent !== true) return { error: 'consent' };
   if (!name || !phone) return { error: 'missing' };
   const products = await getProducts();
   const byId = new Map(products.map((p) => [p.id, p]));
@@ -302,6 +307,7 @@ export async function submitVendor(formData) {
   const cr = text(formData, 'cr', 30);
   const activity = text(formData, 'activity', 40);
   let ok = Boolean(
+    formData.get('consent') === 'yes' &&
     company && firstName && lastName && cr && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
       VENDOR_ACTIVITIES.some((a) => a.key === activity)
   );
@@ -333,7 +339,9 @@ export async function sendMessage(formData) {
   const phone = text(formData, 'phone', 30);
   const body = text(formData, 'message', 2000);
   let error = '';
-  if (!name || !phone || !body) {
+  if (formData.get('consent') !== 'yes') {
+    error = 'فضلاً وافق على سياسة الخصوصية قبل الإرسال.';
+  } else if (!name || !phone || !body) {
     error = 'فضلاً عبّئ الاسم ورقم الجوال والرسالة.';
   } else {
     try {
