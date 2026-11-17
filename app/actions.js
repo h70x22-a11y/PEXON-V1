@@ -253,6 +253,12 @@ export async function deleteProduct(formData) {
 }
 
 // ---------- الرسائل ----------
+export async function deleteVendorAction(formData) {
+  await run('/admin/vendors', async () => {
+    await deleteMessage(text(formData, 'id', 60));
+  });
+}
+
 export async function deleteMessageAction(formData) {
   await run('/admin/messages', async () => {
     await deleteMessage(text(formData, 'id', 60));
