@@ -51,6 +51,14 @@ export default async function AdminProducts({ searchParams }) {
   const sp = await searchParams;
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
   const nameOf = (id) => categories.find((c) => c.id === id)?.name || 'بدون قسم';
+  const q = String(sp?.q || '').trim();
+  const cat = String(sp?.cat || '');
+  const needle = q.toLowerCase();
+  const filtered = products.filter(
+    (p) => (!cat || p.categoryId === cat) && (!q || `${p.name} ${p.short}`.toLowerCase().includes(needle))
+  );
+  const LIMIT = 40;
+  const shown = filtered.slice(0, LIMIT);
 
   return (
     <>
@@ -71,8 +79,22 @@ export default async function AdminProducts({ searchParams }) {
         <div className="flash warn">أضف قسماً واحداً على الأقل قبل إضافة المنتجات.</div>
       )}
 
+      <form className="search" method="get" action="/admin/products" style={{ marginTop: 18, marginBottom: 0, flexWrap: 'wrap' }}>
+        <input type="search" name="q" defaultValue={q} placeholder="ابحث بالاسم أو رقم الصنف..." style={{ minWidth: 180 }} />
+        <select name="cat" defaultValue={cat} style={{ maxWidth: 230 }}>
+          <option value="">كل الأقسام</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+        <button className="btn" type="submit">عرض</button>
+      </form>
+      <p className="muted" style={{ margin: '10px 0 0' }}>
+        يظهر {shown.length} من {filtered.length} منتج{filtered.length > LIMIT ? '. استخدم البحث أو اختر قسماً لتضييق النتائج.' : '.'}
+      </p>
+
       <div className="rows">
-        {products.map((p) => (
+        {shown.map((p) => (
           <details className="row" key={p.id}>
             <summary>
               {p.image ? <img src={p.image} alt="" /> : null}

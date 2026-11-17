@@ -37,7 +37,7 @@ export default async function ProductsPage({ searchParams }) {
                 <Link href="/products">إلغاء البحث</Link>
               </div>
               {matches.length ? (
-                <div className="grid">{matches.map((p) => <ProductCard key={p.id} product={p} />)}</div>
+                <div className="grid">{matches.slice(0, 96).map((p) => <ProductCard key={p.id} product={p} />)}</div>
               ) : (
                 <p className="muted">لا توجد منتجات مطابقة.</p>
               )}
@@ -50,9 +50,9 @@ export default async function ProductsPage({ searchParams }) {
                 <div key={c.id} style={{ marginBottom: 44 }}>
                   <div className="section-head">
                     <h2>{c.name}</h2>
-                    <Link href={`/category/${c.id}`}>عرض القسم ←</Link>
+                    <Link href={`/category/${c.id}`}>عرض الكل ({items.length}) ←</Link>
                   </div>
-                  <div className="grid">{items.map((p) => <ProductCard key={p.id} product={p} />)}</div>
+                  <div className="grid">{items.slice(0, 8).map((p) => <ProductCard key={p.id} product={p} />)}</div>
                 </div>
               );
             })
