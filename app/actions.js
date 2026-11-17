@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
 import { checkPassword, requireAdmin, sessionToken } from '@/lib/auth';
 import { VENDOR_ACTIVITIES } from '@/lib/vendor';
+import { DEFAULT_COUNTRY, findCountry } from '@/lib/countries';
 import {
   addMessage,
   deleteMessage,
@@ -303,6 +304,14 @@ export async function submitQuote(input) {
   return { ok: true };
 }
 
+// يدمج مفتاح الدولة مع رقم الجوال: +966 5XXXXXXXX
+function vendorPhone(formData) {
+  const digits = text(formData, 'phone', 20).replace(/[^0-9]/g, '').replace(/^0+/, '');
+  if (!digits) return '';
+  const country = findCountry(text(formData, 'phoneCountry', 4)) || findCountry(DEFAULT_COUNTRY);
+  return `+${country.code} ${digits}`;
+}
+
 // نموذج تسجيل الموردين
 export async function submitVendor(formData) {
   if (formData.get('website_hp')) redirect('/vendor-registration?ok=1');
@@ -323,7 +332,7 @@ export async function submitVendor(formData) {
         id: randomUUID(),
         type: 'vendor',
         name: `${firstName} ${lastName}`,
-        phone: text(formData, 'phone', 30),
+        phone: vendorPhone(formData),
         email,
         company,
         vendor: { cr, activity },

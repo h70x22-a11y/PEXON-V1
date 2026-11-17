@@ -3,6 +3,7 @@ import { getLang, t } from '@/lib/i18n';
 import { VENDOR_GROUPS, VENDOR_OTHER } from '@/lib/vendor';
 import { submitVendor } from '@/app/actions';
 import Consent from '@/components/Consent';
+import { COUNTRIES, DEFAULT_COUNTRY } from '@/lib/countries';
 
 export async function generateMetadata() {
   return { title: t(await getLang()).vendorTitle };
@@ -55,7 +56,16 @@ export default async function VendorPage({ searchParams }) {
                 </div>
                 <div className="field">
                   <label htmlFor="phone">{v.phone}</label>
-                  <input id="phone" type="tel" name="phone" maxLength={30} dir="ltr" />
+                  <div className="phone-field" dir="ltr">
+                    <select name="phoneCountry" defaultValue={DEFAULT_COUNTRY} aria-label={v.countryCode}>
+                      {COUNTRIES.map((c) => (
+                        <option key={c.iso} value={c.iso} title={c[lang]}>
+                          {c.flag} +{c.code}
+                        </option>
+                      ))}
+                    </select>
+                    <input id="phone" type="tel" name="phone" maxLength={20} inputMode="tel" placeholder="5X XXX XXXX" />
+                  </div>
                 </div>
               </div>
               <div className="form-grid">

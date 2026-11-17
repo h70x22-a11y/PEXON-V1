@@ -381,3 +381,10 @@ html[data-theme='dark'] .btn.add:hover, html[data-theme='dark'] .btn.done { back
 .policy .row[open] > summary::after { content: '−'; }
 .policy .inner p { margin: 0 0 10px; line-height: 1.95; }
 .policy .quote-table td:first-child, .policy .quote-table td:last-child { white-space: normal; width: auto; }
+
+/* ---------- الجوال مع مفتاح الدولة ---------- */
+.phone-field { display: flex; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.phone-field:focus-within { border-color: var(--primary); }
+.phone-field select { width: auto; flex: 0 0 auto; border: 0; border-inline-end: 1.5px solid var(--line); border-radius: 0; padding-inline: 10px 6px; background: var(--bg); font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', inherit; }
+.phone-field input { flex: 1; min-width: 0; border: 0; border-radius: 0; text-align: left; }
+.phone-field select:focus, .phone-field input:focus { outline: none; }
