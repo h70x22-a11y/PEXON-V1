@@ -85,7 +85,7 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
           {items.map((i) => (
             <li key={i.id}>
               <Link href={`/product/${i.id}`} className="qi-thumb">
-                {i.image ? <img src={i.image} alt="" loading="lazy" /> : null}
+                {i.image ? <img src={i.image} alt="" /> : null}
               </Link>
               <div className="qi-info">
                 <Link href={`/product/${i.id}`} className="qi-name">{i.name}</Link>
