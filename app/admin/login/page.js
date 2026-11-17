@@ -16,11 +16,19 @@ export default async function LoginPage({ searchParams }) {
           لم تُضبط كلمة المرور بعد. أضف المتغير ADMIN_PASSWORD من إعدادات المشروع في Vercel ثم أعد النشر.
         </div>
       ) : null}
-      {sp?.error ? <div className="flash err">كلمة المرور غير صحيحة.</div> : null}
+      {sp?.error === 'locked' ? (
+        <div className="flash err">محاولات دخول خاطئة كثيرة. حاول مرة ثانية بعد 15 دقيقة.</div>
+      ) : sp?.error ? (
+        <div className="flash err">اسم المستخدم أو كلمة المرور غير صحيحة.</div>
+      ) : null}
       <form action={login}>
         <div className="field">
+          <label htmlFor="username">اسم المستخدم</label>
+          <input id="username" type="text" name="username" required autoFocus dir="ltr" autoComplete="username" autoCapitalize="none" spellCheck={false} />
+        </div>
+        <div className="field">
           <label htmlFor="password">كلمة المرور</label>
-          <input id="password" type="password" name="password" required autoFocus dir="ltr" />
+          <input id="password" type="password" name="password" required dir="ltr" autoComplete="current-password" />
         </div>
         <button className="btn" type="submit" style={{ width: '100%' }}>دخول</button>
       </form>

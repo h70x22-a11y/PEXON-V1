@@ -400,3 +400,10 @@ html[data-theme='dark'] .btn.add:hover, html[data-theme='dark'] .btn.done { back
 .status-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
 .status-form .field { margin: 0; }
 .crumbs a { color: var(--primary); }
+
+/* ---------- المستخدمين ---------- */
+.perm-grid { display: grid; gap: 8px 18px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); margin-top: 6px; }
+.perm-grid .check { font-weight: 500; }
+a.stat { color: inherit; transition: border-color 0.15s; }
+a.stat:hover { border-color: var(--primary); }
+.admin-side .side-user { color: #fff; font-weight: 600; }

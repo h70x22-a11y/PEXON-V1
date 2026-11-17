@@ -1,4 +1,5 @@
 import { getMessages } from '@/lib/db';
+import { requirePerm } from '@/lib/auth';
 import { deleteVendorAction } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ConfirmButton from '@/components/ConfirmButton';
@@ -13,6 +14,7 @@ function formatDate(iso) {
 }
 
 export default async function AdminVendors({ searchParams }) {
+  await requirePerm('vendors');
   const sp = await searchParams;
   const all = (await getMessages()).filter((m) => m.type === 'vendor');
   const q = String(sp?.q || '').trim().toLowerCase();

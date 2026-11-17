@@ -2,13 +2,29 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
-import { checkPassword, requireAdmin, sessionToken } from '@/lib/auth';
+import {
+  OWNER_USERNAME,
+  checkOwnerPassword,
+  clearSession,
+  clientIp,
+  getSession,
+  hashPassword,
+  requireAdmin,
+  requirePerm,
+  setSession,
+  verifyPassword,
+} from '@/lib/auth';
+import { ALL_PERMS } from '@/lib/permissions';
 import { VENDOR_ACTIVITIES } from '@/lib/vendor';
 import { DEFAULT_COUNTRY, findCountry } from '@/lib/countries';
 import { QUOTE_STATUSES } from '@/lib/quotes';
 import {
+  clearCounter,
+  getCounter,
+  getUsers,
+  hitCounter,
+  saveUsers,
   addMessage,
   deleteMessage,
   getMessage,
@@ -38,8 +54,9 @@ const link = (formData, key) => {
 const text = (formData, key, max = 500) => String(formData.get(key) || '').trim().slice(0, max);
 
 // ينفذ العملية ثم يرجع للصفحة برسالة نجاح أو خطأ
+// الصلاحية المطلوبة تؤخذ من المسار: /admin/<الصلاحية>/...
 async function run(path, fn) {
-  await requireAdmin();
+  await requirePerm(path.split('/')[2]);
   let error = '';
   try {
     await fn();
@@ -75,25 +92,119 @@ async function resolveImage(formData, previous = '') {
 }
 
 // ---------- الدخول ----------
+const MAX_ATTEMPTS = 5;
+const LOCK_SECONDS = 15 * 60;
+
 export async function login(formData) {
+  const username = String(formData.get('username') || '').trim().toLowerCase();
   const password = String(formData.get('password') || '');
+  const key = `login-fail:${await clientIp()}`;
+  if ((await getCounter(key)) >= MAX_ATTEMPTS) redirect('/admin/login?error=locked');
   await new Promise((r) => setTimeout(r, 600));
-  if (!checkPassword(password)) redirect('/admin/login?error=1');
-  const store = await cookies();
-  store.set('admin', sessionToken(), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 60 * 24 * 7,
-  });
-  redirect('/admin');
+
+  if (username === OWNER_USERNAME && checkOwnerPassword(password)) {
+    await clearCounter(key);
+    await setSession('owner', '1');
+    redirect('/admin');
+  }
+  const user = (await getUsers()).find((u) => u.username === username);
+  if (user && user.active && verifyPassword(password, user.passwordHash)) {
+    await clearCounter(key);
+    await setSession(user.id, String(user.sessionVersion));
+    redirect('/admin');
+  }
+  const n = await hitCounter(key, LOCK_SECONDS);
+  redirect(n >= MAX_ATTEMPTS ? '/admin/login?error=locked' : '/admin/login?error=1');
 }
 
 export async function logout() {
-  const store = await cookies();
-  store.delete('admin');
+  await clearSession();
   redirect('/admin/login');
+}
+
+// ---------- المستخدمين والصلاحيات ----------
+const USERNAME_RE = /^[a-z0-9._-]{3,30}$/;
+
+function permsFrom(formData) {
+  return ALL_PERMS.filter((p) => formData.get(`perm_${p}`));
+}
+
+export async function addUser(formData) {
+  await run('/admin/users', async () => {
+    const name = text(formData, 'name', 80);
+    const username = text(formData, 'username', 30).toLowerCase();
+    const password = String(formData.get('password') || '');
+    if (!name) throw new Error('اسم الموظف مطلوب.');
+    if (!USERNAME_RE.test(username)) throw new Error('اسم المستخدم من 3 إلى 30 حرف إنجليزي أو رقم بدون مسافات.');
+    if (username === OWNER_USERNAME) throw new Error('اسم المستخدم هذا محجوز.');
+    if (password.length < 8) throw new Error('كلمة المرور لازم تكون 8 أحرف على الأقل.');
+    const users = await getUsers();
+    if (users.some((u) => u.username === username)) throw new Error('اسم المستخدم مستخدم من قبل.');
+    users.push({
+      id: randomUUID(),
+      name,
+      username,
+      passwordHash: hashPassword(password),
+      perms: permsFrom(formData),
+      active: true,
+      sessionVersion: 1,
+      created: new Date().toISOString(),
+    });
+    await saveUsers(users);
+  });
+}
+
+export async function updateUser(formData) {
+  await run('/admin/users', async () => {
+    const id = text(formData, 'id', 60);
+    const users = await getUsers();
+    const user = users.find((u) => u.id === id);
+    if (!user) throw new Error('المستخدم غير موجود.');
+    const name = text(formData, 'name', 80);
+    if (!name) throw new Error('اسم الموظف مطلوب.');
+    const password = String(formData.get('password') || '');
+    const wasActive = user.active;
+    user.name = name;
+    user.perms = permsFrom(formData);
+    user.active = Boolean(formData.get('active'));
+    if (password) {
+      if (password.length < 8) throw new Error('كلمة المرور لازم تكون 8 أحرف على الأقل.');
+      user.passwordHash = hashPassword(password);
+    }
+    // تغيير كلمة المرور أو الإيقاف يسجّل خروج المستخدم من كل أجهزته
+    if (password || (wasActive && !user.active)) user.sessionVersion = (user.sessionVersion || 1) + 1;
+    await saveUsers(users);
+  });
+}
+
+export async function deleteUser(formData) {
+  await run('/admin/users', async () => {
+    const id = text(formData, 'id', 60);
+    const users = await getUsers();
+    await saveUsers(users.filter((u) => u.id !== id));
+  });
+}
+
+export async function changeOwnPassword(formData) {
+  const session = await requireAdmin();
+  let error = '';
+  if (session.owner) {
+    error = 'كلمة مرور المالك تتغير من إعدادات Vercel (ADMIN_PASSWORD).';
+  } else {
+    const users = await getUsers();
+    const user = users.find((u) => u.id === session.id);
+    const current = String(formData.get('current') || '');
+    const next = String(formData.get('next') || '');
+    if (!user || !verifyPassword(current, user.passwordHash)) error = 'كلمة المرور الحالية غير صحيحة.';
+    else if (next.length < 8) error = 'كلمة المرور الجديدة لازم تكون 8 أحرف على الأقل.';
+    else {
+      user.passwordHash = hashPassword(next);
+      user.sessionVersion = (user.sessionVersion || 1) + 1;
+      await saveUsers(users);
+      await setSession(user.id, String(user.sessionVersion));
+    }
+  }
+  redirect(error ? `/admin/account?error=${encodeURIComponent(error)}` : '/admin/account?ok=1');
 }
 
 // ---------- الإعدادات ----------
@@ -146,7 +257,7 @@ export async function saveSettingsAction(formData) {
 // ---------- الكتالوج ----------
 // يحفظ رابط الكتالوج بعد رفعه من المتصفح (الرابط لازم يكون من تخزين Vercel Blob)
 export async function saveCatalogAction(url) {
-  await requireAdmin();
+  await requirePerm('settings');
   let u;
   try {
     u = new URL(String(url));
@@ -163,7 +274,7 @@ export async function saveCatalogAction(url) {
 }
 
 export async function removeCatalogAction() {
-  await requireAdmin();
+  await requirePerm('settings');
   const current = await getSettings();
   await saveSettings({ ...current, catalogUrl: '' });
   revalidatePath('/', 'layout');
@@ -269,6 +380,7 @@ export async function updateQuoteStatus(formData) {
     if (!QUOTE_STATUSES.some((st) => st.key === status)) throw new Error('حالة غير صحيحة.');
     quote.status = status;
     quote.statusNote = text(formData, 'statusNote', 1000);
+    quote.updatedBy = (await getSession())?.name || '';
     quote.updated = new Date().toISOString();
     if (!quote.number) quote.number = await nextQuoteNumber();
     await saveMessage(quote);

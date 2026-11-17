@@ -1,24 +1,27 @@
 import Link from 'next/link';
-import { requireAdmin } from '@/lib/auth';
+import { can, requireAdmin } from '@/lib/auth';
 import { blobReady, dbReady } from '@/lib/db';
 import { logout } from '@/app/actions';
 
 export const metadata = { title: 'لوحة التحكم', robots: { index: false } };
 
 export default async function AdminLayout({ children }) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const show = (perm) => can(session, perm);
   return (
     <div className="admin" dir="rtl" lang="ar">
       <aside className="admin-side">
         <div className="title">لوحة التحكم</div>
         <Link href="/admin">نظرة عامة</Link>
-        <Link href="/admin/products">المنتجات</Link>
-        <Link href="/admin/categories">الأقسام</Link>
-        <Link href="/admin/quotes">طلبات عروض الأسعار</Link>
-        <Link href="/admin/messages">الرسائل</Link>
-        <Link href="/admin/vendors">الموردين المسجلين</Link>
-        <Link href="/admin/settings">إعدادات الموقع</Link>
+        {show('quotes') ? <Link href="/admin/quotes">طلبات عروض الأسعار</Link> : null}
+        {show('messages') ? <Link href="/admin/messages">الرسائل</Link> : null}
+        {show('vendors') ? <Link href="/admin/vendors">الموردين المسجلين</Link> : null}
+        {show('products') ? <Link href="/admin/products">المنتجات</Link> : null}
+        {show('categories') ? <Link href="/admin/categories">الأقسام</Link> : null}
+        {show('settings') ? <Link href="/admin/settings">إعدادات الموقع</Link> : null}
+        {show('users') ? <Link href="/admin/users">المستخدمين والصلاحيات</Link> : null}
         <div className="spacer" />
+        <Link href="/admin/account" className="side-user">👤 {session.name}</Link>
         <a href="/" target="_blank" rel="noopener noreferrer">عرض الموقع ↗</a>
         <form action={logout}>
           <button type="submit">تسجيل الخروج</button>

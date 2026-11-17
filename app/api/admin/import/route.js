@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { isAdmin } from '@/lib/auth';
+import { can, getSession } from '@/lib/auth';
 import { getCategories, getProducts, saveCategories, saveProducts } from '@/lib/db';
 
 export const maxDuration = 60;
@@ -37,7 +37,7 @@ async function copyImage(url) {
 }
 
 export async function POST(request) {
-  if (!(await isAdmin())) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!can(await getSession(), 'products')) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   let body;
   try {
     body = await request.json();

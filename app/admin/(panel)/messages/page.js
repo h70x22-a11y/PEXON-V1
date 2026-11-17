@@ -1,4 +1,5 @@
 import { getMessages } from '@/lib/db';
+import { requirePerm } from '@/lib/auth';
 import { deleteMessageAction } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ConfirmButton from '@/components/ConfirmButton';
@@ -13,6 +14,7 @@ function formatDate(iso) {
 }
 
 export default async function AdminMessages({ searchParams }) {
+  await requirePerm('messages');
   const sp = await searchParams;
   const messages = (await getMessages()).filter((m) => m.type !== 'vendor' && m.type !== 'quote');
 

@@ -1,28 +1,26 @@
 import Link from 'next/link';
+import { can, requireAdmin } from '@/lib/auth';
 import { getCategories, getMessages, getProducts } from '@/lib/db';
 
-export default async function AdminHome() {
+export default async function AdminHome({ searchParams }) {
+  const sp = await searchParams;
+  const session = await requireAdmin();
+  const show = (perm) => can(session, perm);
   const [categories, products, messages] = await Promise.all([getCategories(), getProducts(), getMessages()]);
+  const newQuotes = messages.filter((m) => m.type === 'quote' && (m.status || 'new') === 'new').length;
+  const contact = messages.filter((m) => m.type !== 'vendor' && m.type !== 'quote').length;
+  const vendors = messages.filter((m) => m.type === 'vendor').length;
+
   return (
     <>
-      <h1>نظرة عامة</h1>
+      <h1>أهلاً {session.name}</h1>
+      {sp?.denied ? <div className="flash warn">ما عندك صلاحية على هذا القسم. تواصل مع المدير.</div> : null}
       <div className="stats">
-        <div className="stat"><b>{products.length}</b>منتج</div>
-        <div className="stat"><b>{categories.length}</b>قسم</div>
-        <div className="stat"><b>{messages.filter((m) => m.type === 'quote' && (m.status || 'new') === 'new').length}</b>طلب عرض سعر جديد</div>
-        <div className="stat"><b>{messages.filter((m) => m.type !== 'vendor' && m.type !== 'quote').length}</b>رسالة</div>
-        <div className="stat"><b>{messages.filter((m) => m.type === 'vendor').length}</b>مورد مسجل</div>
-      </div>
-      <div className="panel">
-        <h2>اختصارات</h2>
-        <div className="row-actions">
-          <Link className="btn" href="/admin/products">إضافة منتج</Link>
-          <Link className="btn ghost" href="/admin/categories">إدارة الأقسام</Link>
-          <Link className="btn ghost" href="/admin/quotes">طلبات عروض الأسعار</Link>
-          <Link className="btn ghost" href="/admin/messages">قراءة الرسائل</Link>
-          <Link className="btn ghost" href="/admin/vendors">الموردين المسجلين</Link>
-          <Link className="btn ghost" href="/admin/settings">تعديل بيانات الموقع</Link>
-        </div>
+        {show('quotes') ? <Link className="stat" href="/admin/quotes?status=new"><b>{newQuotes}</b>طلب عرض سعر جديد</Link> : null}
+        {show('messages') ? <Link className="stat" href="/admin/messages"><b>{contact}</b>رسالة</Link> : null}
+        {show('vendors') ? <Link className="stat" href="/admin/vendors"><b>{vendors}</b>مورد مسجل</Link> : null}
+        {show('products') ? <Link className="stat" href="/admin/products"><b>{products.length}</b>منتج</Link> : null}
+        {show('categories') ? <Link className="stat" href="/admin/categories"><b>{categories.length}</b>قسم</Link> : null}
       </div>
     </>
   );

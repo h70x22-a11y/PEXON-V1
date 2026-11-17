@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { requirePerm } from '@/lib/auth';
 import { getMessages } from '@/lib/db';
 import Flash from '@/components/Flash';
 import { QUOTE_STATUSES, statusOf } from '@/lib/quotes';
@@ -12,6 +13,7 @@ function formatDate(iso) {
 }
 
 export default async function AdminQuotes({ searchParams }) {
+  await requirePerm('quotes');
   const sp = await searchParams;
   const all = (await getMessages()).filter((m) => m.type === 'quote');
   const status = String(sp?.status || '');

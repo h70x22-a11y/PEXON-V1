@@ -1,4 +1,5 @@
 import { getCategories, getProducts } from '@/lib/db';
+import { requirePerm } from '@/lib/auth';
 import { addProduct, deleteProduct, updateProduct } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ImageField from '@/components/ImageField';
@@ -53,6 +54,7 @@ function Fields({ product, categories }) {
 }
 
 export default async function AdminProducts({ searchParams }) {
+  await requirePerm('products');
   const sp = await searchParams;
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
   const nameOf = (id) => categories.find((c) => c.id === id)?.name || 'بدون قسم';

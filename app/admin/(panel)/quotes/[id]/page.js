@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { requirePerm } from '@/lib/auth';
 import { notFound } from 'next/navigation';
 import { getMessage } from '@/lib/db';
 import { deleteQuoteAction, updateQuoteStatus } from '@/app/actions';
@@ -15,6 +16,7 @@ function formatDate(iso) {
 }
 
 export default async function AdminQuote({ params, searchParams }) {
+  await requirePerm('quotes');
   const { id } = await params;
   const sp = await searchParams;
   const q = await getMessage(id);
@@ -49,7 +51,7 @@ export default async function AdminQuote({ params, searchParams }) {
           </div>
           <button className="btn" type="submit">حفظ</button>
         </form>
-        {q.updated ? <p className="muted" style={{ margin: '10px 0 0', fontSize: '0.88rem' }}>آخر تحديث: {formatDate(q.updated)}</p> : null}
+        {q.updated ? <p className="muted" style={{ margin: '10px 0 0', fontSize: '0.88rem' }}>آخر تحديث: {formatDate(q.updated)}{q.updatedBy ? ` · بواسطة ${q.updatedBy}` : ''}</p> : null}
       </div>
 
       <div className="panel" style={{ marginTop: 18 }}>

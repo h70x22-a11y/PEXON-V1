@@ -1,4 +1,5 @@
 import { getSettings } from '@/lib/db';
+import { requirePerm } from '@/lib/auth';
 import { removeCatalogAction, saveCatalogAction, saveSettingsAction } from '@/app/actions';
 import CatalogUpload from '@/components/CatalogUpload';
 import Flash from '@/components/Flash';
@@ -6,6 +7,7 @@ import ImageField from '@/components/ImageField';
 import { SOCIALS } from '@/components/SocialIcons';
 
 export default async function AdminSettings({ searchParams }) {
+  await requirePerm('settings');
   const sp = await searchParams;
   const s = await getSettings();
 

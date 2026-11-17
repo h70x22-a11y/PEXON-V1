@@ -1,10 +1,10 @@
-import { isAdmin } from '@/lib/auth';
+import { can, getSession } from '@/lib/auth';
 import { getMessages } from '@/lib/db';
 import { activityLabel } from '@/lib/vendor';
 
 // تصدير الموردين المسجلين كملف CSV يفتح في Excel
 export async function GET() {
-  if (!(await isAdmin())) return new Response('unauthorized', { status: 401 });
+  if (!can(await getSession(), 'vendors')) return new Response('unauthorized', { status: 401 });
   const vendors = (await getMessages()).filter((m) => m.type === 'vendor');
   const cell = (v) => {
     let s = String(v ?? '');
