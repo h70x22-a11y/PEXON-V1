@@ -174,6 +174,7 @@ function productFields(formData) {
     short: text(formData, 'short', 200),
     description: text(formData, 'description', 4000),
     price: text(formData, 'price', 40),
+    brand: text(formData, 'brand', 80),
     featured: Boolean(formData.get('featured')),
   };
 }

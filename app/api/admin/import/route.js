@@ -68,6 +68,7 @@ export async function POST(request) {
         short: str(p.short, 200),
         description: str(p.description, 4000),
         price: str(p.price, 40),
+        brand: str(p.brand, 80),
         image: images[i],
         featured: false,
       };

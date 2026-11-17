@@ -3,6 +3,7 @@ import { addProduct, deleteProduct, updateProduct } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ImageField from '@/components/ImageField';
 import ConfirmButton from '@/components/ConfirmButton';
+import { brandOf } from '@/lib/catalog';
 
 function Fields({ product, categories }) {
   return (
@@ -26,6 +27,10 @@ function Fields({ product, categories }) {
         <div className="field">
           <label>وصف مختصر</label>
           <input type="text" name="short" defaultValue={product?.short || ''} maxLength={200} />
+        </div>
+        <div className="field">
+          <label>العلامة التجارية</label>
+          <input type="text" name="brand" defaultValue={product ? brandOf(product) : ''} maxLength={80} dir="auto" placeholder="مثال: Legrand" />
         </div>
         <div className="field">
           <label>السعر (اختياري)</label>
