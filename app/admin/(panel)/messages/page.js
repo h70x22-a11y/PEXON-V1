@@ -32,7 +32,17 @@ export default async function AdminMessages({ searchParams }) {
               {m.product ? <> · المنتج: {m.product}</> : null}
             </div>
             {m.type === 'quote' ? <span className="badge" style={{ display: 'inline-block', marginTop: 8 }}>طلب عرض سعر</span> : null}
+            {m.type === 'vendor' ? <span className="badge" style={{ display: 'inline-block', marginTop: 8, background: '#c7e9ff' }}>تسجيل مورد</span> : null}
             {m.company ? <div className="muted">الشركة: {m.company}</div> : null}
+            {m.vendor ? (
+              <ul className="vendor-info">
+                <li><span>السجل التجاري:</span> <bdi>{m.vendor.cr}</bdi></li>
+                {m.vendor.vat ? <li><span>الرقم الضريبي:</span> <bdi>{m.vendor.vat}</bdi></li> : null}
+                {m.vendor.city ? <li><span>المدينة:</span> {m.vendor.city}</li> : null}
+                {m.vendor.website ? <li><span>الموقع:</span> <bdi>{m.vendor.website}</bdi></li> : null}
+                <li><span>المنتجات:</span> {m.vendor.supplies}</li>
+              </ul>
+            ) : null}
             {m.items?.length ? (
               <table className="quote-table">
                 <thead>

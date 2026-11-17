@@ -291,6 +291,42 @@ export async function submitQuote(input) {
   return { ok: true };
 }
 
+// نموذج تسجيل الموردين
+export async function submitVendor(formData) {
+  if (formData.get('website_hp')) redirect('/vendor-registration?ok=1');
+  const company = text(formData, 'company', 150);
+  const cr = text(formData, 'cr', 30);
+  const name = text(formData, 'name', 100);
+  const phone = text(formData, 'phone', 30);
+  const email = text(formData, 'email', 120);
+  const supplies = text(formData, 'supplies', 2000);
+  let ok = Boolean(company && cr && name && phone && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && supplies);
+  if (ok) {
+    try {
+      await addMessage({
+        id: randomUUID(),
+        type: 'vendor',
+        name,
+        phone,
+        email,
+        company,
+        vendor: {
+          cr,
+          vat: text(formData, 'vat', 30),
+          city: text(formData, 'city', 80),
+          website: text(formData, 'website', 200),
+          supplies,
+        },
+        message: text(formData, 'notes', 2000),
+        date: new Date().toISOString(),
+      });
+    } catch {
+      ok = false;
+    }
+  }
+  redirect(ok ? '/vendor-registration?ok=1' : '/vendor-registration?error=1');
+}
+
 // نموذج "تواصل معنا" العام
 export async function sendMessage(formData) {
   // حقل مخفي لصد الروبوتات

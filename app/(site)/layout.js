@@ -49,6 +49,7 @@ export default async function SiteLayout({ children }) {
               <ul>
                 <li><Link href="/products">{tr.allProducts}</Link></li>
                 <li><Link href="/contact">{tr.contact}</Link></li>
+                <li><Link href="/vendor-registration">{tr.vendorTitle}</Link></li>
                 {s.catalogUrl ? (
                   <li>
                     <a href="/catalog.pdf" target="_blank" rel="noopener noreferrer" className="catalog-link">
