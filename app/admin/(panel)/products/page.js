@@ -4,7 +4,7 @@ import { addProduct, deleteProduct, updateProduct } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ImageField from '@/components/ImageField';
 import ConfirmButton from '@/components/ConfirmButton';
-import { brandOf } from '@/lib/catalog';
+import { arabicName, brandOf, searchProducts } from '@/lib/catalog';
 
 function Fields({ product, categories }) {
   return (
@@ -13,6 +13,10 @@ function Fields({ product, categories }) {
         <div className="field">
           <label>اسم المنتج</label>
           <input type="text" name="name" defaultValue={product?.name || ''} required maxLength={140} />
+        </div>
+        <div className="field">
+          <label>الاسم بالعربي</label>
+          <input type="text" name="nameAr" defaultValue={product ? arabicName(product) : ''} maxLength={140} placeholder="يظهر للزوار في النسخة العربية" />
         </div>
         <div className="field">
           <label>القسم</label>
@@ -60,10 +64,7 @@ export default async function AdminProducts({ searchParams }) {
   const nameOf = (id) => categories.find((c) => c.id === id)?.name || 'بدون قسم';
   const q = String(sp?.q || '').trim();
   const cat = String(sp?.cat || '');
-  const needle = q.toLowerCase();
-  const filtered = products.filter(
-    (p) => (!cat || p.categoryId === cat) && (!q || `${p.name} ${p.short}`.toLowerCase().includes(needle))
-  );
+  const filtered = (q ? searchProducts(products, q, categories) : products).filter((p) => !cat || p.categoryId === cat);
   const LIMIT = 40;
   const shown = filtered.slice(0, LIMIT);
 

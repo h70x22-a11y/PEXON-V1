@@ -2,6 +2,8 @@ import { getMessages } from '@/lib/db';
 import { requirePerm } from '@/lib/auth';
 import { deleteVendorAction } from '@/app/actions';
 import Flash from '@/components/Flash';
+import AdminFilters from '@/components/AdminFilters';
+import { cleanDate, inRange, matchesRecord } from '@/lib/adminFilters';
 import ConfirmButton from '@/components/ConfirmButton';
 import { VENDOR_ACTIVITIES, activityLabel } from '@/lib/vendor';
 
@@ -17,12 +19,14 @@ export default async function AdminVendors({ searchParams }) {
   await requirePerm('vendors');
   const sp = await searchParams;
   const all = (await getMessages()).filter((m) => m.type === 'vendor');
-  const q = String(sp?.q || '').trim().toLowerCase();
   const act = String(sp?.activity || '');
+  const from = cleanDate(sp?.from);
+  const to = cleanDate(sp?.to);
   const vendors = all.filter(
     (v) =>
       (!act || v.vendor?.activity === act) &&
-      (!q || `${v.company} ${v.name} ${v.email} ${v.phone} ${v.vendor?.cr}`.toLowerCase().includes(q))
+      inRange(v.date, from, to) &&
+      matchesRecord(v, sp?.q, [v.company, v.name, v.email, v.phone, v.vendor?.cr])
   );
   const used = VENDOR_ACTIVITIES.filter((a) => all.some((v) => v.vendor?.activity === a.key));
 
@@ -35,16 +39,17 @@ export default async function AdminVendors({ searchParams }) {
       <Flash params={sp} okText="تم الحذف." />
 
       {all.length ? (
-        <form className="search" method="get" action="/admin/vendors" style={{ flexWrap: 'wrap' }}>
-          <input type="search" name="q" defaultValue={sp?.q || ''} placeholder="ابحث باسم الشركة أو المسؤول أو السجل..." style={{ minWidth: 200 }} />
-          <select name="activity" defaultValue={act} style={{ maxWidth: 280 }}>
-            <option value="">كل الأنشطة</option>
-            {used.map((a) => (
-              <option key={a.key} value={a.key}>{a.ar}</option>
-            ))}
-          </select>
-          <button className="btn" type="submit">عرض</button>
-        </form>
+        <AdminFilters action="/admin/vendors" sp={sp} placeholder="اسم الشركة، المسؤول، السجل، أو رقم الجوال">
+          <div className="field">
+            <label>النشاط</label>
+            <select name="activity" defaultValue={act} style={{ maxWidth: 260 }}>
+              <option value="">كل الأنشطة</option>
+              {used.map((a) => (
+                <option key={a.key} value={a.key}>{a.ar}</option>
+              ))}
+            </select>
+          </div>
+        </AdminFilters>
       ) : null}
 
       {vendors.length ? (

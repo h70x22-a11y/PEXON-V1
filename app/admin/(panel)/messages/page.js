@@ -2,6 +2,8 @@ import { getMessages } from '@/lib/db';
 import { requirePerm } from '@/lib/auth';
 import { deleteMessageAction } from '@/app/actions';
 import Flash from '@/components/Flash';
+import AdminFilters from '@/components/AdminFilters';
+import { cleanDate, inRange, matchesRecord } from '@/lib/adminFilters';
 import ConfirmButton from '@/components/ConfirmButton';
 import { activityLabel } from '@/lib/vendor';
 
@@ -16,12 +18,19 @@ function formatDate(iso) {
 export default async function AdminMessages({ searchParams }) {
   await requirePerm('messages');
   const sp = await searchParams;
-  const messages = (await getMessages()).filter((m) => m.type !== 'vendor' && m.type !== 'quote');
+  const all = (await getMessages()).filter((m) => m.type !== 'vendor' && m.type !== 'quote');
+  const from = cleanDate(sp?.from);
+  const to = cleanDate(sp?.to);
+  const messages = all.filter(
+    (m) => inRange(m.date, from, to) && matchesRecord(m, sp?.q, [m.name, m.phone, m.email, m.product, m.message])
+  );
 
   return (
     <>
-      <h1>الرسائل ({messages.length})</h1>
+      <h1>الرسائل ({all.length})</h1>
       <Flash params={sp} okText="تم الحذف." />
+      {all.length ? <AdminFilters action="/admin/messages" sp={sp} placeholder="الاسم، رقم الجوال، الإيميل، أو نص الرسالة" /> : null}
+      {all.length && !messages.length ? <p className="muted">لا توجد رسائل مطابقة.</p> : null}
       <div className="rows">
         {messages.map((m) => (
           <div className="msg" key={m.id}>

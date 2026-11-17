@@ -7,6 +7,7 @@ import SiteNav from '@/components/SiteNav';
 import ThemeToggle from '@/components/ThemeToggle';
 import LangToggle from '@/components/LangToggle';
 import CartButton from '@/components/CartButton';
+import SearchBox from '@/components/SearchBox';
 
 export default async function SiteLayout({ children }) {
   const [s, lang] = await Promise.all([getSettings(), getLang()]);
@@ -26,6 +27,7 @@ export default async function SiteLayout({ children }) {
             {s.logo ? null : <span>{s.siteName}</span>}
           </Link>
           <SiteNav links={links} openLabel={tr.menuOpen} closeLabel={tr.menuClose} />
+          <SearchBox lang={lang} labels={{ placeholder: tr.searchPh, all: tr.searchAll, none: tr.searchNone }} />
           <div className="header-tools">
             <LangToggle lang={lang} label={tr.switchLang} title={tr.switchLangLabel} />
             <CartButton label={tr.quoteCart} />

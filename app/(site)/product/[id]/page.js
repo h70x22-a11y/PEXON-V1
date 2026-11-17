@@ -4,7 +4,7 @@ import { getCategories, getProducts, getSettings } from '@/lib/db';
 import { getLang, productDescription, productPrice, productShort, t } from '@/lib/i18n';
 import AddToQuote from '@/components/AddToQuote';
 import JsonLd from '@/components/JsonLd';
-import { brandOf } from '@/lib/catalog';
+import { arabicName, brandOf, displayName } from '@/lib/catalog';
 import { SITE_URL } from '@/lib/site';
 
 const skuFrom = (short) => (String(short || '').match(/(?:رقم الصنف|SKU)\s*([\w\-./]+)/) || [])[1] || '';
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }) {
   const brand = brandOf(p);
   const sku = skuFrom(p.short);
   const category = categories.find((c) => c.id === p.categoryId)?.name || '';
-  const title = [p.name, sku].filter(Boolean).join(' - ');
+  const title = [displayName(p, lang), lang === 'ar' && arabicName(p) ? p.name : '', sku].filter(Boolean).join(' - ');
   const desc = productDescription(p, lang).replace(/\s+/g, ' ').trim();
   const description = [desc, brand, category, sku ? (lang === 'en' ? `SKU ${sku}` : `رقم الصنف ${sku}`) : ''].filter(Boolean).join(' · ').slice(0, 300);
   return {
@@ -42,6 +42,7 @@ export default async function ProductPage({ params }) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
+    alternateName: arabicName(product) || undefined,
     description: productDescription(product, lang).replace(/\s+/g, ' ').trim() || undefined,
     image: product.image || undefined,
     sku: sku || undefined,
@@ -60,7 +61,8 @@ export default async function ProductPage({ params }) {
             <Link href="/">{tr.home}</Link> / <Link href="/products">{tr.allProducts}</Link>
             {category ? <> / <Link href={`/category/${category.id}`}>{category.name}</Link></> : null}
           </div>
-          <h1>{product.name}</h1>
+          <h1>{displayName(product, lang)}</h1>
+          {displayName(product, lang) !== product.name ? <p className="muted en-name" dir="ltr" style={{ margin: 0, fontSize: '1.05rem' }}>{product.name}</p> : null}
         </div>
       </div>
       <section className="section" style={{ paddingTop: 36 }}>
@@ -78,7 +80,7 @@ export default async function ProductPage({ params }) {
             {product.description ? <p className="desc muted">{productDescription(product, lang)}</p> : null}
             <AddToQuote
               withQty
-              product={{ id: product.id, name: product.name, short: productShort(product, lang), image: product.image }}
+              product={{ id: product.id, name: displayName(product, lang), short: productShort(product, lang), image: product.image }}
               labels={{ add: tr.addToQuote, added: tr.added, qty: tr.qty }}
             />
             <div className="actions">

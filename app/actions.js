@@ -330,6 +330,7 @@ function productFields(formData) {
     name: text(formData, 'name', 140),
     categoryId: text(formData, 'categoryId', 60),
     short: text(formData, 'short', 200),
+    nameAr: text(formData, 'nameAr', 140),
     description: text(formData, 'description', 4000),
     price: text(formData, 'price', 40),
     brand: text(formData, 'brand', 80),

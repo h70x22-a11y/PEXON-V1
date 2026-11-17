@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { requirePerm } from '@/lib/auth';
 import { getMessages } from '@/lib/db';
 import Flash from '@/components/Flash';
+import AdminFilters from '@/components/AdminFilters';
+import { cleanDate, inRange, matchesRecord } from '@/lib/adminFilters';
 import { QUOTE_STATUSES, statusOf } from '@/lib/quotes';
 
 function formatDate(iso) {
@@ -17,11 +19,13 @@ export default async function AdminQuotes({ searchParams }) {
   const sp = await searchParams;
   const all = (await getMessages()).filter((m) => m.type === 'quote');
   const status = String(sp?.status || '');
-  const q = String(sp?.q || '').trim().toLowerCase();
+  const from = cleanDate(sp?.from);
+  const to = cleanDate(sp?.to);
   const quotes = all.filter(
     (m) =>
       (!status || (m.status || 'new') === status) &&
-      (!q || `${m.number} ${m.name} ${m.company} ${m.phone}`.toLowerCase().includes(q))
+      inRange(m.date, from, to) &&
+      matchesRecord(m, sp?.q, [m.number, m.name, m.company, m.phone, m.email])
   );
   const count = (key) => all.filter((m) => (m.status || 'new') === key).length;
 
@@ -40,11 +44,7 @@ export default async function AdminQuotes({ searchParams }) {
       </div>
 
       {all.length ? (
-        <form className="search" method="get" action="/admin/quotes">
-          {status ? <input type="hidden" name="status" value={status} /> : null}
-          <input type="search" name="q" defaultValue={sp?.q || ''} placeholder="ابحث برقم الطلب أو اسم العميل أو الشركة أو الجوال..." />
-          <button className="btn" type="submit">بحث</button>
-        </form>
+        <AdminFilters action="/admin/quotes" sp={sp} hidden={{ status }} placeholder="رقم الطلب، اسم العميل، الشركة، أو رقم الجوال" />
       ) : null}
 
       {quotes.length ? (

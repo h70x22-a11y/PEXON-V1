@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getCategories, getProducts } from '@/lib/db';
-import { brandOf, listBrands } from '@/lib/catalog';
+import { brandOf, listBrands, searchProducts } from '@/lib/catalog';
 import { ProductCard } from '@/components/Cards';
 import { getLang, t } from '@/lib/i18n';
 
@@ -19,15 +19,11 @@ export default async function ProductsPage({ searchParams }) {
   const tr = t(lang);
   const brands = listBrands(products);
 
-  const needle = q.toLowerCase();
   const brandKey = brand.toLowerCase();
   const filtering = Boolean(q || cat || brand);
   const matches = filtering
-    ? products.filter(
-        (p) =>
-          (!cat || p.categoryId === cat) &&
-          (!brand || brandOf(p).toLowerCase() === brandKey) &&
-          (!q || `${p.name} ${p.short} ${p.description}`.toLowerCase().includes(needle))
+    ? (q ? searchProducts(products, q, categories) : products).filter(
+        (p) => (!cat || p.categoryId === cat) && (!brand || brandOf(p).toLowerCase() === brandKey)
       )
     : [];
 
