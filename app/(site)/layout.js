@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getSettings } from '@/lib/db';
 import SocialIcons from '@/components/SocialIcons';
 import PaymentMethods from '@/components/PaymentMethods';
+import SiteNav from '@/components/SiteNav';
 
 export default async function SiteLayout({ children }) {
   const s = await getSettings();
@@ -13,12 +14,7 @@ export default async function SiteLayout({ children }) {
             {s.logo ? <img src={s.logo} alt={s.siteName} /> : null}
             {s.logo ? null : <span>{s.siteName}</span>}
           </Link>
-          <nav className="nav">
-            <Link href="/">الرئيسية</Link>
-            <Link href="/products">جميع المنتجات</Link>
-            <Link href="/#about">من نحن</Link>
-            <Link href="/contact">تواصل معنا</Link>
-          </nav>
+          <SiteNav />
         </div>
       </header>
 
