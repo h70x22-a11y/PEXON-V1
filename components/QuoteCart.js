@@ -11,6 +11,7 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
   const [form, setForm] = useState({ name: '', phone: '', email: '', company: '', notes: '', website: '' });
   const [status, setStatus] = useState({ type: '', text: '' });
   const [busy, setBusy] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     setItems(readCart());
@@ -37,6 +38,7 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
       if (!res?.ok) throw new Error();
       clearCart();
       setForm({ name: '', phone: '', email: '', company: '', notes: '', website: '' });
+      setShowForm(false);
       setStatus({ type: 'ok', text: labels.sent });
     } catch {
       setStatus({ type: 'err', text: labels.error });
@@ -46,17 +48,10 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
   }
 
   function sendWhatsapp() {
-    if (!validate()) return;
     const lines = [labels.waIntro, ''];
     items.forEach((i, n) => {
       lines.push(`${n + 1}. ${i.name}${i.short ? ` (${i.short})` : ''} × ${i.qty}`);
     });
-    lines.push('');
-    lines.push(`${labels.name}: ${form.name.trim()}`);
-    lines.push(`${labels.phone}: ${form.phone.trim()}`);
-    if (form.company.trim()) lines.push(`${labels.company}: ${form.company.trim()}`);
-    if (form.email.trim()) lines.push(`${labels.email}: ${form.email.trim()}`);
-    if (form.notes.trim()) lines.push(`${labels.notes}: ${form.notes.trim()}`);
     window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank', 'noopener');
   }
 
@@ -105,39 +100,52 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
         <Link href="/products" style={{ color: 'var(--primary)', fontWeight: 600 }}>+ {labels.addMore}</Link>
       </div>
 
-      <form className="panel" onSubmit={sendSite}>
-        <h2 style={{ fontSize: '1.2rem' }}>{labels.details}</h2>
-        {status.text ? <div className={`flash ${status.type}`}>{status.text}</div> : null}
-        <input className="hp" type="text" tabIndex={-1} autoComplete="off" {...field('website')} />
-        <div className="field">
-          <label htmlFor="q-name">{labels.name}</label>
-          <input id="q-name" type="text" required maxLength={100} {...field('name')} />
-        </div>
-        <div className="field">
-          <label htmlFor="q-phone">{labels.phone}</label>
-          <input id="q-phone" type="tel" required maxLength={30} dir="ltr" {...field('phone')} />
-        </div>
-        <div className="field">
-          <label htmlFor="q-company">{labels.company}</label>
-          <input id="q-company" type="text" maxLength={120} {...field('company')} />
-        </div>
-        <div className="field">
-          <label htmlFor="q-email">{labels.email}</label>
-          <input id="q-email" type="email" maxLength={120} dir="ltr" {...field('email')} />
-        </div>
-        <div className="field">
-          <label htmlFor="q-notes">{labels.notes}</label>
-          <textarea id="q-notes" maxLength={2000} {...field('notes')} />
-        </div>
-        <div className="quote-actions">
-          <button type="submit" className="btn" disabled={busy}>{busy ? '...' : labels.sendSite}</button>
-          {whatsapp ? (
-            <button type="button" className="btn wa" onClick={sendWhatsapp}>
-              <FaWhatsapp aria-hidden="true" /> {labels.sendWhatsapp}
+      {!showForm ? (
+        <div className="panel">
+          <h2 style={{ fontSize: '1.2rem' }}>{labels.howToSend}</h2>
+          {status.text ? <div className={`flash ${status.type}`}>{status.text}</div> : null}
+          <div className="quote-actions">
+            {whatsapp ? (
+              <button type="button" className="btn wa" onClick={sendWhatsapp}>
+                <FaWhatsapp aria-hidden="true" /> {labels.sendWhatsapp}
+              </button>
+            ) : null}
+            <button type="button" className="btn" onClick={() => { setStatus({ type: '', text: '' }); setShowForm(true); }}>
+              {labels.requestSite}
             </button>
-          ) : null}
+          </div>
         </div>
-      </form>
+      ) : (
+        <form className="panel" onSubmit={sendSite}>
+          <h2 style={{ fontSize: '1.2rem' }}>{labels.details}</h2>
+          {status.text ? <div className={`flash ${status.type}`}>{status.text}</div> : null}
+          <input className="hp" type="text" tabIndex={-1} autoComplete="off" {...field('website')} />
+          <div className="field">
+            <label htmlFor="q-name">{labels.name}</label>
+            <input id="q-name" type="text" required maxLength={100} autoFocus {...field('name')} />
+          </div>
+          <div className="field">
+            <label htmlFor="q-phone">{labels.phone}</label>
+            <input id="q-phone" type="tel" required maxLength={30} dir="ltr" {...field('phone')} />
+          </div>
+          <div className="field">
+            <label htmlFor="q-company">{labels.company}</label>
+            <input id="q-company" type="text" maxLength={120} {...field('company')} />
+          </div>
+          <div className="field">
+            <label htmlFor="q-email">{labels.email}</label>
+            <input id="q-email" type="email" maxLength={120} dir="ltr" {...field('email')} />
+          </div>
+          <div className="field">
+            <label htmlFor="q-notes">{labels.notes}</label>
+            <textarea id="q-notes" maxLength={2000} {...field('notes')} />
+          </div>
+          <div className="quote-actions">
+            <button type="submit" className="btn" disabled={busy}>{busy ? '...' : labels.sendSite}</button>
+            <button type="button" className="btn ghost" onClick={() => setShowForm(false)} disabled={busy}>{labels.back}</button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
