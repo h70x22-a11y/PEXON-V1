@@ -16,6 +16,19 @@ import {
   saveSettings,
 } from '@/lib/db';
 
+// رابط يبدأ بـ http/https فقط، وإلا يُتجاهل
+const link = (formData, key) => {
+  const value = String(formData.get(key) || '').trim().slice(0, 300);
+  if (!value) return '';
+  const full = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  try {
+    const u = new URL(full);
+    return u.protocol === 'https:' || u.protocol === 'http:' ? u.href : '';
+  } catch {
+    return '';
+  }
+};
+
 const text = (formData, key, max = 500) => String(formData.get(key) || '').trim().slice(0, max);
 
 // ينفذ العملية ثم يرجع للصفحة برسالة نجاح أو خطأ
@@ -94,6 +107,14 @@ export async function saveSettingsAction(formData) {
       address: text(formData, 'address', 200),
       primaryColor: /^#[0-9a-fA-F]{6}$/.test(color) ? color : current.primaryColor,
       logo: await resolveImage(formData, current.logo),
+      instagram: link(formData, 'instagram'),
+      x: link(formData, 'x'),
+      tiktok: link(formData, 'tiktok'),
+      snapchat: link(formData, 'snapchat'),
+      facebook: link(formData, 'facebook'),
+      youtube: link(formData, 'youtube'),
+      linkedin: link(formData, 'linkedin'),
+      telegram: link(formData, 'telegram'),
     });
   });
 }

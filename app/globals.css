@@ -174,3 +174,8 @@ label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem
   .admin-side a, .admin-side button { width: auto; }
   .admin-side .spacer { display: none; }
 }
+
+/* ---------- أيقونات التواصل ---------- */
+.socials { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 6px; }
+.socials a { display: inline-flex; color: #cfd4dc; transition: color 0.15s, transform 0.15s; }
+.socials a:hover { color: #fff; transform: translateY(-2px); }

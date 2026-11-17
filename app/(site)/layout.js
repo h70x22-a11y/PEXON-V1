@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getSettings } from '@/lib/db';
+import SocialIcons from '@/components/SocialIcons';
 
 export default async function SiteLayout({ children }) {
   const s = await getSettings();
@@ -28,6 +29,7 @@ export default async function SiteLayout({ children }) {
             <div>
               <h4>{s.siteName}</h4>
               <p>{s.tagline}</p>
+              <SocialIcons settings={s} />
             </div>
             <div>
               <h4>روابط</h4>

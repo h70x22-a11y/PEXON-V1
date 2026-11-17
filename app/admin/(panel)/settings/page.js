@@ -2,6 +2,7 @@ import { getSettings } from '@/lib/db';
 import { saveSettingsAction } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ImageField from '@/components/ImageField';
+import { SOCIALS } from '@/components/SocialIcons';
 
 export default async function AdminSettings({ searchParams }) {
   const sp = await searchParams;
@@ -62,6 +63,16 @@ export default async function AdminSettings({ searchParams }) {
             <label>العنوان</label>
             <input type="text" name="address" defaultValue={s.address} maxLength={200} />
           </div>
+        </div>
+        <h2>حسابات التواصل الاجتماعي</h2>
+        <p className="muted">الصق رابط كل حساب. الأيقونة تظهر في أسفل الموقع للحسابات المعبأة فقط. (أيقونة واتساب تظهر من رقم الواتساب أعلاه.)</p>
+        <div className="form-grid">
+          {SOCIALS.map((item) => (
+            <div className="field" key={item.key}>
+              <label>{item.label}</label>
+              <input type="text" name={item.key} defaultValue={s[item.key] || ''} maxLength={300} dir="ltr" placeholder="https://" />
+            </div>
+          ))}
         </div>
         <button className="btn" type="submit">حفظ الإعدادات</button>
       </form>
