@@ -62,7 +62,8 @@ export default async function AdminSettings({ searchParams }) {
           </div>
           <div className="field">
             <label>شركاء النجاح</label>
-            <textarea name="partners" defaultValue={s.partners} maxLength={2000} dir="auto" />
+            <textarea name="partners" defaultValue={s.partners} maxLength={2000} dir="auto" placeholder="الاسم | رابط الشعار" />
+            <small>لإظهار شعار: الاسم | رابط صورة الشعار. بدون رابط يظهر الاسم نصاً.</small>
           </div>
         </div>
 

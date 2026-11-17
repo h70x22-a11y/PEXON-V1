@@ -13,7 +13,10 @@ export default async function HomePage() {
   });
   const services = lines(s.services);
   const brands = lines(s.brands);
-  const partners = lines(s.partners);
+  const partners = lines(s.partners).map((l) => {
+    const [name, ...rest] = l.split('|');
+    return { name: name.trim(), logo: rest.join('|').trim() };
+  });
 
   return (
     <>
@@ -112,10 +115,16 @@ export default async function HomePage() {
             <div className="section-head">
               <h2>شركاء النجاح</h2>
             </div>
-            <div className="chips">
-              {partners.map((item) => (
-                <span className="chip" key={item} dir="auto">{item}</span>
-              ))}
+            <div className="logos">
+              {partners.map((item) =>
+                item.logo ? (
+                  <div className="logo-box" key={item.name} title={item.name}>
+                    <img src={item.logo} alt={item.name} loading="lazy" />
+                  </div>
+                ) : (
+                  <div className="logo-box text" key={item.name} dir="auto">{item.name}</div>
+                )
+              )}
             </div>
           </div>
         </section>
