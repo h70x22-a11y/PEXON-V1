@@ -5,7 +5,7 @@ import { ProductCard } from '@/components/Cards';
 import { getLang, t } from '@/lib/i18n';
 
 export async function generateMetadata() {
-  return { title: t(await getLang()).allProducts };
+  return { title: t(await getLang()).allProducts, alternates: { canonical: '/products' } };
 }
 
 const LIMIT = 96;

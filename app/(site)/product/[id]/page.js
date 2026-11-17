@@ -3,6 +3,30 @@ import { notFound } from 'next/navigation';
 import { getCategories, getProducts, getSettings } from '@/lib/db';
 import { getLang, productDescription, productPrice, productShort, t } from '@/lib/i18n';
 import AddToQuote from '@/components/AddToQuote';
+import JsonLd from '@/components/JsonLd';
+import { brandOf } from '@/lib/catalog';
+import { SITE_URL } from '@/lib/site';
+
+const skuFrom = (short) => (String(short || '').match(/(?:رقم الصنف|SKU)\s*([\w\-./]+)/) || [])[1] || '';
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const [products, categories, lang] = await Promise.all([getProducts(), getCategories(), getLang()]);
+  const p = products.find((x) => x.id === id);
+  if (!p) return {};
+  const brand = brandOf(p);
+  const sku = skuFrom(p.short);
+  const category = categories.find((c) => c.id === p.categoryId)?.name || '';
+  const title = [p.name, sku].filter(Boolean).join(' - ');
+  const desc = productDescription(p, lang).replace(/\s+/g, ' ').trim();
+  const description = [desc, brand, category, sku ? (lang === 'en' ? `SKU ${sku}` : `رقم الصنف ${sku}`) : ''].filter(Boolean).join(' · ').slice(0, 300);
+  return {
+    title,
+    description,
+    alternates: { canonical: `/product/${p.id}` },
+    openGraph: { title, description, url: `/product/${p.id}`, images: p.image ? [{ url: p.image, alt: p.name }] : undefined },
+  };
+}
 
 export default async function ProductPage({ params }) {
   const { id } = await params;
@@ -13,8 +37,23 @@ export default async function ProductPage({ params }) {
   const category = categories.find((c) => c.id === product.categoryId);
   const waText = encodeURIComponent(tr.waMessage(product.name));
 
+  const sku = skuFrom(product.short);
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: productDescription(product, lang).replace(/\s+/g, ' ').trim() || undefined,
+    image: product.image || undefined,
+    sku: sku || undefined,
+    mpn: sku || undefined,
+    brand: brandOf(product) ? { '@type': 'Brand', name: brandOf(product) } : undefined,
+    category: category?.name,
+    url: `${SITE_URL}/product/${product.id}`,
+  };
+
   return (
     <>
+      <JsonLd data={ld} />
       <div className="page-head">
         <div className="container">
           <div className="crumbs">

@@ -7,9 +7,13 @@ import { randomUUID } from 'crypto';
 import { checkPassword, requireAdmin, sessionToken } from '@/lib/auth';
 import { VENDOR_ACTIVITIES } from '@/lib/vendor';
 import { DEFAULT_COUNTRY, findCountry } from '@/lib/countries';
+import { QUOTE_STATUSES } from '@/lib/quotes';
 import {
   addMessage,
   deleteMessage,
+  getMessage,
+  nextQuoteNumber,
+  saveMessage,
   getCategories,
   getProducts,
   getSettings,
@@ -134,6 +138,7 @@ export async function saveSettingsAction(formData) {
       legalNameEn: text(formData, 'legalNameEn', 150),
       crNumber: text(formData, 'crNumber', 20).replace(/[^0-9]/g, ''),
       vatNumber: text(formData, 'vatNumber', 20).replace(/[^0-9]/g, ''),
+      googleVerification: text(formData, 'googleVerification', 200).replace(/^.*content=["']?([^"'\s>]+).*$/i, '$1').replace(/[^A-Za-z0-9_\-]/g, ''),
     });
   });
 }
@@ -254,6 +259,28 @@ export async function deleteProduct(formData) {
 }
 
 // ---------- الرسائل ----------
+// ---------- إدارة طلبات عروض الأسعار ----------
+export async function updateQuoteStatus(formData) {
+  const id = text(formData, 'id', 60);
+  await run(`/admin/quotes/${id}`, async () => {
+    const quote = await getMessage(id);
+    if (!quote || quote.type !== 'quote') throw new Error('الطلب غير موجود.');
+    const status = text(formData, 'status', 20);
+    if (!QUOTE_STATUSES.some((st) => st.key === status)) throw new Error('حالة غير صحيحة.');
+    quote.status = status;
+    quote.statusNote = text(formData, 'statusNote', 1000);
+    quote.updated = new Date().toISOString();
+    if (!quote.number) quote.number = await nextQuoteNumber();
+    await saveMessage(quote);
+  });
+}
+
+export async function deleteQuoteAction(formData) {
+  await run('/admin/quotes', async () => {
+    await deleteMessage(text(formData, 'id', 60));
+  });
+}
+
 export async function deleteVendorAction(formData) {
   await run('/admin/vendors', async () => {
     await deleteMessage(text(formData, 'id', 60));
@@ -287,9 +314,16 @@ export async function submitQuote(input) {
     .filter(Boolean);
   if (!items.length) return { error: 'empty' };
   try {
+    let number = '';
+    try {
+      number = await nextQuoteNumber();
+    } catch {}
     await addMessage({
       id: randomUUID(),
       type: 'quote',
+      number,
+      status: 'new',
+      source: 'website',
       name,
       phone,
       email: clean(data.email, 120),

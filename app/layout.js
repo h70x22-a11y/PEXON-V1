@@ -1,12 +1,35 @@
 import './globals.css';
 import { getSettings } from '@/lib/db';
-import { getLang } from '@/lib/i18n';
+import { getLang, pick } from '@/lib/i18n';
+import { SITE_URL } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
-  const s = await getSettings();
-  return { title: s.siteName, description: s.tagline };
+  const [s, lang] = await Promise.all([getSettings(), getLang()]);
+  const name = s.siteName || 'PEXON';
+  const description =
+    pick(s, 'heroText', lang) ||
+    (lang === 'en'
+      ? 'Electrical supplies for government projects, private projects and homes in Saudi Arabia.'
+      : 'توريد المواد الكهربائية للمشاريع الحكومية والخاصة والمنازل في المملكة العربية السعودية.');
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: { default: name, template: `%s | ${name}` },
+    description,
+    applicationName: name,
+    openGraph: {
+      type: 'website',
+      siteName: name,
+      title: name,
+      description,
+      url: SITE_URL,
+      locale: lang === 'en' ? 'en_US' : 'ar_SA',
+      images: [{ url: '/og.png', width: 1200, height: 630, alt: name }],
+    },
+    twitter: { card: 'summary_large_image', title: name, description, images: ['/og.png'] },
+    verification: s.googleVerification ? { google: s.googleVerification } : undefined,
+  };
 }
 
 export default async function RootLayout({ children }) {

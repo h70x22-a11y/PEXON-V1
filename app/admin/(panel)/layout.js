@@ -14,6 +14,7 @@ export default async function AdminLayout({ children }) {
         <Link href="/admin">نظرة عامة</Link>
         <Link href="/admin/products">المنتجات</Link>
         <Link href="/admin/categories">الأقسام</Link>
+        <Link href="/admin/quotes">طلبات عروض الأسعار</Link>
         <Link href="/admin/messages">الرسائل</Link>
         <Link href="/admin/vendors">الموردين المسجلين</Link>
         <Link href="/admin/settings">إعدادات الموقع</Link>

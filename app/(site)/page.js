@@ -2,6 +2,10 @@ import Link from 'next/link';
 import { getCategories, getProducts, getSettings } from '@/lib/db';
 import { CategoryCard, ProductCard } from '@/components/Cards';
 import { getLang, pick, t } from '@/lib/i18n';
+import JsonLd from '@/components/JsonLd';
+import { SITE_URL } from '@/lib/site';
+
+export const metadata = { alternates: { canonical: '/' } };
 
 export default async function HomePage() {
   const [s, categories, products, lang] = await Promise.all([getSettings(), getCategories(), getProducts(), getLang()]);
@@ -20,8 +24,26 @@ export default async function HomePage() {
     return { name: name.trim(), logo: rest.join('|').trim() };
   });
 
+  const org = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: s.siteName,
+    legalName: s.legalNameEn || s.legalName || undefined,
+    url: SITE_URL,
+    logo: `${SITE_URL}/icon.png`,
+    image: `${SITE_URL}/og.png`,
+    description: pick(s, 'about', lang),
+    email: s.email || undefined,
+    telephone: s.phone || undefined,
+    vatID: s.vatNumber || undefined,
+    taxID: s.crNumber || undefined,
+    address: { '@type': 'PostalAddress', streetAddress: s.addressEn || s.address || undefined, addressLocality: 'Riyadh', addressCountry: 'SA' },
+    sameAs: ['instagram', 'x', 'tiktok', 'snapchat', 'facebook', 'youtube', 'linkedin'].map((k) => s[k]).filter(Boolean),
+  };
+
   return (
     <>
+      <JsonLd data={org} />
       <section className="hero">
         <div className="container">
           {pick(s, 'tagline', lang) ? <span className="tag">{pick(s, 'tagline', lang)}</span> : null}

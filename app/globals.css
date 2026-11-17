@@ -388,3 +388,15 @@ html[data-theme='dark'] .btn.add:hover, html[data-theme='dark'] .btn.done { back
 .phone-field select { width: auto; flex: 0 0 auto; border: 0; border-inline-end: 1.5px solid var(--line); border-radius: 0; padding-inline: 10px 6px; background: var(--bg); font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', inherit; }
 .phone-field input { flex: 1; min-width: 0; border: 0; border-radius: 0; text-align: left; }
 .phone-field select:focus, .phone-field input:focus { outline: none; }
+
+/* ---------- عروض الأسعار (لوحة التحكم) ---------- */
+.status-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 14px; }
+.status-tabs a { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; }
+.status-tabs a.active { border-color: var(--primary); color: var(--primary); font-weight: 600; }
+.status-tabs i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.status-pill { color: #fff; border-radius: 999px; padding: 2px 12px; font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+.quotes-list { min-width: 640px; }
+.quotes-list a { color: var(--primary); font-weight: 600; }
+.status-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.status-form .field { margin: 0; }
+.crumbs a { color: var(--primary); }

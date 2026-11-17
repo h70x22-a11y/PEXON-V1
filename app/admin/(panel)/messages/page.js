@@ -14,7 +14,7 @@ function formatDate(iso) {
 
 export default async function AdminMessages({ searchParams }) {
   const sp = await searchParams;
-  const messages = (await getMessages()).filter((m) => m.type !== 'vendor');
+  const messages = (await getMessages()).filter((m) => m.type !== 'vendor' && m.type !== 'quote');
 
   return (
     <>

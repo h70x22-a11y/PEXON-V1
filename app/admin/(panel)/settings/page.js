@@ -96,6 +96,13 @@ export default async function AdminSettings({ searchParams }) {
           </div>
         </div>
 
+        <h2>محركات البحث</h2>
+        <div className="field">
+          <label>رمز التحقق من Google Search Console</label>
+          <input type="text" name="googleVerification" defaultValue={s.googleVerification} maxLength={200} dir="ltr" placeholder='google-site-verification' />
+          <small>من Search Console اختر طريقة "HTML tag" والصق الوسم كامل أو قيمة content فقط.</small>
+        </div>
+
         <h2>بيانات التواصل</h2>
         <div className="form-grid">
           <div className="field">

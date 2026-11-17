@@ -4,6 +4,22 @@ import { getCategories, getProducts } from '@/lib/db';
 import { ProductCard } from '@/components/Cards';
 import { getLang, t } from '@/lib/i18n';
 
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const [categories, products, lang] = await Promise.all([getCategories(), getProducts(), getLang()]);
+  const c = categories.find((x) => x.id === id);
+  if (!c) return {};
+  const n = products.filter((p) => p.categoryId === id).length;
+  const description = c.description || (lang === 'en' ? `${n} ${c.name} products available for quotation.` : `${n} منتج من ${c.name}، متوفرة لطلب عرض سعر.`);
+  const image = c.image || products.find((p) => p.categoryId === id && p.image)?.image;
+  return {
+    title: c.name,
+    description,
+    alternates: { canonical: `/category/${c.id}` },
+    openGraph: { title: c.name, description, url: `/category/${c.id}`, images: image ? [{ url: image, alt: c.name }] : undefined },
+  };
+}
+
 export default async function CategoryPage({ params }) {
   const { id } = await params;
   const [categories, products, lang] = await Promise.all([getCategories(), getProducts(), getLang()]);
