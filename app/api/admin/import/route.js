@@ -6,7 +6,7 @@ import { getCategories, getProducts, saveCategories, saveProducts } from '@/lib/
 export const maxDuration = 60;
 
 // استيراد منتجات على دفعات (للمدير فقط). الصور تُنسخ إلى Vercel Blob.
-const ALLOWED_IMAGE_HOSTS = new Set(['images.cdn-files-a.com']);
+const ALLOWED_IMAGE_HOSTS = new Set(['images.cdn-files-a.com', 'files.cdn-files-a.com']);
 const str = (v, max) => String(v ?? '').trim().slice(0, max);
 
 async function copyImage(url) {
