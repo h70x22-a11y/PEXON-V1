@@ -6,6 +6,14 @@ export default async function HomePage() {
   const [s, categories, products] = await Promise.all([getSettings(), getCategories(), getProducts()]);
   const featured = products.filter((p) => p.featured).slice(0, 8);
   const countOf = (id) => products.filter((p) => p.categoryId === id).length;
+  const lines = (value) => String(value || '').split('\n').map((l) => l.trim()).filter(Boolean);
+  const values = lines(s.values).map((l) => {
+    const [title, ...rest] = l.split('|');
+    return { title: title.trim(), text: rest.join('|').trim() };
+  });
+  const services = lines(s.services);
+  const brands = lines(s.brands);
+  const partners = lines(s.partners);
 
   return (
     <>
@@ -44,6 +52,69 @@ export default async function HomePage() {
             <div className="grid">
               {featured.map((p) => (
                 <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {services.length ? (
+        <section className="band">
+          <div className="container">
+            <h2>خدمات تميزنا</h2>
+            <ul className="ticks">
+              {services.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
+
+      {brands.length ? (
+        <section className="section">
+          <div className="container">
+            <div className="section-head">
+              <h2>العلامات التجارية</h2>
+            </div>
+            <div className="chips">
+              {brands.map((item) => (
+                <span className="chip" key={item} dir="auto">{item}</span>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {values.length ? (
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="container">
+            <div className="section-head">
+              <h2>قيمنا</h2>
+            </div>
+            <div className="grid">
+              {values.map((v) => (
+                <div className="card value" key={v.title}>
+                  <div className="body">
+                    <h3>{v.title}</h3>
+                    {v.text ? <p>{v.text}</p> : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {partners.length ? (
+        <section className="section" style={{ paddingTop: 0 }}>
+          <div className="container">
+            <div className="section-head">
+              <h2>شركاء النجاح</h2>
+            </div>
+            <div className="chips">
+              {partners.map((item) => (
+                <span className="chip" key={item} dir="auto">{item}</span>
               ))}
             </div>
           </div>

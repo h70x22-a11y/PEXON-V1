@@ -44,6 +44,28 @@ export default async function AdminSettings({ searchParams }) {
           <textarea name="about" defaultValue={s.about} maxLength={2000} />
         </div>
 
+        <h2>أقسام الصفحة الرئيسية</h2>
+        <p className="muted">اكتب كل عنصر في سطر. القسم الفاضي لا يظهر في الموقع.</p>
+        <div className="field">
+          <label>قيمنا</label>
+          <textarea name="values" defaultValue={s.values} maxLength={2000} placeholder="العنوان | الشرح" />
+          <small>كل سطر بصيغة: العنوان | الشرح</small>
+        </div>
+        <div className="field">
+          <label>خدمات تميزنا</label>
+          <textarea name="services" defaultValue={s.services} maxLength={2000} />
+        </div>
+        <div className="form-grid">
+          <div className="field">
+            <label>العلامات التجارية</label>
+            <textarea name="brands" defaultValue={s.brands} maxLength={2000} dir="auto" />
+          </div>
+          <div className="field">
+            <label>شركاء النجاح</label>
+            <textarea name="partners" defaultValue={s.partners} maxLength={2000} dir="auto" />
+          </div>
+        </div>
+
         <h2>بيانات التواصل</h2>
         <div className="form-grid">
           <div className="field">

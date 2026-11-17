@@ -179,3 +179,17 @@ label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem
 .socials { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 6px; }
 .socials a { display: inline-flex; color: #cfd4dc; transition: color 0.15s, transform 0.15s; }
 .socials a:hover { color: #fff; transform: translateY(-2px); }
+
+/* ---------- أقسام الرئيسية الإضافية ---------- */
+.band { background: var(--primary); color: #fff; padding: 52px 0; }
+.band h2 { font-size: 1.7rem; margin-bottom: 22px; }
+.ticks { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px 28px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.ticks li { position: relative; padding-inline-start: 34px; font-size: 1.08rem; font-weight: 500; }
+.ticks li::before {
+  content: '\2713'; position: absolute; inset-inline-start: 0; top: 2px; width: 24px; height: 24px; border-radius: 50%;
+  background: #fff; color: var(--primary); display: grid; place-items: center; font-size: 0.85rem; font-weight: 700;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 12px; }
+.chip { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 22px; font-weight: 600; }
+.card.value { border-top: 4px solid var(--primary); }
+.card.value h3 { color: var(--primary); font-size: 1.2rem; margin-bottom: 4px; }

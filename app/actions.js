@@ -115,6 +115,10 @@ export async function saveSettingsAction(formData) {
       youtube: link(formData, 'youtube'),
       linkedin: link(formData, 'linkedin'),
       telegram: link(formData, 'telegram'),
+      values: text(formData, 'values', 2000),
+      services: text(formData, 'services', 2000),
+      brands: text(formData, 'brands', 2000),
+      partners: text(formData, 'partners', 2000),
     });
   });
 }

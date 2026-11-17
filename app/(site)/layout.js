@@ -10,7 +10,7 @@ export default async function SiteLayout({ children }) {
         <div className="container">
           <Link href="/" className="brand">
             {s.logo ? <img src={s.logo} alt={s.siteName} /> : null}
-            <span>{s.siteName}</span>
+            {s.logo ? null : <span>{s.siteName}</span>}
           </Link>
           <nav className="nav">
             <Link href="/">الرئيسية</Link>
