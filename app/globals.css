@@ -237,3 +237,7 @@ label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem
   .nav.open { display: flex; }
   .nav a { padding: 12px 10px; border-radius: 10px; font-size: 1.05rem; }
 }
+
+.catalog-link { color: #fff; font-weight: 600; }
+.catalog-link::before { content: '\2913  '; }
+.btn:disabled { opacity: 0.6; cursor: wait; transform: none; box-shadow: none; }

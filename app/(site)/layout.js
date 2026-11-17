@@ -33,6 +33,13 @@ export default async function SiteLayout({ children }) {
               <ul>
                 <li><Link href="/products">جميع المنتجات</Link></li>
                 <li><Link href="/contact">تواصل معنا</Link></li>
+                {s.catalogUrl ? (
+                  <li>
+                    <a href={s.catalogUrl} target="_blank" rel="noopener noreferrer" className="catalog-link">
+                      تحميل كتالوج المنتجات (PDF)
+                    </a>
+                  </li>
+                ) : null}
               </ul>
             </div>
             <div>

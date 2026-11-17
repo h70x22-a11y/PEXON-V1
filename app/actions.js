@@ -96,6 +96,7 @@ export async function saveSettingsAction(formData) {
     const current = await getSettings();
     const color = text(formData, 'primaryColor', 7);
     await saveSettings({
+      ...current,
       siteName: text(formData, 'siteName', 80) || current.siteName,
       tagline: text(formData, 'tagline', 160),
       heroTitle: text(formData, 'heroTitle', 160),
@@ -122,6 +123,33 @@ export async function saveSettingsAction(formData) {
       payments: text(formData, 'payments', 1000),
     });
   });
+}
+
+// ---------- الكتالوج ----------
+// يحفظ رابط الكتالوج بعد رفعه من المتصفح (الرابط لازم يكون من تخزين Vercel Blob)
+export async function saveCatalogAction(url) {
+  await requireAdmin();
+  let u;
+  try {
+    u = new URL(String(url));
+  } catch {
+    return { error: 'رابط غير صالح.' };
+  }
+  if (u.protocol !== 'https:' || !u.hostname.endsWith('.public.blob.vercel-storage.com') || !u.pathname.toLowerCase().endsWith('.pdf')) {
+    return { error: 'رابط غير صالح.' };
+  }
+  const current = await getSettings();
+  await saveSettings({ ...current, catalogUrl: u.href });
+  revalidatePath('/', 'layout');
+  return { ok: true };
+}
+
+export async function removeCatalogAction() {
+  await requireAdmin();
+  const current = await getSettings();
+  await saveSettings({ ...current, catalogUrl: '' });
+  revalidatePath('/', 'layout');
+  return { ok: true };
 }
 
 // ---------- الأقسام ----------

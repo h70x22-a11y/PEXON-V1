@@ -1,5 +1,6 @@
 import { getSettings } from '@/lib/db';
-import { saveSettingsAction } from '@/app/actions';
+import { removeCatalogAction, saveCatalogAction, saveSettingsAction } from '@/app/actions';
+import CatalogUpload from '@/components/CatalogUpload';
 import Flash from '@/components/Flash';
 import ImageField from '@/components/ImageField';
 import { SOCIALS } from '@/components/SocialIcons';
@@ -12,6 +13,7 @@ export default async function AdminSettings({ searchParams }) {
     <>
       <h1>إعدادات الموقع</h1>
       <Flash params={sp} />
+      <CatalogUpload current={s.catalogUrl} onSaved={saveCatalogAction} onRemove={removeCatalogAction} />
       <form action={saveSettingsAction} className="panel">
         <h2>الهوية</h2>
         <div className="form-grid">
