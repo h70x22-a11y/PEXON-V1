@@ -74,7 +74,7 @@ function sections(lang, s) {
           '• Request correction, completion or update of your personal data.',
           '• Request destruction of your personal data when it is no longer needed.',
           '• Withdraw your consent to processing at any time.',
-          `To exercise any of these rights, email your request to ${email || 'us'} stating your name, mobile number and the type of request, or use the [[personal data request form]]. We will respond within 30 days of receiving the request, and may ask you to verify your identity. You also have the right to file a complaint with the Saudi Data & AI Authority (SDAIA).',
+          `To exercise any of these rights, email your request to ${email || 'us'} stating your name, mobile number and the type of request, or use the [[personal data request form]]. We will respond within 30 days of receiving the request, and may ask you to verify your identity. You also have the right to file a complaint with the Saudi Data & AI Authority (SDAIA).`,
         ]],
         ['11. Data retention', [
           'We keep personal data only for as long as needed for the purposes described in this notice, or as required by applicable law. When it is no longer needed, it is securely deleted or anonymized. The retention periods are:',
