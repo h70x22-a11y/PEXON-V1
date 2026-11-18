@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { can, requireAdmin } from '@/lib/auth';
-import { getCategories, getMessages, getProducts } from '@/lib/db';
+import { getCategories, getMessages, getProducts, getSearchStats } from '@/lib/db';
 
 export default async function AdminHome({ searchParams }) {
   const sp = await searchParams;
@@ -10,6 +10,7 @@ export default async function AdminHome({ searchParams }) {
   const newQuotes = messages.filter((m) => m.type === 'quote' && (m.status || 'new') === 'new').length;
   const contact = messages.filter((m) => m.type !== 'vendor' && m.type !== 'quote').length;
   const vendors = messages.filter((m) => m.type === 'vendor').length;
+  const searches = show('searches') ? await getSearchStats(7) : null;
 
   return (
     <>
@@ -20,6 +21,7 @@ export default async function AdminHome({ searchParams }) {
         {show('messages') ? <Link className="stat" href="/admin/messages"><b>{contact}</b>رسالة</Link> : null}
         {show('vendors') ? <Link className="stat" href="/admin/vendors"><b>{vendors}</b>مورد مسجل</Link> : null}
         {show('products') ? <Link className="stat" href="/admin/products"><b>{products.length}</b>منتج</Link> : null}
+        {searches ? <Link className="stat" href="/admin/searches?days=7"><b>{searches.zeroTotal}</b>بحث بدون نتيجة (آخر 7 أيام)</Link> : null}
         {show('categories') ? <Link className="stat" href="/admin/categories"><b>{categories.length}</b>قسم</Link> : null}
       </div>
     </>

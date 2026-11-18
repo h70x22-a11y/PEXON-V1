@@ -467,3 +467,15 @@ a.stat:hover { border-color: var(--primary); }
 
 .load-more { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 28px; }
 .load-more .muted { font-size: 0.88rem; }
+
+/* إحصائيات البحث */
+.period-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 20px; }
+.period-tabs a { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 0.9rem; }
+.period-tabs a.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.search-stats { display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); align-items: start; }
+.search-stats h2 { font-size: 1.15rem; margin: 0 0 12px; }
+.search-miss { color: #b42318; font-weight: 600; }
+[data-theme='dark'] .search-miss { color: #ff8a80; }
+.search-fixed { color: #067647; font-size: 0.85rem; }
+[data-theme='dark'] .search-fixed { color: #6ce9a6; }
+@media (max-width: 520px) { .search-stats { grid-template-columns: 1fr; } }

@@ -16,6 +16,21 @@ export default function SearchBox({ lang, labels }) {
 
   useEffect(() => setOpen(false), [pathname]);
 
+  // نسجل البحث لإحصائيات لوحة التحكم: لما يختار اقتراح، أو يقفل البحث وما لقى شي
+  const logged = useRef('');
+  function track(term) {
+    const v = String(term || '').trim();
+    if (v.length < 2 || logged.current === v) return;
+    logged.current = v;
+    try {
+      navigator.sendBeacon('/api/search/log', JSON.stringify({ q: v }));
+    } catch {}
+  }
+  const resRef = useRef(res);
+  resRef.current = res;
+  const qRef = useRef(q);
+  qRef.current = q;
+
   useEffect(() => {
     const term = q.trim();
     if (term.length < 2) {
@@ -38,7 +53,11 @@ export default function SearchBox({ lang, labels }) {
   }, [q, lang]);
 
   useEffect(() => {
-    const close = (e) => box.current && !box.current.contains(e.target) && setOpen(false);
+    const close = (e) => {
+      if (!box.current || box.current.contains(e.target)) return;
+      if (qRef.current.trim().length >= 3 && resRef.current.total === 0) track(qRef.current);
+      setOpen(false);
+    };
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
   }, []);
@@ -46,6 +65,7 @@ export default function SearchBox({ lang, labels }) {
   function submit(e) {
     e.preventDefault();
     if (active >= 0 && res.items[active]) {
+      track(q);
       router.push(`/product/${res.items[active].id}`);
     } else if (q.trim()) {
       router.push(`/products?q=${encodeURIComponent(q.trim())}`);
@@ -62,6 +82,7 @@ export default function SearchBox({ lang, labels }) {
       e.preventDefault();
       setActive((a) => Math.max(a - 1, -1));
     } else if (e.key === 'Escape') {
+      if (q.trim().length >= 3 && res.total === 0) track(q);
       setOpen(false);
     }
   }
@@ -93,7 +114,10 @@ export default function SearchBox({ lang, labels }) {
                   className={`search-item${i === active ? ' active' : ''}`}
                   role="option"
                   aria-selected={i === active}
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    track(q);
+                    setOpen(false);
+                  }}
                 >
                   <span className="si-thumb">{it.image ? <img src={it.image} alt="" /> : null}</span>
                   <span className="si-text">

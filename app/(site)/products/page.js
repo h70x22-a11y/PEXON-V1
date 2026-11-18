@@ -1,4 +1,7 @@
 import Link from 'next/link';
+import { after } from 'next/server';
+import { clientIp } from '@/lib/auth';
+import { logSearch } from '@/lib/searchLog';
 import { getCategories, getProducts } from '@/lib/db';
 import { brandOf, listBrands, searchProducts } from '@/lib/catalog';
 import { ProductCard } from '@/components/Cards';
@@ -18,6 +21,10 @@ export default async function ProductsPage({ searchParams }) {
   const [categories, products, lang] = await Promise.all([getCategories(), getProducts(), getLang()]);
   const tr = t(lang);
   const brands = listBrands(products);
+  if (q) {
+    const ip = await clientIp();
+    after(() => logSearch(q, ip, { products, categories }));
+  }
 
   const brandKey = brand.toLowerCase();
   const filtering = Boolean(q || cat || brand);

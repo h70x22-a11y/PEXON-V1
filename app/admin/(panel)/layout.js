@@ -18,6 +18,7 @@ export default async function AdminLayout({ children }) {
         {show('vendors') ? <Link href="/admin/vendors">الموردين المسجلين</Link> : null}
         {show('products') ? <Link href="/admin/products">المنتجات</Link> : null}
         {show('categories') ? <Link href="/admin/categories">الأقسام</Link> : null}
+        {show('searches') ? <Link href="/admin/searches">إحصائيات البحث</Link> : null}
         {show('settings') ? <Link href="/admin/settings">إعدادات الموقع</Link> : null}
         {show('users') ? <Link href="/admin/users">المستخدمين والصلاحيات</Link> : null}
         <div className="spacer" />
