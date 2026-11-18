@@ -10,6 +10,7 @@ import CartButton from '@/components/CartButton';
 import SearchBox from '@/components/SearchBox';
 import MetaPixel from '@/components/MetaPixel';
 import ConsentLink from '@/components/ConsentLink';
+import VisitBeacon from '@/components/VisitBeacon';
 
 export default async function SiteLayout({ children }) {
   const [s, lang] = await Promise.all([getSettings(), getLang()]);
@@ -86,6 +87,7 @@ export default async function SiteLayout({ children }) {
           </div>
         </div>
       </footer>
+      <VisitBeacon />
       <MetaPixel pixelId={s.metaPixelId} gaId={s.gaId} labels={{ title: tr.cookieTitle, text: tr.cookieText, more: tr.cookieMore, accept: tr.cookieAccept, decline: tr.cookieDecline }} />
     </>
   );

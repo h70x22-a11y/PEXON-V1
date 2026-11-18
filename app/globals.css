@@ -842,3 +842,13 @@ html[data-theme='dark'] .top-menu-item.danger { color: #ff8a80; }
 .consent-actions .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
 .link-btn { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-align: start; }
 .link-btn:hover { text-decoration: underline; }
+
+/* صفحة الزيارات */
+.vgrid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.vbars { display: grid; gap: 12px; }
+.vbar-top { display: flex; justify-content: space-between; gap: 12px; font-size: 0.92rem; margin-bottom: 5px; }
+.vbar-top bdi { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vbar-top span { font-weight: 700; white-space: nowrap; }
+.vbar-top small { font-weight: 400; color: var(--muted); }
+.vbar-track { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.vbar-track i { display: block; height: 100%; border-radius: 999px; background: #1c8fd6; }

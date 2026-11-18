@@ -4,7 +4,7 @@ import { can, requireAdmin } from '@/lib/auth';
 import { blobReady, dbReady, getAvatar, getChatUnread, getMessages, getNotSold, getResetRequests, getSearchProgress } from '@/lib/db';
 import { AdminLangProvider, AdminLangToggle } from '@/components/AdminLang';
 import AdminTopbar from '@/components/AdminTopbar';
-import { TbChartPie, TbMessages, TbFileDollar, TbInbox, TbBriefcase, TbPackage, TbLayoutGrid, TbChartBar, TbSettings, TbHistory, TbCloudUpload, TbUserShield, TbCode, TbWorld } from 'react-icons/tb';
+import { TbChartPie, TbMessages, TbFileDollar, TbInbox, TbBriefcase, TbPackage, TbLayoutGrid, TbChartBar, TbChartLine, TbSettings, TbHistory, TbCloudUpload, TbUserShield, TbCode, TbWorld } from 'react-icons/tb';
 import { adminT } from '@/lib/adminLang';
 
 export async function generateMetadata() {
@@ -53,6 +53,7 @@ export default async function AdminLayout({ children }) {
         {show('vendors') ? <Link href="/admin/vendors"><TbBriefcase className="side-ic" aria-hidden="true" />{t('الموردين المسجلين')}{dot('vendors')}</Link> : null}
         {show('products') ? <Link href="/admin/products"><TbPackage className="side-ic" aria-hidden="true" />{t('المنتجات')}</Link> : null}
         {show('categories') ? <Link href="/admin/categories"><TbLayoutGrid className="side-ic" aria-hidden="true" />{t('الأقسام')}</Link> : null}
+        {show('searches') ? <Link href="/admin/visits"><TbChartLine className="side-ic" aria-hidden="true" />{t('الزيارات')}</Link> : null}
         {show('searches') ? <Link href="/admin/searches"><TbChartBar className="side-ic" aria-hidden="true" />{t('إحصائيات البحث')}{dot('searches')}</Link> : null}
         {show('settings') ? <Link href="/admin/settings"><TbSettings className="side-ic" aria-hidden="true" />{t('إعدادات الموقع')}</Link> : null}
         {show('audit') ? <Link href="/admin/activity"><TbHistory className="side-ic" aria-hidden="true" />{t('سجل النشاط')}</Link> : null}
