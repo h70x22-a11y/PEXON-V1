@@ -16,6 +16,7 @@ export default async function AdminLayout({ children }) {
   const { t, lang, locale, dir } = await adminT();
   const session = await requireAdmin();
   if (session.mustChange) redirect('/admin/set-password');
+  if (!session.termsOk) redirect('/admin/terms');
   const show = (perm) => can(session, perm);
   const avatar = await getAvatar(session.id);
   return (

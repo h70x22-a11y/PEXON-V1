@@ -16,6 +16,7 @@ import {
   verifyPassword,
 } from '@/lib/auth';
 import { ALL_PERMS, normalizePerms } from '@/lib/permissions';
+import { TERMS_VERSION } from '@/lib/terms';
 import { VENDOR_ACTIVITIES } from '@/lib/vendor';
 import { DEFAULT_COUNTRY, findCountry } from '@/lib/countries';
 import { QUOTE_STATUSES } from '@/lib/quotes';
@@ -262,6 +263,20 @@ export async function setFirstPassword(formData) {
     }
   }
   redirect(error ? `/admin/set-password?error=${encodeURIComponent(error)}` : '/admin?welcome=1');
+}
+
+// ---------- الموافقة على الشروط والأحكام ----------
+export async function acceptTermsAction(formData) {
+  const session = await requireAdmin();
+  if (session.owner) redirect('/admin');
+  if (!formData.get('agree')) redirect(`/admin/terms?error=${encodeURIComponent('لازم توافق على الشروط والأحكام عشان تكمل.')}`);
+  const users = await getUsers();
+  const user = users.find((u) => u.id === session.id);
+  if (user) {
+    user.termsAccepted = { version: TERMS_VERSION, date: new Date().toISOString(), ip: await clientIp() };
+    await saveUsers(users);
+  }
+  redirect('/admin');
 }
 
 // ---------- طلب إعادة تعيين كلمة المرور ----------

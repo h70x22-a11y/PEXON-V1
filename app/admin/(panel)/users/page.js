@@ -6,6 +6,7 @@ import Flash from '@/components/Flash';
 import TempPassword from '@/components/TempPassword';
 import ConfirmButton from '@/components/ConfirmButton';
 import { adminT } from '@/lib/adminLang';
+import { TERMS_VERSION } from '@/lib/terms';
 
 function RoleSelect({ t, roles, value = '' }) {
   return (
@@ -111,6 +112,13 @@ export default async function AdminUsers({ searchParams }) {
               <span className="muted" dir="ltr" style={{ fontWeight: 400 }}>{u.username}</span>
               {!u.active ? <span className="badge" style={{ background: '#9aa3af', color: '#fff' }}>{t('موقوف')}</span> : null}
               {u.active && u.mustChangePassword ? <span className="badge">{t('بانتظار أول دخول')}</span> : null}
+              {u.termsAccepted?.version === TERMS_VERSION ? (
+                <span className="muted" style={{ fontWeight: 400, fontSize: '0.82rem' }} title={u.termsAccepted.date}>
+                  ✓ {t('وافق على الشروط')} {new Date(u.termsAccepted.date).toLocaleDateString(locale, { timeZone: 'Asia/Riyadh' })}
+                </span>
+              ) : !u.mustChangePassword ? (
+                <span className="muted" style={{ fontWeight: 400, fontSize: '0.82rem' }}>{t('لم يوافق بعد')}</span>
+              ) : null}
               <span className="meta">{roleName(u)}{canW ? ` ${t('· تعديل')}` : ''}</span>
             </summary>
             <div className="inner">

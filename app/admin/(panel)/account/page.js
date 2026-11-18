@@ -21,6 +21,7 @@ export default async function AdminAccount({ searchParams }) {
           <li><span>{t('الاسم:')}</span> {t(session.name)}</li>
           <li><span>{t('اسم المستخدم:')}</span> <bdi>{session.username}</bdi></li>
           {!session.owner ? <li><span>{t('المنصب:')}</span> {session.roleName || t('بدون منصب')}</li> : null}
+          <li><span>{t('الشروط والأحكام:')}</span> <a href="/admin/terms?view=1">{t('عرض')}</a></li>
           <li><span>{t('الصلاحيات:')}</span> {perms.join(t('، ')) || t('لا يوجد')}</li>
         </ul>
       </div>

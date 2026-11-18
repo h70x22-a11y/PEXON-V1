@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 async function me() {
   const s = await getSession();
-  return s && !s.mustChange ? s : null;
+  return s && !s.mustChange && s.termsOk ? s : null;
 }
 
 // بدون with: قائمة الأعضاء مع عدد غير المقروء. مع with: المحادثة وتعليمها كمقروءة

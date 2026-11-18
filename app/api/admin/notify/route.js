@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const s = await getSession();
-  if (!s || s.mustChange) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!s || s.mustChange || !s.termsOk) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   const [n, chats] = await Promise.all([buildNotifications(s), chatUnreadTotal(s)]);
   return NextResponse.json({ ...n, chats }, { headers: { 'Cache-Control': 'no-store' } });
 }
@@ -15,7 +15,7 @@ export async function GET() {
 // تعليم كل التنبيهات كمقروءة
 export async function POST() {
   const s = await getSession();
-  if (!s || s.mustChange) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!s || s.mustChange || !s.termsOk) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   await setSeenAt(s.id, new Date().toISOString());
   return NextResponse.json({ ok: true });
 }
