@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAdminT } from '@/components/AdminLang';
 
 // حروف وأرقام سهلة القراءة (بدون 0/O و 1/l/I)
@@ -17,10 +17,15 @@ function suggest(len = 10) {
 }
 
 // حقل كلمة مرور مؤقتة مع زر "اقتراح" وزر "نسخ"
-export default function TempPassword({ name = 'password', required = false, placeholder = '', label = '' }) {
+export default function TempPassword({ name = 'password', required = false, placeholder = '', label = '', autoSuggest = false }) {
   const { t } = useAdminT();
   const [value, setValue] = useState('');
   const [copied, setCopied] = useState(false);
+
+  // يقترح كلمة مؤقتة تلقائياً أول ما يفتح النموذج
+  useEffect(() => {
+    if (autoSuggest) setValue(suggest());
+  }, [autoSuggest]);
 
   function gen() {
     setValue(suggest());
@@ -51,7 +56,7 @@ export default function TempPassword({ name = 'password', required = false, plac
         placeholder={placeholder ? t(placeholder) : ''}
         aria-label={label ? t(label) : undefined}
       />
-      <button type="button" className="btn ghost small" onClick={gen}>{t('اقتراح')}</button>
+      <button type="button" className="btn ghost small" onClick={gen}>{t('اقتراح كلمة ثانية')}</button>
       <button type="button" className="btn ghost small" onClick={copy} disabled={!value}>{copied ? t('تم النسخ ✓') : t('نسخ')}</button>
     </div>
   );

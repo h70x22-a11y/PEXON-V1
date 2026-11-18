@@ -54,7 +54,7 @@ export default async function AdminUsers({ searchParams }) {
                   {r.note ? ` · ${r.note}` : ''}
                 </div>
               </div>
-              <TempPassword placeholder="كلمة مرور مؤقتة" label="كلمة مرور مؤقتة" />
+              <TempPassword placeholder="كلمة مرور مؤقتة" label="كلمة مرور مؤقتة" autoSuggest />
               <button className="btn small" type="submit">{t('تعيين كلمة مؤقتة')}</button>
               <button className="btn ghost small" type="submit" name="ignore" value="1" formNoValidate>{t('تجاهل')}</button>
             </form>
@@ -84,8 +84,8 @@ export default async function AdminUsers({ searchParams }) {
               </div>
               <div className="field">
                 <label>{t('كلمة المرور المؤقتة')}</label>
-                <TempPassword required />
-                <small>{t('8 أحرف على الأقل. أرسلها للموظف، وأول ما يدخل بيطلب منه يختار كلمة مرور جديدة.')}</small>
+                <TempPassword required autoSuggest />
+                <small>{t('اقترحنا لك كلمة مؤقتة، تقدر تغيرها. انسخها وأرسلها للموظف، وأول ما يدخل بيطلب منه يختار كلمة مرور جديدة.')}</small>
               </div>
             </div>
             <RoleSelect t={t} roles={roles} />
