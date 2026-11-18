@@ -38,6 +38,10 @@ export default async function AdminAccount({ searchParams }) {
             <input type="password" name="next" required minLength={8} dir="ltr" autoComplete="new-password" />
             <small>{t('8 أحرف على الأقل.')}</small>
           </div>
+          <div className="field">
+            <label>{t('تأكيد كلمة المرور الجديدة')}</label>
+            <input type="password" name="confirm" required minLength={8} dir="ltr" autoComplete="new-password" />
+          </div>
           <button className="btn" type="submit">{t('تغيير كلمة المرور')}</button>
         </form>
       )}

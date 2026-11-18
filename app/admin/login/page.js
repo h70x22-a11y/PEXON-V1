@@ -35,6 +35,7 @@ export default async function LoginPage({ searchParams }) {
         </div>
         <button className="btn" type="submit" style={{ width: '100%' }}>{t('دخول')}</button>
       </form>
+      <p style={{ textAlign: 'center', margin: '14px 0 0' }}><a href="/admin/forgot">{t('نسيت كلمة المرور؟')}</a></p>
       <div className="login-lang"><AdminLangToggle lang={lang} /></div>
     </div>
   );

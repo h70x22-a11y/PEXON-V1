@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { can, requireAdmin } from '@/lib/auth';
 import { blobReady, dbReady } from '@/lib/db';
@@ -13,6 +14,7 @@ export async function generateMetadata() {
 export default async function AdminLayout({ children }) {
   const { t, lang, locale, dir } = await adminT();
   const session = await requireAdmin();
+  if (session.mustChange) redirect('/admin/set-password');
   const show = (perm) => can(session, perm);
   return (
     <AdminLangProvider lang={lang}>

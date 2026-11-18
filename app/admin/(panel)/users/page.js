@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { can, requirePerm } from '@/lib/auth';
-import { getRoles, getUsers } from '@/lib/db';
-import { addUser, deleteUser, updateUser } from '@/app/actions';
+import { getResetRequests, getRoles, getUsers } from '@/lib/db';
+import { addUser, deleteUser, resolveResetAction, updateUser } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ConfirmButton from '@/components/ConfirmButton';
 import { adminT } from '@/lib/adminLang';
@@ -24,7 +24,7 @@ export default async function AdminUsers({ searchParams }) {
   const { t, lang, locale, dir } = await adminT();
   const session = await requirePerm('users');
   const sp = await searchParams;
-  const [users, roles] = await Promise.all([getUsers(), getRoles()]);
+  const [users, roles, resets] = await Promise.all([getUsers(), getRoles(), getResetRequests()]);
   const roleName = (u) => roles.find((r) => r.id === u.roleId)?.name || t('بدون منصب');
   const canW = can(session, 'users:write');
   const canD = can(session, 'users:delete');
@@ -40,6 +40,27 @@ export default async function AdminUsers({ searchParams }) {
         {t('أضف حساب لكل موظف واختر منصبه. صلاحيات كل منصب تحددها من تبويب المناصب.')}
       </p>
       <Flash params={sp} />
+      {canW && resets.length ? (
+        <div className="panel reset-panel">
+          <h2>{t('طلبات إعادة تعيين كلمة المرور')} ({resets.length})</h2>
+          {resets.map((r) => (
+            <form key={r.id} action={resolveResetAction} className="reset-row">
+              <input type="hidden" name="reqId" value={r.id} />
+              <div className="reset-who">
+                <strong>{r.name}</strong> <bdi className="muted">{r.username}</bdi>
+                <div className="muted" style={{ fontSize: '0.85rem' }}>
+                  {new Date(r.date).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Riyadh' })}
+                  {r.note ? ` · ${r.note}` : ''}
+                </div>
+              </div>
+              <input type="text" name="password" minLength={8} maxLength={100} dir="ltr" autoComplete="new-password" placeholder={t('كلمة مرور مؤقتة')} aria-label={t('كلمة مرور مؤقتة')} />
+              <button className="btn small" type="submit">{t('تعيين كلمة مؤقتة')}</button>
+              <button className="btn ghost small" type="submit" name="ignore" value="1" formNoValidate>{t('تجاهل')}</button>
+            </form>
+          ))}
+          <small className="muted">{t('بعد التعيين أرسل كلمة المرور المؤقتة للموظف، وأول ما يدخل بيطلب منه يختار كلمة مرور جديدة.')}</small>
+        </div>
+      ) : null}
       {canW && !roles.length ? (
         <div className="flash warn">
           {t('أنشئ منصب واحد على الأقل قبل إضافة المستخدمين.')} <Link href="/admin/users/roles/new">{t('+ إنشاء منصب')}</Link>
@@ -61,9 +82,9 @@ export default async function AdminUsers({ searchParams }) {
                 <small>{t('حروف إنجليزية صغيرة وأرقام فقط.')}</small>
               </div>
               <div className="field">
-                <label>{t('كلمة المرور')}</label>
+                <label>{t('كلمة المرور المؤقتة')}</label>
                 <input type="text" name="password" required minLength={8} maxLength={100} dir="ltr" autoComplete="new-password" />
-                <small>{t('8 أحرف على الأقل. أرسلها للموظف وهو يقدر يغيرها من "حسابي".')}</small>
+                <small>{t('8 أحرف على الأقل. أرسلها للموظف، وأول ما يدخل بيطلب منه يختار كلمة مرور جديدة.')}</small>
               </div>
             </div>
             <RoleSelect t={t} roles={roles} />
@@ -88,6 +109,7 @@ export default async function AdminUsers({ searchParams }) {
               {u.name}
               <span className="muted" dir="ltr" style={{ fontWeight: 400 }}>{u.username}</span>
               {!u.active ? <span className="badge" style={{ background: '#9aa3af', color: '#fff' }}>{t('موقوف')}</span> : null}
+              {u.active && u.mustChangePassword ? <span className="badge">{t('بانتظار أول دخول')}</span> : null}
               <span className="meta">{roleName(u)}{canW ? ` ${t('· تعديل')}` : ''}</span>
             </summary>
             <div className="inner">
@@ -99,7 +121,7 @@ export default async function AdminUsers({ searchParams }) {
                     <input type="text" name="name" defaultValue={u.name} required maxLength={80} />
                   </div>
                   <div className="field">
-                    <label>{t('كلمة مرور جديدة (اختياري)')}</label>
+                    <label>{t('كلمة مرور مؤقتة جديدة (اختياري)')}</label>
                     <input type="text" name="password" minLength={8} maxLength={100} dir="ltr" autoComplete="new-password" placeholder={t('اتركها فاضية لو ما تبي تغيرها')} />
                   </div>
                 </div>

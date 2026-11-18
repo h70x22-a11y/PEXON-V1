@@ -25,6 +25,8 @@ import {
   getUsers,
   getRoles,
   saveRoles,
+  getResetRequests,
+  saveResetRequests,
   hitCounter,
   saveUsers,
   addMessage,
@@ -113,7 +115,7 @@ export async function login(formData) {
   if (user && user.active && verifyPassword(password, user.passwordHash)) {
     await clearCounter(key);
     await setSession(user.id, String(user.sessionVersion));
-    redirect('/admin');
+    redirect(user.mustChangePassword ? '/admin/set-password' : '/admin');
   }
   const n = await hitCounter(key, LOCK_SECONDS);
   redirect(n >= MAX_ATTEMPTS ? '/admin/login?error=locked' : '/admin/login?error=1');
@@ -156,6 +158,7 @@ export async function addUser(formData) {
       passwordHash: hashPassword(password),
       roleId: await roleFrom(formData),
       perms: [],
+      mustChangePassword: true,
       active: true,
       sessionVersion: 1,
       created: new Date().toISOString(),
@@ -182,6 +185,7 @@ export async function updateUser(formData) {
     if (password) {
       if (password.length < 8) throw new Error('كلمة المرور لازم تكون 8 أحرف على الأقل.');
       user.passwordHash = hashPassword(password);
+      user.mustChangePassword = true; // كلمة مؤقتة: يغيرها الموظف أول ما يدخل
     }
     // تغيير كلمة المرور أو الإيقاف يسجّل خروج المستخدم من كل أجهزته
     if (password || (wasActive && !user.active)) user.sessionVersion = (user.sessionVersion || 1) + 1;
@@ -230,6 +234,70 @@ export async function deleteRoleAction(formData) {
   }, 'delete');
 }
 
+// ---------- كلمة المرور أول دخول ----------
+export async function setFirstPassword(formData) {
+  const session = await requireAdmin();
+  const next = String(formData.get('next') || '');
+  const confirm = String(formData.get('confirm') || '');
+  let error = '';
+  if (session.owner) redirect('/admin');
+  if (next.length < 8) error = 'كلمة المرور الجديدة لازم تكون 8 أحرف على الأقل.';
+  else if (next !== confirm) error = 'كلمتا المرور غير متطابقتين.';
+  else {
+    const users = await getUsers();
+    const user = users.find((u) => u.id === session.id);
+    if (!user) error = 'المستخدم غير موجود.';
+    else if (verifyPassword(next, user.passwordHash)) error = 'اختر كلمة مرور غير المؤقتة.';
+    else {
+      user.passwordHash = hashPassword(next);
+      user.mustChangePassword = false;
+      user.sessionVersion = (user.sessionVersion || 1) + 1;
+      await saveUsers(users);
+      await setSession(user.id, String(user.sessionVersion));
+    }
+  }
+  redirect(error ? `/admin/set-password?error=${encodeURIComponent(error)}` : '/admin?welcome=1');
+}
+
+// ---------- طلب إعادة تعيين كلمة المرور ----------
+export async function requestPasswordReset(formData) {
+  const username = String(formData.get('username') || '').trim().toLowerCase().slice(0, 30);
+  const note = String(formData.get('note') || '').trim().slice(0, 200);
+  const ip = await clientIp();
+  // حد للطلبات من نفس الجهاز
+  if ((await hitCounter(`reset-req:${ip}`, 3600)) <= 5 && username) {
+    const user = (await getUsers()).find((u) => u.username === username && u.active);
+    if (user) {
+      const list = (await getResetRequests()).filter((r) => r.userId !== user.id);
+      list.unshift({ id: randomUUID(), userId: user.id, username: user.username, name: user.name, note, date: new Date().toISOString() });
+      await saveResetRequests(list.slice(0, 50));
+    }
+  }
+  // نفس الرد دائماً عشان ما ينكشف وجود اسم المستخدم
+  redirect('/admin/forgot?sent=1');
+}
+
+export async function resolveResetAction(formData) {
+  await run('/admin/users', async () => {
+    const reqId = text(formData, 'reqId', 60);
+    const password = String(formData.get('password') || '');
+    const list = await getResetRequests();
+    const req = list.find((r) => r.id === reqId);
+    if (!req) throw new Error('الطلب غير موجود.');
+    if (!formData.get('ignore')) {
+      if (password.length < 8) throw new Error('كلمة المرور لازم تكون 8 أحرف على الأقل.');
+      const users = await getUsers();
+      const user = users.find((u) => u.id === req.userId);
+      if (!user) throw new Error('المستخدم غير موجود.');
+      user.passwordHash = hashPassword(password);
+      user.mustChangePassword = true;
+      user.sessionVersion = (user.sessionVersion || 1) + 1;
+      await saveUsers(users);
+    }
+    await saveResetRequests(list.filter((r) => r.id !== reqId));
+  });
+}
+
 export async function changeOwnPassword(formData) {
   const session = await requireAdmin();
   let error = '';
@@ -242,6 +310,7 @@ export async function changeOwnPassword(formData) {
     const next = String(formData.get('next') || '');
     if (!user || !verifyPassword(current, user.passwordHash)) error = 'كلمة المرور الحالية غير صحيحة.';
     else if (next.length < 8) error = 'كلمة المرور الجديدة لازم تكون 8 أحرف على الأقل.';
+    else if (next !== String(formData.get('confirm') || '')) error = 'كلمتا المرور غير متطابقتين.';
     else {
       user.passwordHash = hashPassword(next);
       user.sessionVersion = (user.sessionVersion || 1) + 1;

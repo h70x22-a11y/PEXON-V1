@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { can, requireAdmin } from '@/lib/auth';
-import { getCategories, getMessages, getProducts, getSearchStats } from '@/lib/db';
+import { getCategories, getMessages, getProducts, getResetRequests, getSearchStats } from '@/lib/db';
 import { adminT } from '@/lib/adminLang';
 
 export default async function AdminHome({ searchParams }) {
@@ -13,11 +13,18 @@ export default async function AdminHome({ searchParams }) {
   const contact = messages.filter((m) => m.type !== 'vendor' && m.type !== 'quote').length;
   const vendors = messages.filter((m) => m.type === 'vendor').length;
   const searches = show('searches') ? await getSearchStats(7) : null;
+  const resets = can(session, 'users:write') ? (await getResetRequests()).length : 0;
 
   return (
     <>
       <h1>{t('أهلاً')} {t(session.name)}</h1>
       {sp?.denied ? <div className="flash warn">{t('ما عندك صلاحية على هذا القسم. تواصل مع المدير.')}</div> : null}
+      {sp?.welcome ? <div className="flash ok">{t('تم حفظ كلمة المرور الجديدة. أهلاً بك!')}</div> : null}
+      {resets ? (
+        <Link href="/admin/users" className="flash warn" style={{ display: 'block' }}>
+          {t('عندك {n} طلب إعادة تعيين كلمة مرور من الموظفين ←', { n: resets })}
+        </Link>
+      ) : null}
       <div className="stats">
         {show('quotes') ? <Link className="stat" href="/admin/quotes?status=new"><b>{newQuotes}</b>{t('طلب عرض سعر جديد')}</Link> : null}
         {show('messages') ? <Link className="stat" href="/admin/messages"><b>{contact}</b>{t('رسالة')}</Link> : null}

@@ -519,3 +519,8 @@ a.stat:hover { border-color: var(--primary); }
 .perm-matrix input[type='checkbox'] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
 .row-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .row-actions form { margin: 0; }
+.reset-panel { margin-bottom: 18px; border-color: #f2a541; }
+.reset-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.reset-row .reset-who { flex: 1 1 220px; }
+.reset-row input[type='text'] { flex: 0 1 220px; }
+.link-btn { background: none; border: 0; color: var(--muted); font: inherit; cursor: pointer; text-decoration: underline; }
