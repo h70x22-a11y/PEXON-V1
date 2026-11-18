@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requirePerm } from '@/lib/auth';
+import { can, requirePerm } from '@/lib/auth';
 import { notFound } from 'next/navigation';
 import { getMessage } from '@/lib/db';
 import { deleteQuoteAction, updateQuoteStatus } from '@/app/actions';
@@ -18,7 +18,9 @@ function formatDate(iso, locale = 'ar') {
 
 export default async function AdminQuote({ params, searchParams }) {
   const { t, lang, locale, dir } = await adminT();
-  await requirePerm('quotes');
+  const session = await requirePerm('quotes');
+  const canW = can(session, 'quotes:write');
+  const canD = can(session, 'quotes:delete');
   const { id } = await params;
   const sp = await searchParams;
   const q = await getMessage(id);
@@ -51,7 +53,7 @@ export default async function AdminQuote({ params, searchParams }) {
             <label htmlFor="statusNote">{t('ملاحظة داخلية (اختياري)')}</label>
             <input id="statusNote" type="text" name="statusNote" defaultValue={q.statusNote || ''} maxLength={1000} placeholder={t('مثال: أُرسل العرض بالإيميل، بانتظار رد العميل')} />
           </div>
-          <button className="btn" type="submit">{t('حفظ')}</button>
+          {canW ? <button className="btn" type="submit">{t('حفظ')}</button> : null}
         </form>
         {q.updated ? <p className="muted" style={{ margin: '10px 0 0', fontSize: '0.88rem' }}>{t('آخر تحديث:')} {formatDate(q.updated, locale)}{q.updatedBy ? ` · ${t('بواسطة')} ${q.updatedBy}` : ''}</p> : null}
       </div>
@@ -96,10 +98,12 @@ export default async function AdminQuote({ params, searchParams }) {
         </div>
       </div>
 
+      {canD ? (
       <form action={deleteQuoteAction} style={{ marginTop: 24 }}>
         <input type="hidden" name="id" value={q.id} />
         <ConfirmButton message={t('حذف الطلب نهائياً؟')}>{t('حذف الطلب')}</ConfirmButton>
       </form>
+      ) : null}
     </>
   );
 }

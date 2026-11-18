@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requirePerm } from '@/lib/auth';
+import { can, requirePerm } from '@/lib/auth';
 import { getCategories, getProducts, getSearchStats, getSettings } from '@/lib/db';
 import { parseSynonyms, searchProducts } from '@/lib/catalog';
 import { saveSynonymsAction } from '@/app/actions';
@@ -55,7 +55,9 @@ function Table({ t, rows, nowCount, zero }) {
 
 export default async function AdminSearches({ searchParams }) {
   const { t, lang, locale, dir } = await adminT();
-  await requirePerm('searches');
+  const session = await requirePerm('searches');
+  const canW = can(session, 'searches:write');
+  const canD = can(session, 'searches:delete');
   const sp = await searchParams;
   const days = PERIODS.some((p) => p.days === Number(sp?.days)) ? Number(sp.days) : 30;
   const [stats, products, categories, settings] = await Promise.all([getSearchStats(days), getProducts(), getCategories(), getSettings()]);
@@ -79,7 +81,7 @@ export default async function AdminSearches({ searchParams }) {
         <p className="muted" style={{ fontSize: '0.88rem' }}>{t('مضافة تلقائياً: كيبل وكيابل وكابل وcable، سويتش ومفتاح، بريكر وقاطع، بايب وماسورة، بوكس وعلبة، وغيرها.')}</p>
         <form action={saveSynonymsAction}>
           <textarea name="searchSynonyms" defaultValue={settings.searchSynonyms || ''} maxLength={5000} dir="auto" placeholder={t('لمبة، لمبات، اضاءة، سبوت\nسلك تمديد، توصيلة، مشترك')} style={{ minHeight: 140 }} />
-          <button className="btn" type="submit" style={{ marginTop: 10 }}>{t('حفظ')}</button>
+          {canW ? <button className="btn" type="submit" style={{ marginTop: 10 }}>{t('حفظ')}</button> : null}
         </form>
       </details>
 

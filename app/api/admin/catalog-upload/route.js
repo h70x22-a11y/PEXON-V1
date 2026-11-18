@@ -10,7 +10,7 @@ export async function POST(request) {
       body,
       request,
       onBeforeGenerateToken: async () => {
-        if (!can(await getSession(), 'settings')) throw new Error('غير مصرح');
+        if (!can(await getSession(), 'settings:write')) throw new Error('غير مصرح');
         return {
           allowedContentTypes: ['application/pdf'],
           maximumSizeInBytes: 100 * 1024 * 1024,

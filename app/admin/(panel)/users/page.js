@@ -1,39 +1,52 @@
-import { requirePerm } from '@/lib/auth';
-import { getUsers } from '@/lib/db';
-import { PERMISSIONS } from '@/lib/permissions';
+import Link from 'next/link';
+import { can, requirePerm } from '@/lib/auth';
+import { getRoles, getUsers } from '@/lib/db';
 import { addUser, deleteUser, updateUser } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ConfirmButton from '@/components/ConfirmButton';
 import { adminT } from '@/lib/adminLang';
 
-function PermBoxes({ t, selected = [] }) {
+function RoleSelect({ t, roles, value = '' }) {
   return (
-    <div className="perm-grid">
-      {PERMISSIONS.map((p) => (
-        <label className="check" key={p.key}>
-          <input type="checkbox" name={`perm_${p.key}`} defaultChecked={selected.includes(p.key)} /> {t(p.ar)}
-        </label>
-      ))}
+    <div className="field" style={{ maxWidth: 360 }}>
+      <label>{t('المنصب')}</label>
+      <select name="roleId" defaultValue={value} required>
+        <option value="" disabled>{t('اختر المنصب')}</option>
+        {roles.map((r) => (
+          <option key={r.id} value={r.id}>{r.name}</option>
+        ))}
+      </select>
     </div>
   );
 }
 
 export default async function AdminUsers({ searchParams }) {
   const { t, lang, locale, dir } = await adminT();
-  await requirePerm('users');
+  const session = await requirePerm('users');
   const sp = await searchParams;
-  const users = await getUsers();
-  const label = (k) => t(PERMISSIONS.find((p) => p.key === k)?.ar || k);
+  const [users, roles] = await Promise.all([getUsers(), getRoles()]);
+  const roleName = (u) => roles.find((r) => r.id === u.roleId)?.name || t('بدون منصب');
+  const canW = can(session, 'users:write');
+  const canD = can(session, 'users:delete');
 
   return (
     <>
       <h1>{t('المستخدمين والصلاحيات')}</h1>
+      <div className="status-tabs">
+        <Link href="/admin/users" className="active">{t('المستخدمين')}</Link>
+        <Link href="/admin/users/roles">{t('المناصب')}</Link>
+      </div>
       <p className="muted" style={{ marginTop: 0 }}>
-        {t('أضف حساب لكل موظف وحدد الأقسام اللي يقدر يدخلها. اللي ما عنده صلاحية على قسم ما يشوفه في القائمة.')}
+        {t('أضف حساب لكل موظف واختر منصبه. صلاحيات كل منصب تحددها من تبويب المناصب.')}
       </p>
       <Flash params={sp} />
+      {canW && !roles.length ? (
+        <div className="flash warn">
+          {t('أنشئ منصب واحد على الأقل قبل إضافة المستخدمين.')} <Link href="/admin/users/roles/new">{t('+ إنشاء منصب')}</Link>
+        </div>
+      ) : null}
 
-      <details className="row">
+      {canW && roles.length ? <details className="row">
         <summary>{t('+ إضافة مستخدم جديد')}</summary>
         <div className="inner">
           <form action={addUser}>
@@ -53,12 +66,11 @@ export default async function AdminUsers({ searchParams }) {
                 <small>{t('8 أحرف على الأقل. أرسلها للموظف وهو يقدر يغيرها من "حسابي".')}</small>
               </div>
             </div>
-            <label style={{ marginTop: 6 }}>{t('الصلاحيات')}</label>
-            <PermBoxes t={t} selected={['quotes', 'messages']} />
+            <RoleSelect t={t} roles={roles} />
             <button className="btn" type="submit" style={{ marginTop: 14 }}>{t('إضافة المستخدم')}</button>
           </form>
         </div>
-      </details>
+      </details> : null}
 
       <div className="rows">
         <div className="row">
@@ -76,7 +88,7 @@ export default async function AdminUsers({ searchParams }) {
               {u.name}
               <span className="muted" dir="ltr" style={{ fontWeight: 400 }}>{u.username}</span>
               {!u.active ? <span className="badge" style={{ background: '#9aa3af', color: '#fff' }}>{t('موقوف')}</span> : null}
-              <span className="meta">{(u.perms || []).map(label).join(t('، ')) || t('بدون صلاحيات')} {t('· تعديل')}</span>
+              <span className="meta">{roleName(u)}{canW ? ` ${t('· تعديل')}` : ''}</span>
             </summary>
             <div className="inner">
               <form action={updateUser}>
@@ -91,20 +103,23 @@ export default async function AdminUsers({ searchParams }) {
                     <input type="text" name="password" minLength={8} maxLength={100} dir="ltr" autoComplete="new-password" placeholder={t('اتركها فاضية لو ما تبي تغيرها')} />
                   </div>
                 </div>
-                <label style={{ marginTop: 6 }}>{t('الصلاحيات')}</label>
-                <PermBoxes t={t} selected={u.perms || []} />
+                <RoleSelect t={t} roles={roles} value={u.roleId || ''} />
                 <label className="check" style={{ marginTop: 12 }}>
                   <input type="checkbox" name="active" defaultChecked={u.active} /> {t('الحساب مفعّل')}
                 </label>
                 <small className="muted">{t('إيقاف الحساب أو تغيير كلمة المرور يسجّل خروج الموظف من كل أجهزته.')}</small>
-                <div style={{ marginTop: 14 }}>
-                  <button className="btn" type="submit">{t('حفظ التعديلات')}</button>
-                </div>
+                {canW ? (
+                  <div style={{ marginTop: 14 }}>
+                    <button className="btn" type="submit">{t('حفظ التعديلات')}</button>
+                  </div>
+                ) : null}
               </form>
-              <form action={deleteUser} style={{ marginTop: 12 }}>
-                <input type="hidden" name="id" value={u.id} />
-                <ConfirmButton message={t('حذف المستخدم {name}؟', { name: u.name })}>{t('حذف المستخدم')}</ConfirmButton>
-              </form>
+              {canD ? (
+                <form action={deleteUser} style={{ marginTop: 12 }}>
+                  <input type="hidden" name="id" value={u.id} />
+                  <ConfirmButton message={t('حذف المستخدم {name}؟', { name: u.name })}>{t('حذف المستخدم')}</ConfirmButton>
+                </form>
+              ) : null}
             </div>
           </details>
         ))}

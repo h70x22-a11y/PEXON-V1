@@ -508,3 +508,14 @@ a.stat:hover { border-color: var(--primary); }
 .admin-side .title .lang-mini:hover { background: var(--primary); border-color: var(--primary); }
 .login-lang .lang-mini { border-color: var(--line); background: var(--surface); color: var(--primary); }
 @media (max-width: 800px) { .admin-side .title { width: 100%; } }
+
+/* جدول صلاحيات المناصب */
+.perm-matrix { width: 100%; border-collapse: collapse; margin: 14px 0; }
+.perm-matrix th, .perm-matrix td { padding: 10px 14px; border-bottom: 1px solid var(--line); text-align: center; }
+.perm-matrix thead th { background: var(--bg); font-size: 0.9rem; }
+.perm-matrix th:first-child, .perm-matrix td:first-child { text-align: start; }
+.perm-matrix .perm-group th, .perm-matrix .perm-group td { background: var(--bg); font-weight: 700; }
+.perm-matrix .perm-item { padding-inline-start: 34px; }
+.perm-matrix input[type='checkbox'] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+.row-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.row-actions form { margin: 0; }

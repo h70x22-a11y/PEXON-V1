@@ -15,7 +15,7 @@ import {
   setSession,
   verifyPassword,
 } from '@/lib/auth';
-import { ALL_PERMS } from '@/lib/permissions';
+import { ALL_PERMS, normalizePerms } from '@/lib/permissions';
 import { VENDOR_ACTIVITIES } from '@/lib/vendor';
 import { DEFAULT_COUNTRY, findCountry } from '@/lib/countries';
 import { QUOTE_STATUSES } from '@/lib/quotes';
@@ -23,6 +23,8 @@ import {
   clearCounter,
   getCounter,
   getUsers,
+  getRoles,
+  saveRoles,
   hitCounter,
   saveUsers,
   addMessage,
@@ -55,8 +57,8 @@ const text = (formData, key, max = 500) => String(formData.get(key) || '').trim(
 
 // ينفذ العملية ثم يرجع للصفحة برسالة نجاح أو خطأ
 // الصلاحية المطلوبة تؤخذ من المسار: /admin/<الصلاحية>/...
-async function run(path, fn) {
-  await requirePerm(path.split('/')[2]);
+async function run(path, fn, action = 'write') {
+  await requirePerm(`${path.split('/')[2]}:${action}`);
   let error = '';
   try {
     await fn();
@@ -129,6 +131,13 @@ function permsFrom(formData) {
   return ALL_PERMS.filter((p) => formData.get(`perm_${p}`));
 }
 
+async function roleFrom(formData) {
+  const roleId = text(formData, 'roleId', 60);
+  if (!roleId) throw new Error('اختر المنصب.');
+  if (!(await getRoles()).some((r) => r.id === roleId)) throw new Error('المنصب غير موجود.');
+  return roleId;
+}
+
 export async function addUser(formData) {
   await run('/admin/users', async () => {
     const name = text(formData, 'name', 80);
@@ -145,7 +154,8 @@ export async function addUser(formData) {
       name,
       username,
       passwordHash: hashPassword(password),
-      perms: permsFrom(formData),
+      roleId: await roleFrom(formData),
+      perms: [],
       active: true,
       sessionVersion: 1,
       created: new Date().toISOString(),
@@ -165,7 +175,9 @@ export async function updateUser(formData) {
     const password = String(formData.get('password') || '');
     const wasActive = user.active;
     user.name = name;
-    user.perms = permsFrom(formData);
+    const roleId = await roleFrom(formData);
+    user.roleId = roleId;
+    user.perms = [];
     user.active = Boolean(formData.get('active'));
     if (password) {
       if (password.length < 8) throw new Error('كلمة المرور لازم تكون 8 أحرف على الأقل.');
@@ -182,7 +194,40 @@ export async function deleteUser(formData) {
     const id = text(formData, 'id', 60);
     const users = await getUsers();
     await saveUsers(users.filter((u) => u.id !== id));
+  }, 'delete');
+}
+
+// ---------- المناصب ----------
+export async function saveRoleAction(formData) {
+  const id = text(formData, 'id', 60);
+  let newId = '';
+  await run('/admin/users/roles', async () => {
+    const name = text(formData, 'name', 60);
+    if (!name) throw new Error('اسم المنصب مطلوب.');
+    const perms = normalizePerms(permsFrom(formData));
+    const roles = await getRoles();
+    if (roles.some((r) => r.name === name && r.id !== id)) throw new Error('فيه منصب بنفس الاسم.');
+    if (id) {
+      const role = roles.find((r) => r.id === id);
+      if (!role) throw new Error('المنصب غير موجود.');
+      role.name = name;
+      role.perms = perms;
+    } else {
+      newId = randomUUID();
+      roles.push({ id: newId, name, perms, created: new Date().toISOString() });
+    }
+    await saveRoles(roles);
   });
+}
+
+export async function deleteRoleAction(formData) {
+  await run('/admin/users/roles', async () => {
+    const id = text(formData, 'id', 60);
+    const users = await getUsers();
+    const n = users.filter((u) => u.roleId === id).length;
+    if (n) throw new Error('لا يمكن حذف منصب مرتبط بمستخدمين. انقلهم لمنصب ثاني أولاً.');
+    await saveRoles((await getRoles()).filter((r) => r.id !== id));
+  }, 'delete');
 }
 
 export async function changeOwnPassword(formData) {
@@ -257,7 +302,7 @@ export async function saveSettingsAction(formData) {
 // ---------- الكتالوج ----------
 // يحفظ رابط الكتالوج بعد رفعه من المتصفح (الرابط لازم يكون من تخزين Vercel Blob)
 export async function saveCatalogAction(url) {
-  await requirePerm('settings');
+  await requirePerm('settings:write');
   let u;
   try {
     u = new URL(String(url));
@@ -274,7 +319,7 @@ export async function saveCatalogAction(url) {
 }
 
 export async function removeCatalogAction() {
-  await requirePerm('settings');
+  await requirePerm('settings:write');
   const current = await getSettings();
   await saveSettings({ ...current, catalogUrl: '' });
   revalidatePath('/', 'layout');
@@ -321,7 +366,7 @@ export async function deleteCategory(formData) {
     }
     const list = await getCategories();
     await saveCategories(list.filter((c) => c.id !== id));
-  });
+  }, 'delete');
 }
 
 // ---------- المنتجات ----------
@@ -368,7 +413,7 @@ export async function deleteProduct(formData) {
     const id = text(formData, 'id', 60);
     const list = await getProducts();
     await saveProducts(list.filter((p) => p.id !== id));
-  });
+  }, 'delete');
 }
 
 // ---------- الرسائل ----------
@@ -392,19 +437,19 @@ export async function updateQuoteStatus(formData) {
 export async function deleteQuoteAction(formData) {
   await run('/admin/quotes', async () => {
     await deleteMessage(text(formData, 'id', 60));
-  });
+  }, 'delete');
 }
 
 export async function deleteVendorAction(formData) {
   await run('/admin/vendors', async () => {
     await deleteMessage(text(formData, 'id', 60));
-  });
+  }, 'delete');
 }
 
 export async function deleteMessageAction(formData) {
   await run('/admin/messages', async () => {
     await deleteMessage(text(formData, 'id', 60));
-  });
+  }, 'delete');
 }
 
 // طلب عرض سعر لعدة منتجات (من سلة الموقع)

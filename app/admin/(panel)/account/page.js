@@ -8,7 +8,9 @@ export default async function AdminAccount({ searchParams }) {
   const { t, lang, locale, dir } = await adminT();
   const session = await requireAdmin();
   const sp = await searchParams;
-  const perms = session.owner ? [t('كل الصلاحيات')] : session.perms.map((k) => PERMISSIONS.find((p) => p.key === k)?.ar || k).map((x) => t(x));
+  const perms = session.owner
+    ? [t('كل الصلاحيات')]
+    : PERMISSIONS.filter((p) => session.perms.includes(`${p.key}:read`)).map((p) => t(p.ar));
 
   return (
     <>
@@ -18,6 +20,7 @@ export default async function AdminAccount({ searchParams }) {
         <ul className="vendor-info" style={{ marginTop: 0 }}>
           <li><span>{t('الاسم:')}</span> {t(session.name)}</li>
           <li><span>{t('اسم المستخدم:')}</span> <bdi>{session.username}</bdi></li>
+          {!session.owner ? <li><span>{t('المنصب:')}</span> {session.roleName || t('بدون منصب')}</li> : null}
           <li><span>{t('الصلاحيات:')}</span> {perms.join(t('، ')) || t('لا يوجد')}</li>
         </ul>
       </div>

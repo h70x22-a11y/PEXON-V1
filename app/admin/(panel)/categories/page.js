@@ -1,5 +1,5 @@
 import { getCategories, getProducts } from '@/lib/db';
-import { requirePerm } from '@/lib/auth';
+import { can, requirePerm } from '@/lib/auth';
 import { addCategory, deleteCategory, updateCategory } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ImageField from '@/components/ImageField';
@@ -24,7 +24,9 @@ function Fields({ t, category }) {
 
 export default async function AdminCategories({ searchParams }) {
   const { t, lang, locale, dir } = await adminT();
-  await requirePerm('categories');
+  const session = await requirePerm('categories');
+  const canW = can(session, 'categories:write');
+  const canD = can(session, 'categories:delete');
   const sp = await searchParams;
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
 
@@ -33,7 +35,7 @@ export default async function AdminCategories({ searchParams }) {
       <h1>{t('الأقسام')}</h1>
       <Flash params={sp} />
 
-      <details className="row">
+      {canW ? <details className="row">
         <summary>{t('+ إضافة قسم جديد')}</summary>
         <div className="inner">
           <form action={addCategory}>
@@ -41,7 +43,7 @@ export default async function AdminCategories({ searchParams }) {
             <button className="btn" type="submit">{t('إضافة القسم')}</button>
           </form>
         </div>
-      </details>
+      </details> : null}
 
       <div className="rows">
         {categories.map((c) => {
@@ -57,12 +59,14 @@ export default async function AdminCategories({ searchParams }) {
                 <form action={updateCategory}>
                   <input type="hidden" name="id" value={c.id} />
                   <Fields t={t} category={c} />
-                  <button className="btn" type="submit">{t('حفظ التعديلات')}</button>
+                  {canW ? <button className="btn" type="submit">{t('حفظ التعديلات')}</button> : null}
                 </form>
+                {canD ? (
                 <form action={deleteCategory} style={{ marginTop: 12 }}>
                   <input type="hidden" name="id" value={c.id} />
                   <ConfirmButton message={t('حذف قسم «{name}»؟', { name: c.name })}>{t('حذف القسم')}</ConfirmButton>
                 </form>
+                ) : null}
               </div>
             </details>
           );

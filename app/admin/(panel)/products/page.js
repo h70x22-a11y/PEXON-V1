@@ -1,5 +1,5 @@
 import { getCategories, getProducts, getSettings } from '@/lib/db';
-import { requirePerm } from '@/lib/auth';
+import { can, requirePerm } from '@/lib/auth';
 import { addProduct, deleteProduct, updateProduct } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ImageField from '@/components/ImageField';
@@ -64,7 +64,9 @@ function Fields({ t, product, categories }) {
 
 export default async function AdminProducts({ searchParams }) {
   const { t, lang, locale, dir } = await adminT();
-  await requirePerm('products');
+  const session = await requirePerm('products');
+  const canW = can(session, 'products:write');
+  const canD = can(session, 'products:delete');
   const sp = await searchParams;
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
   const nameOf = (id) => categories.find((c) => c.id === id)?.name || t('بدون قسم');
@@ -79,7 +81,7 @@ export default async function AdminProducts({ searchParams }) {
       <h1>{t('المنتجات')}</h1>
       <Flash params={sp} />
 
-      {categories.length ? (
+      {!canW ? null : categories.length ? (
         <details className="row">
           <summary>{t('+ إضافة منتج جديد')}</summary>
           <div className="inner">
@@ -120,12 +122,14 @@ export default async function AdminProducts({ searchParams }) {
               <form action={updateProduct}>
                 <input type="hidden" name="id" value={p.id} />
                 <Fields t={t} product={p} categories={categories} />
-                <button className="btn" type="submit">{t('حفظ التعديلات')}</button>
+                {canW ? <button className="btn" type="submit">{t('حفظ التعديلات')}</button> : null}
               </form>
+              {canD ? (
               <form action={deleteProduct} style={{ marginTop: 12 }}>
                 <input type="hidden" name="id" value={p.id} />
                 <ConfirmButton message={t('حذف المنتج «{name}»؟', { name: p.name })}>{t('حذف المنتج')}</ConfirmButton>
               </form>
+              ) : null}
             </div>
           </details>
         ))}

@@ -1,5 +1,5 @@
 import { getMessages } from '@/lib/db';
-import { requirePerm } from '@/lib/auth';
+import { can, requirePerm } from '@/lib/auth';
 import { deleteVendorAction } from '@/app/actions';
 import Flash from '@/components/Flash';
 import AdminFilters from '@/components/AdminFilters';
@@ -18,7 +18,9 @@ function formatDate(iso, locale = 'ar') {
 
 export default async function AdminVendors({ searchParams }) {
   const { t, lang, locale, dir } = await adminT();
-  await requirePerm('vendors');
+  const session = await requirePerm('vendors');
+  const canW = can(session, 'vendors:write');
+  const canD = can(session, 'vendors:delete');
   const sp = await searchParams;
   const all = (await getMessages()).filter((m) => m.type === 'vendor');
   const act = String(sp?.activity || '');
@@ -81,10 +83,12 @@ export default async function AdminVendors({ searchParams }) {
                     {v.phone ? <div><a href={`tel:${v.phone}`} dir="ltr">{v.phone}</a></div> : null}
                   </td>
                   <td>
+                    {canD ? (
                     <form action={deleteVendorAction}>
                       <input type="hidden" name="id" value={v.id} />
                       <ConfirmButton message={t('حذف المورد «{name}»؟', { name: v.company })}>{t('حذف')}</ConfirmButton>
                     </form>
+                    ) : null}
                   </td>
                 </tr>
               ))}

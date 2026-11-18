@@ -37,7 +37,7 @@ async function copyImage(url) {
 }
 
 export async function POST(request) {
-  if (!can(await getSession(), 'products')) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  if (!can(await getSession(), 'products:write')) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   let body;
   try {
     body = await request.json();

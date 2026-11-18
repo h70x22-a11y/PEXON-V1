@@ -1,5 +1,5 @@
 import { getMessages } from '@/lib/db';
-import { requirePerm } from '@/lib/auth';
+import { can, requirePerm } from '@/lib/auth';
 import { deleteMessageAction } from '@/app/actions';
 import Flash from '@/components/Flash';
 import AdminFilters from '@/components/AdminFilters';
@@ -18,7 +18,9 @@ function formatDate(iso, locale = 'ar') {
 
 export default async function AdminMessages({ searchParams }) {
   const { t, lang, locale, dir } = await adminT();
-  await requirePerm('messages');
+  const session = await requirePerm('messages');
+  const canW = can(session, 'messages:write');
+  const canD = can(session, 'messages:delete');
   const sp = await searchParams;
   const all = (await getMessages()).filter((m) => m.type !== 'vendor' && m.type !== 'quote');
   const from = cleanDate(sp?.from);
@@ -74,10 +76,12 @@ export default async function AdminMessages({ searchParams }) {
               </table>
             ) : null}
             {m.message ? <p>{m.message}</p> : null}
+            {canD ? (
             <form action={deleteMessageAction}>
               <input type="hidden" name="id" value={m.id} />
               <ConfirmButton message={t('حذف هذه الرسالة؟')}>{t('حذف')}</ConfirmButton>
             </form>
+            ) : null}
           </div>
         ))}
         {!messages.length ? <p className="muted">{t('لا توجد رسائل حتى الآن.')}</p> : null}

@@ -1,5 +1,5 @@
 import { getSettings } from '@/lib/db';
-import { requirePerm } from '@/lib/auth';
+import { can, requirePerm } from '@/lib/auth';
 import { removeCatalogAction, saveCatalogAction, saveSettingsAction } from '@/app/actions';
 import CatalogUpload from '@/components/CatalogUpload';
 import Flash from '@/components/Flash';
@@ -9,7 +9,9 @@ import { adminT } from '@/lib/adminLang';
 
 export default async function AdminSettings({ searchParams }) {
   const { t, lang, locale, dir } = await adminT();
-  await requirePerm('settings');
+  const session = await requirePerm('settings');
+  const canW = can(session, 'settings:write');
+  const canD = can(session, 'settings:delete');
   const sp = await searchParams;
   const s = await getSettings();
 
@@ -17,7 +19,7 @@ export default async function AdminSettings({ searchParams }) {
     <>
       <h1>{t('إعدادات الموقع')}</h1>
       <Flash params={sp} />
-      <CatalogUpload current={s.catalogUrl} onSaved={saveCatalogAction} onRemove={removeCatalogAction} />
+      {canW ? <CatalogUpload current={s.catalogUrl} onSaved={saveCatalogAction} onRemove={removeCatalogAction} /> : null}
       <form action={saveSettingsAction} className="panel">
         <h2>{t('الهوية')}</h2>
         <div className="form-grid">
@@ -172,7 +174,7 @@ export default async function AdminSettings({ searchParams }) {
           </div>
         </div>
 
-        <button className="btn" type="submit">{t('حفظ الإعدادات')}</button>
+        {canW ? <button className="btn" type="submit">{t('حفظ الإعدادات')}</button> : null}
       </form>
     </>
   );
