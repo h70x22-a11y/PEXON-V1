@@ -6,16 +6,18 @@ import { deleteQuoteAction, updateQuoteStatus } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ConfirmButton from '@/components/ConfirmButton';
 import { QUOTE_STATUSES, statusOf } from '@/lib/quotes';
+import { adminT } from '@/lib/adminLang';
 
-function formatDate(iso) {
+function formatDate(iso, locale = 'ar') {
   try {
-    return new Date(iso).toLocaleString('ar', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Riyadh' });
+    return new Date(iso).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Riyadh' });
   } catch {
     return iso;
   }
 }
 
 export default async function AdminQuote({ params, searchParams }) {
+  const { t, lang, locale, dir } = await adminT();
   await requirePerm('quotes');
   const { id } = await params;
   const sp = await searchParams;
@@ -26,57 +28,57 @@ export default async function AdminQuote({ params, searchParams }) {
 
   return (
     <>
-      <div className="crumbs"><Link href="/admin/quotes">طلبات عروض الأسعار</Link> / <bdi>{q.number || 'طلب'}</bdi></div>
+      <div className="crumbs"><Link href="/admin/quotes">{t('طلبات عروض الأسعار')}</Link> / <bdi>{q.number || t('طلب')}</bdi></div>
       <div className="section-head" style={{ marginBottom: 12 }}>
-        <h1 style={{ margin: 0 }}>طلب عرض سعر <bdi>{q.number}</bdi></h1>
-        <span className="status-pill" style={{ background: st.color, fontSize: '0.95rem', padding: '4px 16px' }}>{st.ar}</span>
+        <h1 style={{ margin: 0 }}>{t('طلب عرض سعر')} <bdi>{q.number}</bdi></h1>
+        <span className="status-pill" style={{ background: st.color, fontSize: '0.95rem', padding: '4px 16px' }}>{t(st.ar)}</span>
       </div>
-      <Flash params={sp} okText="تم تحديث الحالة." />
+      <Flash params={sp} okText={t('تم تحديث الحالة.')} />
 
       <div className="panel">
-        <h2>تحديث الحالة</h2>
+        <h2>{t('تحديث الحالة')}</h2>
         <form action={updateQuoteStatus} className="status-form">
           <input type="hidden" name="id" value={q.id} />
           <div className="field">
-            <label htmlFor="status">الحالة</label>
+            <label htmlFor="status">{t('الحالة')}</label>
             <select id="status" name="status" defaultValue={q.status || 'new'} style={{ width: 'auto', minWidth: 180 }}>
               {QUOTE_STATUSES.map((s) => (
-                <option key={s.key} value={s.key}>{s.ar}</option>
+                <option key={s.key} value={s.key}>{t(s.ar)}</option>
               ))}
             </select>
           </div>
           <div className="field" style={{ flex: 1, minWidth: 220 }}>
-            <label htmlFor="statusNote">ملاحظة داخلية (اختياري)</label>
-            <input id="statusNote" type="text" name="statusNote" defaultValue={q.statusNote || ''} maxLength={1000} placeholder="مثال: أُرسل العرض بالإيميل، بانتظار رد العميل" />
+            <label htmlFor="statusNote">{t('ملاحظة داخلية (اختياري)')}</label>
+            <input id="statusNote" type="text" name="statusNote" defaultValue={q.statusNote || ''} maxLength={1000} placeholder={t('مثال: أُرسل العرض بالإيميل، بانتظار رد العميل')} />
           </div>
-          <button className="btn" type="submit">حفظ</button>
+          <button className="btn" type="submit">{t('حفظ')}</button>
         </form>
-        {q.updated ? <p className="muted" style={{ margin: '10px 0 0', fontSize: '0.88rem' }}>آخر تحديث: {formatDate(q.updated)}{q.updatedBy ? ` · بواسطة ${q.updatedBy}` : ''}</p> : null}
+        {q.updated ? <p className="muted" style={{ margin: '10px 0 0', fontSize: '0.88rem' }}>{t('آخر تحديث:')} {formatDate(q.updated, locale)}{q.updatedBy ? ` · ${t('بواسطة')} ${q.updatedBy}` : ''}</p> : null}
       </div>
 
       <div className="panel" style={{ marginTop: 18 }}>
-        <h2>بيانات العميل</h2>
+        <h2>{t('بيانات العميل')}</h2>
         <ul className="vendor-info">
-          <li><span>الاسم:</span> {q.name}</li>
-          {q.company ? <li><span>الشركة:</span> {q.company}</li> : null}
+          <li><span>{t('الاسم:')}</span> {q.name}</li>
+          {q.company ? <li><span>{t('الشركة:')}</span> {q.company}</li> : null}
           {q.phone ? (
             <li>
-              <span>الجوال:</span> <a href={`tel:${q.phone}`} dir="ltr">{q.phone}</a>
-              {wa ? <> · <a href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer">واتساب</a></> : null}
+              <span>{t('الجوال:')}</span> <a href={`tel:${q.phone}`} dir="ltr">{q.phone}</a>
+              {wa ? <> · <a href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer">{t('واتساب')}</a></> : null}
             </li>
           ) : null}
-          {q.email ? <li><span>البريد:</span> <a href={`mailto:${q.email}`} dir="ltr">{q.email}</a></li> : null}
-          <li><span>تاريخ الطلب:</span> {formatDate(q.date)}</li>
+          {q.email ? <li><span>{t('البريد:')}</span> <a href={`mailto:${q.email}`} dir="ltr">{q.email}</a></li> : null}
+          <li><span>{t('تاريخ الطلب:')}</span> {formatDate(q.date, locale)}</li>
         </ul>
-        {q.message ? <div className="flash warn" style={{ marginBottom: 0 }}>ملاحظة العميل: {q.message}</div> : null}
+        {q.message ? <div className="flash warn" style={{ marginBottom: 0 }}>{t('ملاحظة العميل:')} {q.message}</div> : null}
       </div>
 
       <div className="panel" style={{ marginTop: 18 }}>
-        <h2>المنتجات المطلوبة ({q.items?.length || 0})</h2>
+        <h2>{t('المنتجات المطلوبة (')}{q.items?.length || 0})</h2>
         <div className="table-wrap">
           <table className="quote-table">
             <thead>
-              <tr><th>#</th><th>المنتج</th><th>الكمية</th></tr>
+              <tr><th>#</th><th>{t('المنتج')}</th><th>{t('الكمية')}</th></tr>
             </thead>
             <tbody>
               {(q.items || []).map((it, n) => (
@@ -96,7 +98,7 @@ export default async function AdminQuote({ params, searchParams }) {
 
       <form action={deleteQuoteAction} style={{ marginTop: 24 }}>
         <input type="hidden" name="id" value={q.id} />
-        <ConfirmButton message="حذف الطلب نهائياً؟">حذف الطلب</ConfirmButton>
+        <ConfirmButton message={t('حذف الطلب نهائياً؟')}>{t('حذف الطلب')}</ConfirmButton>
       </form>
     </>
   );

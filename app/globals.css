@@ -501,3 +501,5 @@ a.stat:hover { border-color: var(--primary); }
 .dev-commits { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
 .dev-commits li { display: flex; gap: 12px; flex-wrap: wrap; align-items: baseline; font-size: 0.9rem; }
 .dev-links { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0 0; }
+.login-lang { text-align: center; margin-top: 14px; }
+.login-lang button { background: none; border: 0; color: var(--primary); font: inherit; font-weight: 600; cursor: pointer; }

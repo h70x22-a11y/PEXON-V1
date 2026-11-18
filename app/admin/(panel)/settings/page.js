@@ -5,128 +5,130 @@ import CatalogUpload from '@/components/CatalogUpload';
 import Flash from '@/components/Flash';
 import ImageField from '@/components/ImageField';
 import { SOCIALS } from '@/components/SocialIcons';
+import { adminT } from '@/lib/adminLang';
 
 export default async function AdminSettings({ searchParams }) {
+  const { t, lang, locale, dir } = await adminT();
   await requirePerm('settings');
   const sp = await searchParams;
   const s = await getSettings();
 
   return (
     <>
-      <h1>إعدادات الموقع</h1>
+      <h1>{t('إعدادات الموقع')}</h1>
       <Flash params={sp} />
       <CatalogUpload current={s.catalogUrl} onSaved={saveCatalogAction} onRemove={removeCatalogAction} />
       <form action={saveSettingsAction} className="panel">
-        <h2>الهوية</h2>
+        <h2>{t('الهوية')}</h2>
         <div className="form-grid">
           <div className="field">
-            <label>اسم الموقع</label>
+            <label>{t('اسم الموقع')}</label>
             <input type="text" name="siteName" defaultValue={s.siteName} required maxLength={80} />
           </div>
           <div className="field">
-            <label>الشعار النصي</label>
+            <label>{t('الشعار النصي')}</label>
             <input type="text" name="tagline" defaultValue={s.tagline} maxLength={160} />
           </div>
           <div className="field">
-            <label>اللون الأساسي</label>
+            <label>{t('اللون الأساسي')}</label>
             <input type="color" name="primaryColor" defaultValue={s.primaryColor} style={{ width: 80, height: 44, padding: 2 }} />
           </div>
         </div>
-        <ImageField current={s.logo} label="الشعار (Logo)" />
+        <ImageField current={s.logo} label={t('الشعار (Logo)')} />
 
-        <h2>الصفحة الرئيسية</h2>
+        <h2>{t('الصفحة الرئيسية')}</h2>
         <div className="field">
-          <label>العنوان الرئيسي</label>
+          <label>{t('العنوان الرئيسي')}</label>
           <input type="text" name="heroTitle" defaultValue={s.heroTitle} maxLength={160} />
         </div>
         <div className="field">
-          <label>النص تحت العنوان</label>
+          <label>{t('النص تحت العنوان')}</label>
           <textarea name="heroText" defaultValue={s.heroText} maxLength={400} style={{ minHeight: 80 }} />
         </div>
         <div className="field">
-          <label>من نحن</label>
+          <label>{t('من نحن')}</label>
           <textarea name="about" defaultValue={s.about} maxLength={2000} />
         </div>
 
-        <h2>أقسام الصفحة الرئيسية</h2>
-        <p className="muted">اكتب كل عنصر في سطر. القسم الفاضي لا يظهر في الموقع.</p>
+        <h2>{t('أقسام الصفحة الرئيسية')}</h2>
+        <p className="muted">{t('اكتب كل عنصر في سطر. القسم الفاضي لا يظهر في الموقع.')}</p>
         <div className="field">
-          <label>قيمنا</label>
-          <textarea name="values" defaultValue={s.values} maxLength={2000} placeholder="العنوان | الشرح" />
-          <small>كل سطر بصيغة: العنوان | الشرح</small>
+          <label>{t('قيمنا')}</label>
+          <textarea name="values" defaultValue={s.values} maxLength={2000} placeholder={t('العنوان | الشرح')} />
+          <small>{t('كل سطر بصيغة: العنوان | الشرح')}</small>
         </div>
         <div className="field">
-          <label>خدمات تميزنا</label>
+          <label>{t('خدمات تميزنا')}</label>
           <textarea name="services" defaultValue={s.services} maxLength={2000} />
         </div>
         <div className="form-grid">
           <div className="field">
-            <label>العلامات التجارية</label>
+            <label>{t('العلامات التجارية')}</label>
             <textarea name="brands" defaultValue={s.brands} maxLength={2000} dir="auto" />
           </div>
           <div className="field">
-            <label>شركاء النجاح</label>
-            <textarea name="partners" defaultValue={s.partners} maxLength={2000} dir="auto" placeholder="الاسم | رابط الشعار" />
-            <small>لإظهار شعار: الاسم | رابط صورة الشعار. بدون رابط يظهر الاسم نصاً.</small>
+            <label>{t('شركاء النجاح')}</label>
+            <textarea name="partners" defaultValue={s.partners} maxLength={2000} dir="auto" placeholder={t('الاسم | رابط الشعار')} />
+            <small>{t('لإظهار شعار: الاسم | رابط صورة الشعار. بدون رابط يظهر الاسم نصاً.')}</small>
           </div>
         </div>
 
         <div className="field">
-          <label>وسائل الدفع المقبولة</label>
+          <label>{t('وسائل الدفع المقبولة')}</label>
           <textarea name="payments" defaultValue={s.payments} maxLength={1000} dir="auto" style={{ minHeight: 120 }} />
-          <small>كل وسيلة في سطر، وتظهر في أسفل الموقع. Visa و Mastercard و Apple Pay والنقد والتحويل البنكي تظهر بأيقونتها تلقائياً. لشعار مخصص: الاسم | رابط صورة الشعار.</small>
+          <small>{t('كل وسيلة في سطر، وتظهر في أسفل الموقع. Visa و Mastercard و Apple Pay والنقد والتحويل البنكي تظهر بأيقونتها تلقائياً. لشعار مخصص: الاسم | رابط صورة الشعار.')}</small>
         </div>
 
-        <h2>البيانات النظامية</h2>
-        <p className="muted">تظهر أسفل الموقع وفي سياسة الخصوصية.</p>
+        <h2>{t('البيانات النظامية')}</h2>
+        <p className="muted">{t('تظهر أسفل الموقع وفي سياسة الخصوصية.')}</p>
         <div className="form-grid">
           <div className="field">
-            <label>الاسم النظامي للشركة</label>
+            <label>{t('الاسم النظامي للشركة')}</label>
             <input type="text" name="legalName" defaultValue={s.legalName} maxLength={150} />
           </div>
           <div className="field">
-            <label>الاسم النظامي بالإنجليزي</label>
+            <label>{t('الاسم النظامي بالإنجليزي')}</label>
             <input type="text" name="legalNameEn" defaultValue={s.legalNameEn} maxLength={150} dir="ltr" />
           </div>
           <div className="field">
-            <label>الرقم الوطني الموحد (السجل التجاري)</label>
+            <label>{t('الرقم الوطني الموحد (السجل التجاري)')}</label>
             <input type="text" name="crNumber" defaultValue={s.crNumber} maxLength={20} dir="ltr" inputMode="numeric" />
           </div>
           <div className="field">
-            <label>الرقم الضريبي</label>
+            <label>{t('الرقم الضريبي')}</label>
             <input type="text" name="vatNumber" defaultValue={s.vatNumber} maxLength={20} dir="ltr" inputMode="numeric" />
           </div>
         </div>
 
-        <h2>محركات البحث</h2>
+        <h2>{t('محركات البحث')}</h2>
         <div className="field">
-          <label>رمز التحقق من Google Search Console</label>
+          <label>{t('رمز التحقق من Google Search Console')}</label>
           <input type="text" name="googleVerification" defaultValue={s.googleVerification} maxLength={200} dir="ltr" placeholder='google-site-verification' />
-          <small>من Search Console اختر طريقة "HTML tag" والصق الوسم كامل أو قيمة content فقط.</small>
+          <small>{t('من Search Console اختر طريقة "HTML tag" والصق الوسم كامل أو قيمة content فقط.')}</small>
         </div>
 
-        <h2>بيانات التواصل</h2>
+        <h2>{t('بيانات التواصل')}</h2>
         <div className="form-grid">
           <div className="field">
-            <label>الهاتف</label>
+            <label>{t('الهاتف')}</label>
             <input type="text" name="phone" defaultValue={s.phone} maxLength={30} dir="ltr" />
           </div>
           <div className="field">
-            <label>واتساب</label>
+            <label>{t('واتساب')}</label>
             <input type="text" name="whatsapp" defaultValue={s.whatsapp} maxLength={30} dir="ltr" placeholder="9665xxxxxxxx" />
-            <small>بالصيغة الدولية بدون + أو أصفار.</small>
+            <small>{t('بالصيغة الدولية بدون + أو أصفار.')}</small>
           </div>
           <div className="field">
-            <label>البريد الإلكتروني</label>
+            <label>{t('البريد الإلكتروني')}</label>
             <input type="email" name="email" defaultValue={s.email} maxLength={120} dir="ltr" />
           </div>
           <div className="field">
-            <label>العنوان</label>
+            <label>{t('العنوان')}</label>
             <input type="text" name="address" defaultValue={s.address} maxLength={200} />
           </div>
         </div>
-        <h2>حسابات التواصل الاجتماعي</h2>
-        <p className="muted">الصق رابط كل حساب. الأيقونة تظهر في أسفل الموقع للحسابات المعبأة فقط. (أيقونة واتساب تظهر من رقم الواتساب أعلاه.)</p>
+        <h2>{t('حسابات التواصل الاجتماعي')}</h2>
+        <p className="muted">{t('الصق رابط كل حساب. الأيقونة تظهر في أسفل الموقع للحسابات المعبأة فقط. (أيقونة واتساب تظهر من رقم الواتساب أعلاه.)')}</p>
         <div className="form-grid">
           {SOCIALS.map((item) => (
             <div className="field" key={item.key}>
@@ -135,8 +137,8 @@ export default async function AdminSettings({ searchParams }) {
             </div>
           ))}
         </div>
-        <h2>النسخة الإنجليزية</h2>
-        <p className="muted">تظهر لما يختار الزائر English من أعلى الموقع. أي خانة فاضية يظهر مكانها النص العربي.</p>
+        <h2>{t('النسخة الإنجليزية')}</h2>
+        <p className="muted">{t('تظهر لما يختار الزائر English من أعلى الموقع. أي خانة فاضية يظهر مكانها النص العربي.')}</p>
         <div dir="ltr" lang="en">
           <div className="form-grid">
             <div className="field">
@@ -170,7 +172,7 @@ export default async function AdminSettings({ searchParams }) {
           </div>
         </div>
 
-        <button className="btn" type="submit">حفظ الإعدادات</button>
+        <button className="btn" type="submit">{t('حفظ الإعدادات')}</button>
       </form>
     </>
   );

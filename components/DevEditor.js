@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAdminT } from '@/components/AdminLang';
 
 const fmt = (iso) => {
   try {
@@ -11,6 +12,7 @@ const fmt = (iso) => {
 };
 
 export default function DevEditor({ repo, branch }) {
+  const { t } = useAdminT();
   const [files, setFiles] = useState([]);
   const [commits, setCommits] = useState([]);
   const [filter, setFilter] = useState('');
@@ -46,7 +48,7 @@ export default function DevEditor({ repo, branch }) {
 
   async function open(path) {
     if (dirty && !window.__devDiscard) {
-      setStatus({ kind: 'warn', msg: 'عندك تعديلات ما انحفظت. احفظها أو اضغط الملف مرة ثانية لتجاهلها.' });
+      setStatus({ kind: 'warn', msg: t('عندك تعديلات ما انحفظت. احفظها أو اضغط الملف مرة ثانية لتجاهلها.') });
       window.__devDiscard = true;
       setTimeout(() => (window.__devDiscard = false), 4000);
       return;
@@ -66,7 +68,7 @@ export default function DevEditor({ repo, branch }) {
   async function save() {
     if (!file || !dirty || busy) return;
     setBusy(true);
-    setStatus({ kind: '', msg: 'جاري الحفظ...' });
+    setStatus({ kind: '', msg: t('جاري الحفظ...') });
     const r = await fetch('/api/admin/dev', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -77,7 +79,7 @@ export default function DevEditor({ repo, branch }) {
     if (!r.ok) return setStatus({ kind: 'error', msg: j.error });
     setFile({ ...file, sha: j.sha, content: text });
     setMessage('');
-    setStatus({ kind: 'ok', msg: 'تم الحفظ. التعديل ينشر على الموقع خلال دقيقة إلى دقيقتين.' });
+    setStatus({ kind: 'ok', msg: t('تم الحفظ. التعديل ينشر على الموقع خلال دقيقة إلى دقيقتين.') });
     loadTree();
   }
 
@@ -105,7 +107,7 @@ export default function DevEditor({ repo, branch }) {
   return (
     <div className="dev">
       <aside className="dev-files" dir="ltr">
-        <input type="search" placeholder="Filter files…" value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="بحث في الملفات" />
+        <input type="search" placeholder="Filter files…" value={filter} onChange={(e) => setFilter(e.target.value)} aria-label={t('بحث في الملفات')} />
         <div className="dev-list">
           {shown.map((f) => (
             <button key={f.path} type="button" className={file?.path === f.path ? 'on' : ''} onClick={() => open(f.path)} title={f.path}>
@@ -121,8 +123,8 @@ export default function DevEditor({ repo, branch }) {
           <>
             <div className="dev-bar">
               <code dir="ltr">{file.path}</code>
-              {dirty ? <span className="dev-dirty">● غير محفوظ</span> : null}
-              <span className="muted" style={{ marginInlineStart: 'auto' }}>{lines} سطر</span>
+              {dirty ? <span className="dev-dirty">{t('● غير محفوظ')}</span> : null}
+              <span className="muted" style={{ marginInlineStart: 'auto' }}>{lines} {t('سطر')}</span>
             </div>
             <textarea
               ref={area}
@@ -132,33 +134,33 @@ export default function DevEditor({ repo, branch }) {
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={onKey}
-              aria-label="محتوى الملف"
+              aria-label={t('محتوى الملف')}
             />
             <div className="dev-save">
               <input
                 type="text"
-                placeholder="وصف التعديل (اختياري)، مثال: تغيير لون الزر"
+                placeholder={t('وصف التعديل (اختياري)، مثال: تغيير لون الزر')}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 maxLength={200}
-                aria-label="وصف التعديل"
+                aria-label={t('وصف التعديل')}
               />
               <button className="btn" type="button" onClick={save} disabled={!dirty || busy}>
-                حفظ ونشر
+                {t('حفظ ونشر')}
               </button>
               {dirty ? (
                 <button className="btn ghost" type="button" onClick={() => setText(file.content)} disabled={busy}>
-                  تراجع
+                  {t('تراجع')}
                 </button>
               ) : null}
             </div>
           </>
         ) : (
-          <p className="muted dev-empty">اختر ملف من القائمة لعرضه وتعديله. (Ctrl+S للحفظ)</p>
+          <p className="muted dev-empty">{t('اختر ملف من القائمة لعرضه وتعديله. (Ctrl+S للحفظ)')}</p>
         )}
         {status.msg ? <div className={`flash ${status.kind === 'error' ? 'err' : status.kind === 'warn' ? 'warn' : status.kind === 'ok' ? 'ok' : ''}`}>{status.msg}</div> : null}
 
-        <h2 style={{ marginTop: 28 }}>آخر التعديلات على الكود</h2>
+        <h2 style={{ marginTop: 28 }}>{t('آخر التعديلات على الكود')}</h2>
         <ul className="dev-commits">
           {commits.map((c) => (
             <li key={c.sha}>

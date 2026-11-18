@@ -6,16 +6,18 @@ import AdminFilters from '@/components/AdminFilters';
 import { cleanDate, inRange, matchesRecord } from '@/lib/adminFilters';
 import ConfirmButton from '@/components/ConfirmButton';
 import { activityLabel } from '@/lib/vendor';
+import { adminT } from '@/lib/adminLang';
 
-function formatDate(iso) {
+function formatDate(iso, locale = 'ar') {
   try {
-    return new Date(iso).toLocaleString('ar', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Riyadh' });
+    return new Date(iso).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Riyadh' });
   } catch {
     return iso;
   }
 }
 
 export default async function AdminMessages({ searchParams }) {
+  const { t, lang, locale, dir } = await adminT();
   await requirePerm('messages');
   const sp = await searchParams;
   const all = (await getMessages()).filter((m) => m.type !== 'vendor' && m.type !== 'quote');
@@ -27,35 +29,35 @@ export default async function AdminMessages({ searchParams }) {
 
   return (
     <>
-      <h1>الرسائل ({all.length})</h1>
-      <Flash params={sp} okText="تم الحذف." />
-      {all.length ? <AdminFilters action="/admin/messages" sp={sp} placeholder="الاسم، رقم الجوال، الإيميل، أو نص الرسالة" /> : null}
-      {all.length && !messages.length ? <p className="muted">لا توجد رسائل مطابقة.</p> : null}
+      <h1>{t('الرسائل (')}{all.length})</h1>
+      <Flash params={sp} okText={t('تم الحذف.')} />
+      {all.length ? <AdminFilters action="/admin/messages" sp={sp} placeholder={t('الاسم، رقم الجوال، الإيميل، أو نص الرسالة')} /> : null}
+      {all.length && !messages.length ? <p className="muted">{t('لا توجد رسائل مطابقة.')}</p> : null}
       <div className="rows">
         {messages.map((m) => (
           <div className="msg" key={m.id}>
             <div className="top">
               <strong>{m.name}</strong>
-              <span className="muted">{formatDate(m.date)}</span>
+              <span className="muted">{formatDate(m.date, locale)}</span>
             </div>
             <div className="muted">
               {m.phone ? <a href={`tel:${m.phone}`} dir="ltr">{m.phone}</a> : null}
               {m.email ? <>{m.phone ? ' · ' : ''}<a href={`mailto:${m.email}`} dir="ltr">{m.email}</a></> : null}
-              {m.product ? <> · المنتج: {m.product}</> : null}
+              {m.product ? <> {t('· المنتج:')} {m.product}</> : null}
             </div>
-            {m.type === 'quote' ? <span className="badge" style={{ display: 'inline-block', marginTop: 8 }}>طلب عرض سعر</span> : null}
-            {m.type === 'vendor' ? <span className="badge" style={{ display: 'inline-block', marginTop: 8, background: '#c7e9ff' }}>تسجيل مورد</span> : null}
-            {m.company ? <div className="muted">الشركة: {m.company}</div> : null}
+            {m.type === 'quote' ? <span className="badge" style={{ display: 'inline-block', marginTop: 8 }}>{t('طلب عرض سعر')}</span> : null}
+            {m.type === 'vendor' ? <span className="badge" style={{ display: 'inline-block', marginTop: 8, background: '#c7e9ff' }}>{t('تسجيل مورد')}</span> : null}
+            {m.company ? <div className="muted">{t('الشركة:')} {m.company}</div> : null}
             {m.vendor ? (
               <ul className="vendor-info">
-                <li><span>السجل التجاري:</span> <bdi>{m.vendor.cr}</bdi></li>
-                {m.vendor.activity ? <li><span>النشاط:</span> {activityLabel(m.vendor.activity)}</li> : null}
+                <li><span>{t('السجل التجاري:')}</span> <bdi>{m.vendor.cr}</bdi></li>
+                {m.vendor.activity ? <li><span>{t('النشاط:')}</span> {activityLabel(m.vendor.activity, lang)}</li> : null}
               </ul>
             ) : null}
             {m.items?.length ? (
               <table className="quote-table">
                 <thead>
-                  <tr><th>#</th><th>المنتج</th><th>الكمية</th></tr>
+                  <tr><th>#</th><th>{t('المنتج')}</th><th>{t('الكمية')}</th></tr>
                 </thead>
                 <tbody>
                   {m.items.map((it, n) => (
@@ -74,11 +76,11 @@ export default async function AdminMessages({ searchParams }) {
             {m.message ? <p>{m.message}</p> : null}
             <form action={deleteMessageAction}>
               <input type="hidden" name="id" value={m.id} />
-              <ConfirmButton message="حذف هذه الرسالة؟">حذف</ConfirmButton>
+              <ConfirmButton message={t('حذف هذه الرسالة؟')}>{t('حذف')}</ConfirmButton>
             </form>
           </div>
         ))}
-        {!messages.length ? <p className="muted">لا توجد رسائل حتى الآن.</p> : null}
+        {!messages.length ? <p className="muted">{t('لا توجد رسائل حتى الآن.')}</p> : null}
       </div>
     </>
   );
