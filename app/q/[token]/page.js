@@ -4,7 +4,7 @@ import { skuOf, shortWithoutSku } from '@/lib/quotes';
 import PrintButton from '@/components/PrintButton';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'طلب عرض سعر | PEXON', robots: { index: false, follow: false } };
+export const metadata = { title: 'طلب عرض سعر', robots: { index: false, follow: false } };
 
 // مستند طلب عرض السعر (يفتح من رابط الواتساب ويتحفظ PDF)
 export default async function QuoteDoc({ params }) {
