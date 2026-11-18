@@ -22,11 +22,56 @@ function ago(iso, lang) {
   return rtf.format(-Math.floor(s / 86400), 'day');
 }
 
-export default function AdminTopbar({ name, title }) {
+// تصغير الصورة في المتصفح قبل الرفع (مربع 256 بكسل)
+async function shrink(file) {
+  const img = await createImageBitmap(file);
+  const size = 256;
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const s = Math.min(img.width, img.height);
+  c.getContext('2d').drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
+  return new Promise((res) => c.toBlob(res, 'image/jpeg', 0.86));
+}
+
+export default function AdminTopbar({ name, title, avatar: initialAvatar = '' }) {
   const { t, lang } = useAdminT();
   const [data, setData] = useState({ items: [], unread: 0, chats: 0 });
   const [open, setOpen] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const [avatar, setAvatar] = useState(initialAvatar);
+  const [uploading, setUploading] = useState(false);
+  const [err, setErr] = useState('');
   const box = useRef(null);
+  const menuBox = useRef(null);
+  const fileRef = useRef(null);
+
+  async function onFile(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setErr('');
+    setUploading(true);
+    try {
+      const blob = await shrink(file);
+      const fd = new FormData();
+      fd.append('file', blob, 'avatar.jpg');
+      const r = await fetch('/api/admin/avatar', { method: 'POST', body: fd });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || 'تعذر رفع الملف.');
+      setAvatar(j.url);
+      setMenu(false);
+    } catch (x) {
+      setErr(x.message || 'تعذر رفع الملف.');
+    }
+    setUploading(false);
+  }
+
+  async function removeAvatar() {
+    await fetch('/api/admin/avatar', { method: 'DELETE' }).catch(() => {});
+    setAvatar('');
+    setMenu(false);
+  }
 
   const load = useCallback(async () => {
     try {
@@ -46,7 +91,10 @@ export default function AdminTopbar({ name, title }) {
   }, [load]);
 
   useEffect(() => {
-    const close = (e) => box.current && !box.current.contains(e.target) && setOpen(false);
+    const close = (e) => {
+      if (box.current && !box.current.contains(e.target)) setOpen(false);
+      if (menuBox.current && !menuBox.current.contains(e.target)) setMenu(false);
+    };
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
   }, []);
@@ -98,10 +146,28 @@ export default function AdminTopbar({ name, title }) {
             </div>
           ) : null}
         </div>
-        <Link href="/admin/account" className="top-user" title={t('حسابي')}>
-          <span className="top-avatar" aria-hidden="true">{initials}</span>
-          <span className="top-name">{name}</span>
-        </Link>
+        <div className="top-pop-wrap" ref={menuBox}>
+          <button type="button" className="top-avatar-btn" onClick={() => setMenu((m) => !m)} aria-label={name} title={name} aria-expanded={menu}>
+            {avatar ? <img src={avatar} alt="" className="top-avatar img" /> : <span className="top-avatar" aria-hidden="true">{initials}</span>}
+          </button>
+          {menu ? (
+            <div className="top-pop top-menu" role="menu">
+              <div className="top-menu-head">
+                {avatar ? <img src={avatar} alt="" className="top-avatar img big" /> : <span className="top-avatar big" aria-hidden="true">{initials}</span>}
+                <strong>{name}</strong>
+              </div>
+              <button type="button" className="top-menu-item" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                {uploading ? t('جاري الرفع...') : avatar ? t('تغيير الصورة الشخصية') : t('إضافة صورة شخصية')}
+              </button>
+              {avatar ? (
+                <button type="button" className="top-menu-item" onClick={removeAvatar}>{t('إزالة الصورة')}</button>
+              ) : null}
+              <Link href="/admin/account" className="top-menu-item" onClick={() => setMenu(false)}>{t('حسابي')}</Link>
+              {err ? <p className="top-menu-err">{t(err)}</p> : null}
+              <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
+            </div>
+          ) : null}
+        </div>
       </div>
     </header>
   );

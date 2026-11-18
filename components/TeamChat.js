@@ -79,7 +79,7 @@ export default function TeamChat({ initialWith = '' }) {
         {members.length ? (
           members.map((m) => (
             <button key={m.id} type="button" className={`chat-member${m.id === active ? ' on' : ''}`} onClick={() => setActive(m.id)}>
-              <span className="top-avatar" aria-hidden="true">{t(m.name).slice(0, 1).toUpperCase()}</span>
+              {m.avatar ? <img src={m.avatar} alt="" className="top-avatar img" /> : <span className="top-avatar" aria-hidden="true">{t(m.name).slice(0, 1).toUpperCase()}</span>}
               <span className="chat-member-name">
                 {t(m.name)}
                 <small dir="ltr">{m.username}</small>
@@ -95,7 +95,7 @@ export default function TeamChat({ initialWith = '' }) {
         {other ? (
           <>
             <div className="chat-head">
-              <span className="top-avatar" aria-hidden="true">{t(other.name).slice(0, 1).toUpperCase()}</span>
+              {other.avatar ? <img src={other.avatar} alt="" className="top-avatar img" /> : <span className="top-avatar" aria-hidden="true">{t(other.name).slice(0, 1).toUpperCase()}</span>}
               <strong>{t(other.name)}</strong>
             </div>
             <div className="chat-body">

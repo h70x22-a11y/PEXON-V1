@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { can, requireAdmin } from '@/lib/auth';
-import { blobReady, dbReady } from '@/lib/db';
+import { blobReady, dbReady, getAvatar } from '@/lib/db';
 import { logout } from '@/app/actions';
 import { AdminLangProvider, AdminLangToggle } from '@/components/AdminLang';
 import AdminTopbar from '@/components/AdminTopbar';
@@ -17,12 +17,13 @@ export default async function AdminLayout({ children }) {
   const session = await requireAdmin();
   if (session.mustChange) redirect('/admin/set-password');
   const show = (perm) => can(session, perm);
+  const avatar = await getAvatar(session.id);
   return (
     <AdminLangProvider lang={lang}>
     <div className="admin" dir={dir} lang={lang}>
       <aside className="admin-side">
         <div className="title">
-          <span>{t('لوحة التحكم')}</span>
+          <a href="/admin" className="side-logo"><img src="/logo-white.png" alt="PEXON" width={150} height={40} /></a>
           <AdminLangToggle lang={lang} />
         </div>
         <Link href="/admin">{t('نظرة عامة')}</Link>
@@ -37,14 +38,13 @@ export default async function AdminLayout({ children }) {
         {show('users') ? <Link href="/admin/users">{t('المستخدمين والصلاحيات')}</Link> : null}
         <div className="spacer" />
         {session.owner ? <Link href="/admin/developer">{t('‹/› المطوّر')}</Link> : null}
-        <Link href="/admin/account" className="side-user">👤 {t(session.name)}</Link>
         <a href="/" target="_blank" rel="noopener noreferrer">{t('عرض الموقع ↗')}</a>
         <form action={logout}>
           <button type="submit">{t('تسجيل الخروج')}</button>
         </form>
       </aside>
       <div className="admin-main">
-        <AdminTopbar name={t(session.name)} title="" />
+        <AdminTopbar name={t(session.name)} title={t('لوحة التحكم')} avatar={avatar} />
         {!dbReady ? (
           <div className="flash warn">
             {t('قاعدة البيانات غير مربوطة، فالتعديلات لن تُحفظ. من Vercel افتح Storage واربط Upstash Redis بالمشروع ثم أعد النشر.')}

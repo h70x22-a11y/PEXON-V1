@@ -610,3 +610,15 @@ html[dir='rtl'] .top-user { padding: 4px 4px 4px 10px; }
 .chat-send .btn { width: 52px; padding: 0; display: grid; place-items: center; font-size: 1.1rem; }
 .chat-empty { margin: auto; text-align: center; padding: 40px 16px; }
 @media (max-width: 760px) { .chat-list { max-width: none; max-height: 220px; } .chat-main { height: 70vh; } }
+.admin-side .title .side-logo { display: block; padding: 0; background: none; }
+.admin-side .title .side-logo img { display: block; width: 150px; height: auto; }
+.admin-top-title { font-size: 1.35rem; }
+.top-avatar-btn { padding: 0; border: 2px solid var(--line); border-radius: 999px; background: none; cursor: pointer; line-height: 0; }
+.top-avatar-btn:hover { border-color: var(--primary); }
+.top-avatar.img { object-fit: cover; display: block; }
+.top-avatar.big { width: 52px; height: 52px; font-size: 1.3rem; }
+.top-menu { width: 240px; padding: 10px; }
+.top-menu-head { display: flex; align-items: center; gap: 10px; padding: 6px 6px 12px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+.top-menu-item { display: block; width: 100%; padding: 10px; border: 0; border-radius: 10px; background: none; color: var(--ink); font: inherit; text-align: start; cursor: pointer; }
+.top-menu-item:hover { background: var(--bg); }
+.top-menu-err { color: var(--danger); font-size: 0.85rem; margin: 6px 10px 0; }
