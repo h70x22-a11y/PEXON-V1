@@ -20,12 +20,10 @@ export default async function AdminLayout({ children }) {
   const avatar = await getAvatar(session.id);
   return (
     <AdminLangProvider lang={lang}>
-    <div className="admin" dir={dir} lang={lang}>
+    <div className="admin-shell" dir={dir} lang={lang}>
+    <AdminTopbar name={t(session.name)} title={t('لوحة التحكم')} avatar={avatar} langToggle={<AdminLangToggle lang={lang} />} />
+    <div className="admin">
       <aside className="admin-side">
-        <div className="title">
-          <a href="/admin" className="side-logo"><img src="/logo-white.png" alt="PEXON" width={150} height={40} /></a>
-          <AdminLangToggle lang={lang} />
-        </div>
         <Link href="/admin">{t('نظرة عامة')}</Link>
         <Link href="/admin/inbox">{t('المحادثات')}</Link>
         {show('quotes') ? <Link href="/admin/quotes">{t('طلبات عروض الأسعار')}</Link> : null}
@@ -44,7 +42,6 @@ export default async function AdminLayout({ children }) {
         </form>
       </aside>
       <div className="admin-main">
-        <AdminTopbar name={t(session.name)} title={t('لوحة التحكم')} avatar={avatar} />
         {!dbReady ? (
           <div className="flash warn">
             {t('قاعدة البيانات غير مربوطة، فالتعديلات لن تُحفظ. من Vercel افتح Storage واربط Upstash Redis بالمشروع ثم أعد النشر.')}
@@ -57,6 +54,7 @@ export default async function AdminLayout({ children }) {
         ) : null}
         {children}
       </div>
+    </div>
     </div>
     </AdminLangProvider>
   );

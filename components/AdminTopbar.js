@@ -34,7 +34,7 @@ async function shrink(file) {
   return new Promise((res) => c.toBlob(res, 'image/jpeg', 0.86));
 }
 
-export default function AdminTopbar({ name, title, avatar: initialAvatar = '' }) {
+export default function AdminTopbar({ name, title, avatar: initialAvatar = '', langToggle = null }) {
   const { t, lang } = useAdminT();
   const [data, setData] = useState({ items: [], unread: 0, chats: 0 });
   const [open, setOpen] = useState(false);
@@ -112,8 +112,10 @@ export default function AdminTopbar({ name, title, avatar: initialAvatar = '' })
 
   return (
     <header className="admin-top">
+      <Link href="/admin" className="admin-top-logo"><img src="/logo.png" alt="PEXON" width={150} height={40} /></Link>
       <div className="admin-top-title">{title}</div>
       <div className="admin-top-tools">
+        <span className="top-lang">{langToggle}</span>
         <Link href="/admin/inbox" className="top-icon" aria-label={t('المحادثات')} title={t('المحادثات')}>
           <FiMail aria-hidden="true" />
           {data.chats ? <span className="top-badge">{data.chats > 99 ? '99+' : data.chats}</span> : null}

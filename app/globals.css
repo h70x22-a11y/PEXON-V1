@@ -565,7 +565,15 @@ html[dir='rtl'] .auth-input::placeholder { direction: rtl; }
 .reset-row .temp-pass { flex: 1 1 340px; }
 
 /* الشريط العلوي في لوحة التحكم */
-.admin-top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -30px calc(-1 * clamp(16px, 4vw, 40px)) 24px; padding: 12px clamp(16px, 4vw, 40px); background: var(--surface); border-bottom: 1px solid var(--line); }
+.admin-top { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 12px; height: 68px; padding: 0 clamp(14px, 3vw, 32px) 0 0; background: #fff; border-bottom: 1px solid var(--line); }
+html[dir='rtl'] .admin-top { padding: 0 0 0 clamp(14px, 3vw, 32px); }
+.admin-top-logo { flex: 0 0 240px; height: 100%; display: flex; align-items: center; padding: 0 22px; }
+.admin-top-logo img { width: 150px; height: auto; display: block; }
+.admin-top-title { flex: 1; color: #14181f; }
+.top-lang .lang-mini { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line); background: #fff; color: #14181f; font: inherit; font-weight: 700; cursor: pointer; }
+.top-lang .lang-mini:hover { border-color: var(--primary); color: var(--primary); }
+.admin-shell .admin { min-height: calc(100vh - 68px); }
+.admin-shell .admin-side { position: sticky; top: 68px; height: calc(100vh - 68px); overflow-y: auto; }
 .admin-top-title { font-weight: 700; }
 .admin-top-tools { display: flex; align-items: center; gap: 10px; }
 .top-icon { position: relative; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.15rem; cursor: pointer; }
@@ -588,7 +596,13 @@ html[dir='rtl'] .top-user { padding: 4px 4px 4px 10px; }
 .note-text span { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .note-time { color: var(--muted); font-size: 0.75rem; white-space: nowrap; }
 .top-empty { padding: 16px; text-align: center; }
-@media (max-width: 800px) { .top-name { display: none; } .admin-top { margin-top: -30px; } }
+@media (max-width: 800px) {
+  .admin-top-logo { flex: 0 0 auto; padding: 0 14px; }
+  .admin-top-logo img { width: 116px; }
+  .admin-top-title { display: none; }
+  .admin-top-tools { margin-inline-start: auto; gap: 6px; }
+  .admin-shell .admin-side { position: static; height: auto; }
+}
 
 /* المحادثات */
 .chat { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; }
