@@ -73,6 +73,7 @@ export default async function AdminSearches({ searchParams }) {
   // ---- تتبع الإنجاز: الكلمات اللي كانت بدون نتيجة وصار لها نتيجة ----
   const [prog, allTime] = await Promise.all([getSearchProgress(), getSearchStats(365)]);
   const label = (k) => prog.labels[k] || k;
+  const zeroAll = new Map(allTime.zero.map((z) => [z.key, z.count]));
   const candidates = new Set([...Object.keys(prog.missing), ...allTime.zero.map((z) => z.key).filter((k) => !prog.fixed[k])]);
   const toFix = [];
   const toAdd = [];
@@ -90,7 +91,7 @@ export default async function AdminSearches({ searchParams }) {
     for (const k of toAdd) prog.missing[k] = now;
   }
   const fixedList = Object.entries(prog.fixed)
-    .map(([k, d]) => ({ key: k, label: label(k), date: d, missed: Number(prog.missed[k]) || 0 }))
+    .map(([k, d]) => ({ key: k, label: label(k), date: d, missed: Number(prog.missed[k]) || zeroAll.get(k) || 0 }))
     .sort((a, b) => (a.date < b.date ? 1 : -1));
   const missingCount = Object.keys(prog.missing).length;
   const fixedCount = fixedList.length;
