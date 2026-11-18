@@ -1,7 +1,6 @@
 import { requireAdmin } from '@/lib/auth';
 import { PERMISSIONS } from '@/lib/permissions';
 import { changeOwnPassword, confirm2faAction, disable2faAction, removePasskeyAction, start2faAction } from '@/app/actions';
-import PasskeyManager from '@/components/PasskeyManager';
 import { get2fa, getPasskeys, getTemp, setTemp } from '@/lib/db';
 import { otpauthUrl } from '@/lib/totp';
 import QRCode from 'qrcode';
@@ -62,8 +61,8 @@ export default async function AdminAccount({ searchParams }) {
         </form>
       )}
       <section className="panel twofa" style={{ marginTop: 18, maxWidth: 640 }}>
-        <h2>{t('الدخول بالبصمة أو الوجه')}</h2>
-        <p className="muted">{t('سجّل جهازك مرة وحدة، وبعدها تدخل لوحة التحكم بـ Face ID أو Touch ID أو البصمة بدون كتابة كلمة المرور. البصمة ما تطلع من جهازك أبداً.')}</p>
+        <h2>{t('الأجهزة المسجّلة للدخول بالبصمة أو الوجه')}</h2>
+        <p className="muted">{t('تنضاف الأجهزة عند تسجيل الدخول. إذا ضاع جهاز أو بعته، احذفه من هنا.')}</p>
         {passkeys.length ? (
           <ul className="pk-list">
             {passkeys.map((k) => (
@@ -83,8 +82,9 @@ export default async function AdminAccount({ searchParams }) {
               </li>
             ))}
           </ul>
-        ) : null}
-        <PasskeyManager />
+        ) : (
+          <p className="muted">{t('ما فيه أجهزة مسجّلة.')}</p>
+        )}
       </section>
       <section className="panel twofa" style={{ marginTop: 18, maxWidth: 640 }}>
         <h2>{t('التحقق بخطوتين')}</h2>

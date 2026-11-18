@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
 import {
   OWNER_USERNAME,
@@ -155,7 +156,7 @@ export async function login(formData) {
     }
     await setSession('owner', '1');
     await logActivity({ userId: 'owner', name: 'المالك', section: 'login', action: 'login', what: 'تسجيل دخول', ip });
-    redirect('/admin');
+    redirect(await afterLogin('/admin'));
   }
   const user = (await getUsers()).find((u) => u.username === username);
   if (user && user.active && verifyPassword(password, user.passwordHash)) {
@@ -166,7 +167,7 @@ export async function login(formData) {
     }
     await setSession(user.id, String(user.sessionVersion));
     await logActivity({ userId: user.id, name: user.name, section: 'login', action: 'login', what: 'تسجيل دخول', ip });
-    redirect(user.mustChangePassword ? '/admin/set-password' : '/admin');
+    redirect(await afterLogin(user.mustChangePassword ? '/admin/set-password' : '/admin'));
   }
   await logActivity({ userId: '', name: username.slice(0, 30), section: 'login', action: 'fail', what: 'محاولة دخول فاشلة', ip });
   const n = await hitCounter(key, LOCK_SECONDS);
@@ -292,6 +293,15 @@ export async function deleteRoleAction(formData) {
   }, 'delete');
 }
 
+// بعد الدخول بكلمة المرور: نعرض تفعيل البصمة/الوجه على هذا الجهاز (إلا إذا فعّله أو اختار "لاحقاً")
+async function afterLogin(next) {
+  // أول دخول (تغيير كلمة المرور) نخليه يكمل أول، ونعرض البصمة في الدخول اللي بعده
+  if (next !== '/admin') return next;
+  const store = await cookies();
+  if (store.get('pk-device')?.value) return next;
+  return `/admin/passkey?next=${encodeURIComponent(next)}`;
+}
+
 // ---------- التحقق بخطوتين ----------
 async function needs2fa(id) {
   if (id === 'owner' && process.env.ADMIN_2FA_OFF === '1') return false; // مخرج طوارئ للمالك من Vercel
@@ -326,7 +336,7 @@ export async function verify2faAction(formData) {
   const users = pending.id === 'owner' ? [] : await getUsers();
   const user = users.find((u) => u.id === pending.id);
   await logActivity({ userId: pending.id, name: user?.name || 'المالك', section: 'login', action: 'login', what: 'تسجيل دخول (بالتحقق بخطوتين)', ip: await clientIp() });
-  redirect(user?.mustChangePassword ? '/admin/set-password' : '/admin');
+  redirect(await afterLogin(user?.mustChangePassword ? '/admin/set-password' : '/admin'));
 }
 
 export async function start2faAction() {
