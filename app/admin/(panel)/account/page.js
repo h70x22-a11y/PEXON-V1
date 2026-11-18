@@ -16,7 +16,7 @@ export default async function AdminAccount({ searchParams }) {
       <Flash params={sp} okText={t('تم تغيير كلمة المرور.')} />
       <div className="panel">
         <ul className="vendor-info" style={{ marginTop: 0 }}>
-          <li><span>{t('الاسم:')}</span> {session.name}</li>
+          <li><span>{t('الاسم:')}</span> {t(session.name)}</li>
           <li><span>{t('اسم المستخدم:')}</span> <bdi>{session.username}</bdi></li>
           <li><span>{t('الصلاحيات:')}</span> {perms.join(t('، ')) || t('لا يوجد')}</li>
         </ul>

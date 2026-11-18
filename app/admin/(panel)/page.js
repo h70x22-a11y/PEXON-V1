@@ -16,7 +16,7 @@ export default async function AdminHome({ searchParams }) {
 
   return (
     <>
-      <h1>{t('أهلاً')} {session.name}</h1>
+      <h1>{t('أهلاً')} {t(session.name)}</h1>
       {sp?.denied ? <div className="flash warn">{t('ما عندك صلاحية على هذا القسم. تواصل مع المدير.')}</div> : null}
       <div className="stats">
         {show('quotes') ? <Link className="stat" href="/admin/quotes?status=new"><b>{newQuotes}</b>{t('طلب عرض سعر جديد')}</Link> : null}

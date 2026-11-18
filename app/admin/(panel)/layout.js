@@ -27,7 +27,7 @@ export default async function AdminLayout({ children }) {
         {show('users') ? <Link href="/admin/users">{t('المستخدمين والصلاحيات')}</Link> : null}
         <div className="spacer" />
         {session.owner ? <Link href="/admin/developer">{t('‹/› المطوّر')}</Link> : null}
-        <Link href="/admin/account" className="side-user">👤 {session.name}</Link>
+        <Link href="/admin/account" className="side-user">👤 {t(session.name)}</Link>
         <a href="/" target="_blank" rel="noopener noreferrer">{t('عرض الموقع ↗')}</a>
         <AdminLangToggle lang={lang} />
         <form action={logout}>
