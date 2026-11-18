@@ -4,6 +4,7 @@ import { getCategories, getProducts, getSearchStats, getSettings } from '@/lib/d
 import { parseSynonyms, searchProducts } from '@/lib/catalog';
 import { saveSynonymsAction } from '@/app/actions';
 import Flash from '@/components/Flash';
+import SearchChart from '@/components/SearchChart';
 import { adminT } from '@/lib/adminLang';
 
 export const dynamic = 'force-dynamic';
@@ -97,6 +98,9 @@ export default async function AdminSearches({ searchParams }) {
         <div className="stat"><b>{stats.total}</b>{t('عملية بحث')}</div>
         <div className="stat"><b>{stats.unique}</b>{t('كلمة مختلفة')}</div>
         <div className="stat"><b>{stats.zeroTotal}</b>{t('بحث بدون نتيجة (')}{zeroPct}%)</div>
+
+      <SearchChart days={days} />
+
       </div>
 
       {stats.total ? (
