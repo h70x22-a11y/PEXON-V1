@@ -3,6 +3,7 @@ import { can, requirePerm } from '@/lib/auth';
 import { getResetRequests, getRoles, getUsers } from '@/lib/db';
 import { addUser, deleteUser, resolveResetAction, updateUser } from '@/app/actions';
 import Flash from '@/components/Flash';
+import TempPassword from '@/components/TempPassword';
 import ConfirmButton from '@/components/ConfirmButton';
 import { adminT } from '@/lib/adminLang';
 
@@ -53,7 +54,7 @@ export default async function AdminUsers({ searchParams }) {
                   {r.note ? ` · ${r.note}` : ''}
                 </div>
               </div>
-              <input type="text" name="password" minLength={8} maxLength={100} dir="ltr" autoComplete="new-password" placeholder={t('كلمة مرور مؤقتة')} aria-label={t('كلمة مرور مؤقتة')} />
+              <TempPassword placeholder="كلمة مرور مؤقتة" label="كلمة مرور مؤقتة" />
               <button className="btn small" type="submit">{t('تعيين كلمة مؤقتة')}</button>
               <button className="btn ghost small" type="submit" name="ignore" value="1" formNoValidate>{t('تجاهل')}</button>
             </form>
@@ -83,7 +84,7 @@ export default async function AdminUsers({ searchParams }) {
               </div>
               <div className="field">
                 <label>{t('كلمة المرور المؤقتة')}</label>
-                <input type="text" name="password" required minLength={8} maxLength={100} dir="ltr" autoComplete="new-password" />
+                <TempPassword required />
                 <small>{t('8 أحرف على الأقل. أرسلها للموظف، وأول ما يدخل بيطلب منه يختار كلمة مرور جديدة.')}</small>
               </div>
             </div>
@@ -122,7 +123,7 @@ export default async function AdminUsers({ searchParams }) {
                   </div>
                   <div className="field">
                     <label>{t('كلمة مرور مؤقتة جديدة (اختياري)')}</label>
-                    <input type="text" name="password" minLength={8} maxLength={100} dir="ltr" autoComplete="new-password" placeholder={t('اتركها فاضية لو ما تبي تغيرها')} />
+                    <TempPassword placeholder="اتركها فاضية لو ما تبي تغيرها" />
                   </div>
                 </div>
                 <RoleSelect t={t} roles={roles} value={u.roleId || ''} />

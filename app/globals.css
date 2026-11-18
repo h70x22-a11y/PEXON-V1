@@ -560,3 +560,6 @@ html[dir='rtl'] .auth-input::placeholder { direction: rtl; }
   .auth-side .auth-ghost { display: none; }
   .auth-form { padding: 36px 22px 44px; }
 }
+.temp-pass { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.temp-pass input { flex: 1 1 180px; min-width: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.04em; }
+.reset-row .temp-pass { flex: 1 1 340px; }
