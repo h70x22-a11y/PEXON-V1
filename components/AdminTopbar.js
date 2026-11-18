@@ -2,15 +2,16 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FiBell, FiMail, FiFileText, FiMessageSquare, FiTruck, FiKey } from 'react-icons/fi';
+import { FiBell, FiMail, FiFileText, FiMessageSquare, FiTruck, FiKey, FiSlash } from 'react-icons/fi';
 import { useAdminT } from '@/components/AdminLang';
 
-const ICONS = { quote: FiFileText, message: FiMessageSquare, vendor: FiTruck, reset: FiKey };
+const ICONS = { quote: FiFileText, message: FiMessageSquare, vendor: FiTruck, reset: FiKey, notsold: FiSlash };
 const LABEL = {
   quote: 'طلب عرض سعر جديد',
   message: 'رسالة جديدة من الموقع',
   vendor: 'مورد جديد سجّل',
   reset: 'طلب إعادة تعيين كلمة مرور',
+  notsold: 'طلب اعتماد "لا نبيعه"',
 };
 
 function ago(iso, lang) {

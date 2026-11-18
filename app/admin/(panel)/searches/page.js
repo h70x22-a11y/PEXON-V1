@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { can, requirePerm } from '@/lib/auth';
-import { addMissing, getCategories, getProducts, getSearchDaily, getSearchProgress, getSearchStats, getSettings, markFixed } from '@/lib/db';
+import { addMissing, getCategories, getNotSold, getProducts, getSearchDaily, getSearchProgress, getSearchStats, getSettings, markFixed } from '@/lib/db';
 import { parseSynonyms, searchProducts } from '@/lib/catalog';
-import { saveSynonymsAction } from '@/app/actions';
+import { decideNotSoldAction, requestNotSoldAction, saveSynonymsAction } from '@/app/actions';
 import Flash from '@/components/Flash';
 import SearchChart from '@/components/SearchChart';
 import { adminT } from '@/lib/adminLang';
@@ -17,7 +17,7 @@ const PERIODS = [
   { days: 365, label: 'سنة' },
 ];
 
-function Table({ t, rows, nowCount, zero }) {
+function Table({ t, rows, nowCount, zero, notSold = {}, canW = false, owner = false, back = '' }) {
   return (
     <div className="table-wrap">
       <table className="quote-table">
@@ -28,6 +28,7 @@ function Table({ t, rows, nowCount, zero }) {
             <th>{zero ? t('مرات البحث بدون نتيجة') : t('مرات البحث')}</th>
             <th>{t('نتائجها الحين')}</th>
             <th></th>
+            {zero ? <th>{t('الإجراء')}</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -45,6 +46,30 @@ function Table({ t, rows, nowCount, zero }) {
                 <td>
                   <a href={`/products?q=${encodeURIComponent(r.label)}`} target="_blank" rel="noopener noreferrer">{t('جرّب ↗')}</a>
                 </td>
+                {zero ? (
+                  <td>
+                    {n ? null : notSold[r.key]?.status === 'pending' ? (
+                      <div className="ns-pending">
+                        <span className="badge">{t('بانتظار موافقة المالك')}</span>
+                        {owner ? (
+                          <form action={decideNotSoldAction} className="ns-decide">
+                            <input type="hidden" name="key" value={r.key} />
+                            <input type="hidden" name="back" value={back} />
+                            <button className="btn small" name="decision" value="approve" type="submit">{t('اعتماد')}</button>
+                            <button className="btn ghost small" name="decision" value="reject" type="submit">{t('رفض')}</button>
+                          </form>
+                        ) : null}
+                      </div>
+                    ) : canW ? (
+                      <form action={requestNotSoldAction}>
+                        <input type="hidden" name="key" value={r.key} />
+                        <input type="hidden" name="label" value={r.label} />
+                        <input type="hidden" name="back" value={back} />
+                        <button className="btn ghost small" type="submit" title={t('نستبعدها من المؤشرات بعد موافقة المالك')}>{t('لا نبيعه')}</button>
+                      </form>
+                    ) : null}
+                  </td>
+                ) : null}
               </tr>
             );
           })}
@@ -61,7 +86,10 @@ export default async function AdminSearches({ searchParams }) {
   const canD = can(session, 'searches:delete');
   const sp = await searchParams;
   const days = PERIODS.some((p) => p.days === Number(sp?.days)) ? Number(sp.days) : 30;
-  const [stats, products, categories, settings] = await Promise.all([getSearchStats(days), getProducts(), getCategories(), getSettings()]);
+  const notSold = await getNotSold();
+  const excluded = new Set(Object.entries(notSold).filter(([, v]) => v.status === 'approved').map(([k]) => k));
+  const [stats, products, categories, settings] = await Promise.all([getSearchStats(days, excluded), getProducts(), getCategories(), getSettings()]);
+  const back = `/admin/searches?days=${Number(sp?.days) || 30}`;
   const synonyms = parseSynonyms(settings.searchSynonyms);
   const cache = new Map();
   const nowCount = (label) => {
@@ -71,7 +99,8 @@ export default async function AdminSearches({ searchParams }) {
   const zeroPct = stats.total ? Math.round((stats.zeroTotal / stats.total) * 100) : 0;
 
   // ---- تتبع الإنجاز: الكلمات اللي كانت بدون نتيجة وصار لها نتيجة ----
-  const [prog, allTime] = await Promise.all([getSearchProgress(), getSearchStats(365)]);
+  const [prog, allTime] = await Promise.all([getSearchProgress(), getSearchStats(365, excluded)]);
+  for (const k of excluded) delete prog.missing[k];
   const label = (k) => prog.labels[k] || k;
   const zeroAll = new Map(allTime.zero.map((z) => [z.key, z.count]));
   const candidates = new Set([...Object.keys(prog.missing), ...allTime.zero.map((z) => z.key).filter((k) => !prog.fixed[k])]);
@@ -93,14 +122,16 @@ export default async function AdminSearches({ searchParams }) {
   const fixedList = Object.entries(prog.fixed)
     .map(([k, d]) => ({ key: k, label: label(k), date: d, missed: Number(prog.missed[k]) || zeroAll.get(k) || 0 }))
     .sort((a, b) => (a.date < b.date ? 1 : -1));
-  const missingCount = Object.keys(prog.missing).length;
+  const missingCount = Object.keys(prog.missing).filter((k) => !excluded.has(k)).length;
+  const pendingNotSold = Object.entries(notSold).filter(([, v]) => v.status === 'pending').map(([k, v]) => ({ key: k, ...v }));
+  const approvedNotSold = Object.entries(notSold).filter(([, v]) => v.status === 'approved').map(([k, v]) => ({ key: k, ...v }));
   const fixedCount = fixedList.length;
   const fixPct = fixedCount + missingCount ? Math.round((fixedCount / (fixedCount + missingCount)) * 100) : 0;
   const recovered = fixedList.reduce((s, x) => s + x.missed, 0);
 
   // نسبة البحث الناجح في الفترة مقارنة بالفترة اللي قبلها
   const cmpDays = Math.min(days === 1 ? 1 : days, 90);
-  const daily = await getSearchDaily(cmpDays * 2);
+  const daily = await getSearchDaily(cmpDays * 2, excluded);
   const part = (arr) => {
     const tot = arr.reduce((s, d) => s + d.total, 0);
     const zero = arr.reduce((s, d) => s + d.zero, 0);
@@ -141,6 +172,25 @@ export default async function AdminSearches({ searchParams }) {
         <div className="stat"><b>{stats.zeroTotal}</b>{t('بحث بدون نتيجة (')}{zeroPct}%)</div>
       </div>
 
+      {pendingNotSold.length && session.owner ? (
+        <section className="panel ns-panel" id="notsold">
+          <h2>{t('طلبات اعتماد "لا نبيعه"')} ({pendingNotSold.length})</h2>
+          <p className="muted">{t('الموظفين حددوا إن هالكلمات لمنتجات ما نبيعها. إذا اعتمدتها تنستبعد من مؤشرات الأداء.')}</p>
+          {pendingNotSold.map((x) => (
+            <form key={x.key} action={decideNotSoldAction} className="reset-row">
+              <input type="hidden" name="key" value={x.key} />
+              <input type="hidden" name="back" value={back} />
+              <div className="reset-who">
+                <bdi><strong>{x.label || x.key}</strong></bdi>
+                <div className="muted" style={{ fontSize: '0.85rem' }}>{t('بواسطة')} {t(x.byName || '')} · {fmtDay(x.at)}</div>
+              </div>
+              <button className="btn small" name="decision" value="approve" type="submit">{t('اعتماد')}</button>
+              <button className="btn ghost small" name="decision" value="reject" type="submit">{t('رفض')}</button>
+            </form>
+          ))}
+        </section>
+      ) : null}
+
       <section className="panel progress-card">
         <h2>{t('الإنجاز في تحسين البحث')}</h2>
         <div className="progress-tiles">
@@ -169,6 +219,9 @@ export default async function AdminSearches({ searchParams }) {
           <div style={{ width: `${fixPct}%` }} />
         </div>
         <p className="muted pbar-text">{t('حلّينا {p}% من الكلمات اللي ما كان لها نتيجة', { p: fixPct })}</p>
+        {approvedNotSold.length ? (
+          <p className="muted pbar-text">{t('{n} كلمة لمنتجات لا نبيعها، مستبعدة من المؤشرات', { n: approvedNotSold.length })}</p>
+        ) : null}
         {fixedList.length ? (
           <details className="fixed-list" open>
             <summary>{t('آخر الكلمات اللي حليناها')}</summary>
@@ -193,7 +246,7 @@ export default async function AdminSearches({ searchParams }) {
           <section>
             <h2>{t('بحث بدون نتائج')}</h2>
             {stats.zero.length ? (
-              <Table t={t} rows={stats.zero} nowCount={nowCount} zero />
+              <Table t={t} rows={stats.zero} nowCount={nowCount} zero notSold={notSold} canW={canW} owner={session.owner} back={back} />
             ) : (
               <p className="muted">{t('ممتاز، كل عمليات البحث في هالفترة لقت نتائج.')}</p>
             )}
@@ -206,6 +259,26 @@ export default async function AdminSearches({ searchParams }) {
       ) : (
         <p className="muted">{t('ما فيه عمليات بحث مسجلة في هالفترة. تبدأ الإحصائيات تتجمع من الحين مع كل بحث في الموقع.')}</p>
       )}
+      {approvedNotSold.length ? (
+        <details className="panel ns-approved" style={{ marginTop: 24 }}>
+          <summary>{t('كلمات لمنتجات لا نبيعها')} ({approvedNotSold.length})</summary>
+          <ul>
+            {approvedNotSold.map((x) => (
+              <li key={x.key}>
+                <bdi><strong>{x.label || x.key}</strong></bdi>
+                <span className="muted">{t('اعتمدها')} {t(x.approvedBy || '')} · {fmtDay(x.approvedAt || x.at)}</span>
+                {session.owner ? (
+                  <form action={decideNotSoldAction}>
+                    <input type="hidden" name="key" value={x.key} />
+                    <input type="hidden" name="back" value={back} />
+                    <button className="link-btn" name="decision" value="reject" type="submit">{t('إلغاء')}</button>
+                  </form>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </>
   );
 }

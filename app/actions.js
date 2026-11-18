@@ -28,6 +28,8 @@ import {
   saveRoles,
   getResetRequests,
   saveResetRequests,
+  getNotSold,
+  setNotSold,
   hitCounter,
   saveUsers,
   addMessage,
@@ -664,4 +666,44 @@ export async function saveSynonymsAction(formData) {
     const current = await getSettings();
     await saveSettings({ ...current, searchSynonyms: text(formData, 'searchSynonyms', 5000) });
   });
+}
+
+// ---------- "منتج لا نبيعه" لكلمات البحث بدون نتيجة ----------
+export async function requestNotSoldAction(formData) {
+  const session = await requirePerm('searches:write');
+  const key = text(formData, 'key', 120);
+  const label = text(formData, 'label', 80);
+  const note = text(formData, 'note', 200);
+  const back = text(formData, 'back', 200) || '/admin/searches';
+  if (key) {
+    const now = new Date().toISOString();
+    await setNotSold(key, {
+      label,
+      note,
+      by: session.id,
+      byName: session.name,
+      at: now,
+      // المالك يعتمد مباشرة، والباقي يحتاج موافقته
+      status: session.owner ? 'approved' : 'pending',
+      ...(session.owner ? { approvedAt: now, approvedBy: session.name } : {}),
+    });
+  }
+  revalidatePath('/admin/searches');
+  redirect(back.startsWith('/admin/searches') ? back : '/admin/searches');
+}
+
+export async function decideNotSoldAction(formData) {
+  const session = await requireAdmin();
+  if (!session.owner) redirect('/admin?denied=1');
+  const key = text(formData, 'key', 120);
+  const decision = text(formData, 'decision', 10);
+  const back = text(formData, 'back', 200) || '/admin/searches';
+  const all = await getNotSold();
+  const item = all[key];
+  if (item) {
+    if (decision === 'approve') await setNotSold(key, { ...item, status: 'approved', approvedAt: new Date().toISOString(), approvedBy: session.name });
+    else await setNotSold(key, null);
+  }
+  revalidatePath('/admin/searches');
+  redirect(back.startsWith('/admin/searches') ? back : '/admin/searches');
 }
