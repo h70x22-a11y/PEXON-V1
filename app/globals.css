@@ -636,3 +636,7 @@ html[dir='rtl'] .top-user { padding: 4px 4px 4px 10px; }
 .top-menu-item { display: block; width: 100%; padding: 10px; border: 0; border-radius: 10px; background: none; color: var(--ink); font: inherit; text-align: start; cursor: pointer; }
 .top-menu-item:hover { background: var(--bg); }
 .top-menu-err { color: var(--danger); font-size: 0.85rem; margin: 6px 10px 0; }
+.pair-avatars { display: flex; flex: none; }
+.pair-avatars .top-avatar { width: 30px; height: 30px; font-size: 0.85rem; border: 2px solid var(--surface); }
+.pair-avatars .top-avatar + .top-avatar { margin-inline-start: -10px; }
+.bubble-from { display: block; font-size: 0.75rem; font-weight: 700; opacity: 0.8; margin-bottom: 2px; }
