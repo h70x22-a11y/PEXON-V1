@@ -6,6 +6,7 @@ import LineChart from '@/components/LineChart';
 import { adminT } from '@/lib/adminLang';
 import { TRACK_LINKS } from '@/lib/trackLinks';
 import CopyButton from '@/components/CopyButton';
+import SourcesChart from '@/components/SourcesChart';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,17 +127,13 @@ export default async function VisitsPage({ searchParams }) {
         </section>
       ) : null}
 
-      <div className="vgrid">
-        <section className="panel">
-          <h2>{t('من وين جاء الزوار')}</h2>
-          {stats.sources.length ? (
-            <Bars rows={stats.sources} total={totals.sessions} label={(k) => t(SOURCES[k] || k)} />
-          ) : (
-            <p className="muted">{t('ما فيه بيانات للحين.')}</p>
-          )}
-          <p className="muted" style={{ fontSize: '0.82rem', marginBottom: 0 }}>{t('"دخول مباشر" يشمل اللي كتبوا الرابط بأنفسهم أو فتحوه من تطبيق ما يرسل مصدره، مثل بعض روابط الواتساب.')}</p>
-        </section>
+      <section className="panel">
+        <h2>{t('من وين جاء الزوار')}</h2>
+        <SourcesChart rows={stats.sources.map(([k, n]) => ({ key: k, label: t(SOURCES[k] || k), value: n }))} />
+        <p className="muted" style={{ fontSize: '0.82rem', margin: '12px 0 0' }}>{t('"دخول مباشر" يشمل اللي كتبوا الرابط بأنفسهم أو فتحوه من تطبيق ما يرسل مصدره، مثل بعض روابط الواتساب. استخدم روابط التتبع أسفل الصفحة عشان يصير المصدر أدق.')}</p>
+      </section>
 
+      <div className="vgrid">
         <section className="panel">
           <h2>{t('نوع الجهاز')}</h2>
           {totals.m + totals.d ? (

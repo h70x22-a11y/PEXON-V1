@@ -859,3 +859,28 @@ html[data-theme='dark'] .top-menu-item.danger { color: #ff8a80; }
 .tlink code { font-size: 0.85rem; background: var(--bg); padding: 4px 8px; border-radius: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tlink-n { min-width: 34px; text-align: center; font-weight: 700; color: var(--primary); }
 @media (max-width: 640px) { .tlink { grid-template-columns: 1fr auto; } .tlink code { grid-column: 1 / -1; order: 3; } }
+
+/* رسم مصادر الزيارات (ألوان فئوية مجرّبة للوضعين) */
+.viz-root { --viz-1: #2a78d6; --viz-2: #eb6834; --viz-3: #1baf7a; --viz-4: #eda100; --viz-5: #e87ba4; --viz-other: #9aa0a6; }
+html[data-theme='dark'] .viz-root { --viz-1: #3987e5; --viz-2: #d95926; --viz-3: #199e70; --viz-4: #c98500; --viz-5: #d55181; --viz-other: #6b7076; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; margin-bottom: 16px; }
+.seg button { border: 0; background: none; font: inherit; font-size: 0.88rem; padding: 6px 16px; border-radius: 999px; cursor: pointer; color: var(--muted); }
+.seg button.on { background: var(--primary); color: #fff; }
+.hbars { display: grid; gap: 10px; }
+.hbar { display: grid; grid-template-columns: minmax(90px, 140px) 1fr auto; gap: 12px; align-items: center; font-size: 0.92rem; }
+.hbar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hbar-track { height: 22px; display: block; }
+.hbar-track i { display: block; height: 100%; min-width: 3px; background: var(--viz-1); border-start-end-radius: 4px; border-end-end-radius: 4px; transition: opacity 0.15s; }
+.hbar.hov .hbar-track i { opacity: 0.8; }
+.hbar-val { font-weight: 700; white-space: nowrap; min-width: 70px; text-align: end; }
+.hbar-val small { font-weight: 400; color: var(--muted); margin-inline-start: 4px; }
+.donut-wrap { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
+.donut { width: 220px; max-width: 100%; flex: none; }
+.donut path { transition: opacity 0.15s; cursor: default; }
+.donut-num { font-size: 26px; font-weight: 700; fill: var(--ink); }
+.donut-cap { font-size: 12px; fill: var(--muted); }
+.donut-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; flex: 1; min-width: 200px; }
+.donut-legend li { display: grid; grid-template-columns: 12px 1fr auto 44px; gap: 10px; align-items: center; font-size: 0.92rem; padding: 4px 6px; border-radius: 8px; }
+.donut-legend li.hov { background: var(--bg); }
+.donut-legend i { width: 12px; height: 12px; border-radius: 3px; }
+.donut-legend small { color: var(--muted); text-align: end; }
