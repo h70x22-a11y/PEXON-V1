@@ -55,7 +55,7 @@ function sections(lang, s) {
         ['6. Data sharing and third parties', [
           'We do not sell your personal data, and we do not share the data you enter in our forms for marketing purposes. We only share data with:',
           '• Technical service providers that operate the website on our behalf (hosting and database), bound by confidentiality and security commitments.',
-          '• Meta Platforms, only for advertising measurement data and only if you consent to it (see section 8).',
+          '• Meta Platforms and Google, only for website and advertising measurement data and only if you consent to it (see section 8).',
           '• Government or judicial authorities, when required by law or an official request.',
           'If you choose to send a quote request via WhatsApp, the message is handled by WhatsApp under its own privacy policy.',
         ]],
@@ -66,9 +66,10 @@ function sections(lang, s) {
           '• A cookie that remembers your preferred language.',
           '• Browser storage (on your device only) that remembers your display preference (light/dark) and the products in your quote cart.',
           '• A login session cookie used only by authorized staff in the dashboard.',
-          'Advertising measurement (only with your consent):',
+          'Measurement and advertising (only with your consent):',
           '• The Meta Pixel from Meta Platforms, which tells us which of our ads on Facebook and Instagram led to visits to the website, adding products to the quote cart, or sending a quote request, so we can show our ads to people likely to be interested. It sends Meta technical data such as the pages visited, your browser and device information, and cookie identifiers. It does not send your name, phone or email from our forms.',
-          'The Meta Pixel does not run unless you choose "Accept" in the notice that appears on your first visit. You can change your choice anytime from "Cookie settings" at the bottom of the site, and you can delete all cookies from your browser settings; the website will continue to work normally.',
+          '• Google Analytics from Google, which tells us how many people visit the website, where they come from (search, social media, ads), which pages and products they view, and how many quote requests are sent. It uses cookie identifiers and technical data about your browser and device, and does not receive your name, phone or email from our forms.',
+          'These tools do not run unless you choose "OK" in the notice that appears on your first visit. You can change your choice anytime from "Cookie settings" at the bottom of the site, and you can delete all cookies from your browser settings; the website will continue to work normally.',
         ]],
         ['9. Automated decisions and profiling', ['We do not make decisions based solely on automated processing of your data, and we do not use your data to build profiles of you.']],
         ['10. Your rights', [
@@ -120,7 +121,7 @@ function sections(lang, s) {
       ['٦. مشاركة البيانات والأطراف الثالثة', [
         'لا نبيع بياناتك الشخصية، ولا نشارك البيانات التي تُدخلها في نماذجنا لأغراض تسويقية، ونشارك البيانات فقط مع:',
         '• مزودي الخدمات التقنية الذين يشغّلون الموقع نيابة عنا (الاستضافة وقاعدة البيانات)، وفق التزامات بالسرية والأمان.',
-        '• شركة Meta Platforms، لبيانات قياس الإعلانات فقط وبموافقتك (انظر البند ٨).',
+        '• شركتي Meta Platforms وGoogle، لبيانات قياس الموقع والإعلانات فقط وبموافقتك (انظر البند ٨).',
         '• الجهات الحكومية أو القضائية، متى ما تطلّب النظام ذلك أو بناءً على طلب رسمي.',
         'وإذا اخترت إرسال طلب عرض السعر عبر واتساب، فتتم معالجة الرسالة لدى واتساب وفق سياسة الخصوصية الخاصة به.',
       ]],
@@ -131,9 +132,10 @@ function sections(lang, s) {
         '• ملف تعريف ارتباط يحفظ لغة العرض المفضلة لديك.',
         '• تخزين في متصفحك (على جهازك فقط) يحفظ وضع العرض (فاتح/داكن) والمنتجات المضافة لسلة عرض السعر.',
         '• ملف تعريف ارتباط لجلسة الدخول، يستخدمه الموظفون المخوّلون فقط في لوحة التحكم.',
-        'قياس الإعلانات (بموافقتك فقط):',
+        'القياس والإعلانات (بموافقتك فقط):',
         '• أداة Meta Pixel من شركة Meta Platforms، وتخبرنا أي إعلاناتنا على فيسبوك وانستقرام أدّت إلى زيارة الموقع أو إضافة منتجات لسلة عرض السعر أو إرسال طلب عرض سعر، لنعرض إعلاناتنا لمن يُحتمل اهتمامهم بها. وترسل إلى Meta بيانات تقنية مثل الصفحات التي زرتها ومعلومات متصفحك وجهازك ومعرّفات ملفات تعريف الارتباط، ولا ترسل اسمك أو جوالك أو بريدك من نماذجنا.',
-        'لا تعمل أداة Meta Pixel إلا إذا اخترت "أوافق" في التنبيه الذي يظهر عند أول زيارة. ويمكنك تغيير اختيارك في أي وقت من "إعدادات ملفات تعريف الارتباط" أسفل الموقع، كما يمكنك حذف ملفات تعريف الارتباط كلها من إعدادات متصفحك، وسيستمر الموقع بالعمل بشكل طبيعي.',
+        '• أداة Google Analytics من شركة Google، وتخبرنا كم شخصاً زار الموقع، ومن أين جاؤوا (البحث، أو وسائل التواصل، أو الإعلانات)، وأي الصفحات والمنتجات شاهدوا، وعدد طلبات عروض الأسعار المرسلة. وتستخدم معرّفات ملفات تعريف الارتباط وبيانات تقنية عن متصفحك وجهازك، ولا تستلم اسمك أو جوالك أو بريدك من نماذجنا.',
+        'لا تعمل هذه الأدوات إلا إذا اخترت "موافق" في التنبيه الذي يظهر عند أول زيارة. ويمكنك تغيير اختيارك في أي وقت من "إعدادات ملفات تعريف الارتباط" أسفل الموقع، كما يمكنك حذف ملفات تعريف الارتباط كلها من إعدادات متصفحك، وسيستمر الموقع بالعمل بشكل طبيعي.',
       ]],
       ['٩. القرارات الآلية والتصنيف', ['لا نتخذ قرارات تعتمد كلياً على المعالجة الآلية لبياناتك، ولا نستخدم بياناتك لبناء ملفات تعريفية أو تصنيفات عنك.']],
       ['١٠. حقوقك', [

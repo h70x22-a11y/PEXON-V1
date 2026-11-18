@@ -135,6 +135,11 @@ export default async function AdminSettings({ searchParams }) {
           <small>{t('من Meta Business: الإعدادات ← النطاقات ← طريقة meta-tag. الصق الوسم كامل أو قيمة content فقط.')}</small>
         </div>
         <div className="field">
+          <label>{t('معرّف قياس Google Analytics')}</label>
+          <input type="text" name="gaId" defaultValue={s.gaId} maxLength={30} dir="ltr" placeholder="G-XXXXXXXXXX" />
+          <small>{t('يبدأ بـ G-. يقيس الزيارات ومصادرها والإضافة للسلة وطلبات عروض الأسعار. ما يشتغل إلا بعد موافقة الزائر. اتركه فاضي لإيقافه.')}</small>
+        </div>
+        <div className="field">
           <label>{t('معرّف Meta Pixel')}</label>
           <input type="text" name="metaPixelId" defaultValue={s.metaPixelId} maxLength={30} dir="ltr" inputMode="numeric" />
           <small>{t('يقيس زيارات الموقع والإضافة للسلة وطلبات عروض الأسعار لإعلانات فيسبوك وانستقرام. ما يشتغل إلا لما يوافق الزائر على ملفات تعريف الارتباط. اتركه فاضي لإيقافه.')}</small>

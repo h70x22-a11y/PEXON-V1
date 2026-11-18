@@ -20,7 +20,20 @@ function loadPixel(id) {
   window.fbq('init', id);
 }
 
-export default function MetaPixel({ pixelId, labels }) {
+function loadGa(id) {
+  if (window.gtag) return;
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { window.dataLayer.push(arguments); };
+  window.gtag('js', new Date());
+  // الصفحات نرسلها يدوياً مع كل تنقل داخل الموقع
+  window.gtag('config', id, { send_page_view: false });
+}
+
+export default function MetaPixel({ pixelId, gaId, labels }) {
   const pathname = usePathname();
   const [show, setShow] = useState(false);
   const [granted, setGranted] = useState(false);
@@ -37,11 +50,17 @@ export default function MetaPixel({ pixelId, labels }) {
 
   // تحميل البكسل وتسجيل زيارة الصفحة (ومع كل تنقل داخل الموقع)
   useEffect(() => {
-    if (!granted || !pixelId) return;
-    loadPixel(pixelId);
-    window.fbq('track', 'PageView');
+    if (!granted) return;
+    if (pixelId) {
+      loadPixel(pixelId);
+      window.fbq('track', 'PageView');
+    }
+    if (gaId) {
+      loadGa(gaId);
+      window.gtag('event', 'page_view', { page_location: window.location.href, page_title: document.title });
+    }
     first.current = false;
-  }, [granted, pixelId, pathname]);
+  }, [granted, pixelId, gaId, pathname]);
 
   function choose(v) {
     try { localStorage.setItem(CONSENT_KEY, v); } catch {}
@@ -50,7 +69,7 @@ export default function MetaPixel({ pixelId, labels }) {
     else if (granted) window.location.reload(); // سحب الموافقة: إعادة تحميل الصفحة بدون البكسل
   }
 
-  if (!show || !pixelId) return null;
+  if (!show || (!pixelId && !gaId)) return null;
   return (
     <div className="consent-bar" role="dialog" aria-live="polite" aria-label={labels.title}>
       <p>
