@@ -7,6 +7,7 @@ import { useAdminT } from '@/components/AdminLang';
 // ألوان مجرّبة لعمى الألوان على الخلفية الفاتحة والداكنة
 const C_TOTAL = '#1c8fd6';
 const C_ZERO = '#e8590c';
+const C_RATE = '#1c8fd6';
 
 const W = 760;
 const H = 260;
@@ -25,6 +26,7 @@ export default function SearchChart({ days }) {
   const router = useRouter();
   const [series, setSeries] = useState([]);
   const [hover, setHover] = useState(-1);
+  const [mode, setMode] = useState('count'); // count | rate
   const [updated, setUpdated] = useState(null);
   const svg = useRef(null);
   const locale = lang === 'en' ? 'en-GB' : 'ar';
@@ -52,17 +54,33 @@ export default function SearchChart({ days }) {
 
   const g = useMemo(() => {
     const n = series.length;
-    const max = niceMax(Math.max(1, ...series.map((d) => d.total)));
+    const rate = (d) => (d.total ? Math.round(((d.total - d.zero) / d.total) * 100) : null);
+    const max = mode === 'rate' ? 100 : niceMax(Math.max(1, ...series.map((d) => d.total)));
     const iw = W - PAD.l - PAD.r;
     const ih = H - PAD.t - PAD.b;
     const x = (i) => PAD.l + (n <= 1 ? iw / 2 : (i * iw) / (n - 1));
     const y = (v) => PAD.t + ih - (v / max) * ih;
-    const path = (key) => series.map((d, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(d[key]).toFixed(1)}`).join(' ');
-    const area = n ? `${path('total')} L${x(n - 1).toFixed(1)},${y(0)} L${x(0).toFixed(1)},${y(0)} Z` : '';
+    // يرسم خط ويقطعه عند الأيام اللي ما فيها بحث (في وضع النسبة)
+    const path = (get) => {
+      let d = '';
+      let pen = false;
+      series.forEach((row, i) => {
+        const v = get(row);
+        if (v === null) {
+          pen = false;
+          return;
+        }
+        d += `${pen ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)} `;
+        pen = true;
+      });
+      return d.trim();
+    };
+    const area = n && mode === 'count' ? `${path((d) => d.total)} L${x(n - 1).toFixed(1)},${y(0)} L${x(0).toFixed(1)},${y(0)} Z` : '';
     const ticks = [0, 1, 2, 3, 4].map((k) => (max / 4) * k);
     const every = Math.max(1, Math.ceil(n / 7));
-    return { n, max, x, y, path, area, ticks, every };
-  }, [series]);
+    const points = mode === 'rate' ? series.map((d, i) => ({ i, v: rate(d) })).filter((p) => p.v !== null) : [];
+    return { n, max, x, y, path, area, ticks, every, rate, points };
+  }, [series, mode]);
 
   const dayLabel = (d, long) =>
     new Date(`${d}T12:00:00Z`).toLocaleDateString(locale, long ? { weekday: 'short', day: 'numeric', month: 'short' } : { day: 'numeric', month: 'short' });
@@ -82,11 +100,21 @@ export default function SearchChart({ days }) {
   return (
     <div className="panel chart-card">
       <div className="chart-head">
-        <h2>{t('عمليات البحث يومياً')}</h2>
-        <div className="chart-legend" aria-hidden="true">
-          <span><i style={{ background: C_TOTAL }} />{t('كل عمليات البحث')}</span>
-          <span><i className="dash" style={{ borderColor: C_ZERO }} />{t('بدون نتيجة')}</span>
+        <h2>{mode === 'rate' ? t('نسبة البحث اللي لقى نتيجة يومياً') : t('عمليات البحث يومياً')}</h2>
+        <div className="chart-tabs" role="tablist">
+          <button type="button" role="tab" aria-selected={mode === 'count'} className={mode === 'count' ? 'on' : ''} onClick={() => setMode('count')}>{t('العدد')}</button>
+          <button type="button" role="tab" aria-selected={mode === 'rate'} className={mode === 'rate' ? 'on' : ''} onClick={() => setMode('rate')}>{t('نسبة النجاح')}</button>
         </div>
+      </div>
+      <div className="chart-legend" aria-hidden="true">
+        {mode === 'count' ? (
+          <>
+            <span><i style={{ background: C_TOTAL }} />{t('كل عمليات البحث')}</span>
+            <span><i className="dash" style={{ borderColor: C_ZERO }} />{t('بدون نتيجة')}</span>
+          </>
+        ) : (
+          <span><i style={{ background: C_RATE }} />{t('نسبة البحث اللي لقى نتيجة')} — {t('كل ما ارتفع الخط، معناه نتحسن')}</span>
+        )}
       </div>
       <div className="chart-wrap" dir="ltr">
         <svg
@@ -102,7 +130,7 @@ export default function SearchChart({ days }) {
           {g.ticks.map((v) => (
             <g key={v}>
               <line x1={PAD.l} x2={W - PAD.r} y1={g.y(v)} y2={g.y(v)} className="chart-grid" />
-              <text x={PAD.l - 8} y={g.y(v) + 4} textAnchor="end" className="chart-tick">{v}</text>
+              <text x={PAD.l - 8} y={g.y(v) + 4} textAnchor="end" className="chart-tick">{mode === 'rate' ? `${v}%` : v}</text>
             </g>
           ))}
           {series.map((d, i) =>
@@ -110,18 +138,32 @@ export default function SearchChart({ days }) {
               <text key={d.day} x={g.x(i)} y={H - 8} textAnchor="middle" className="chart-tick">{dayLabel(d.day)}</text>
             ) : null
           )}
-          {g.n ? (
+          {g.n && mode === 'count' ? (
             <>
               <path d={g.area} fill={C_TOTAL} opacity="0.1" />
-              <path d={g.path('total')} fill="none" stroke={C_TOTAL} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-              <path d={g.path('zero')} fill="none" stroke={C_ZERO} strokeWidth="2" strokeDasharray="5 4" strokeLinejoin="round" strokeLinecap="round" />
+              <path d={g.path((d) => d.total)} fill="none" stroke={C_TOTAL} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+              <path d={g.path((d) => d.zero)} fill="none" stroke={C_ZERO} strokeWidth="2" strokeDasharray="5 4" strokeLinejoin="round" strokeLinecap="round" />
+            </>
+          ) : null}
+          {g.n && mode === 'rate' ? (
+            <>
+              <path d={g.path(g.rate)} fill="none" stroke={C_RATE} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+              {g.points.map((p) => (
+                <circle key={p.i} cx={g.x(p.i)} cy={g.y(p.v)} r="4" fill={C_RATE} stroke="var(--surface)" strokeWidth="2" />
+              ))}
             </>
           ) : null}
           {h ? (
             <g>
               <line x1={g.x(hover)} x2={g.x(hover)} y1={PAD.t} y2={H - PAD.b} className="chart-cross" />
-              <circle cx={g.x(hover)} cy={g.y(h.total)} r="5" fill={C_TOTAL} stroke="var(--surface)" strokeWidth="2" />
-              <circle cx={g.x(hover)} cy={g.y(h.zero)} r="5" fill={C_ZERO} stroke="var(--surface)" strokeWidth="2" />
+              {mode === 'count' ? (
+                <>
+                  <circle cx={g.x(hover)} cy={g.y(h.total)} r="5" fill={C_TOTAL} stroke="var(--surface)" strokeWidth="2" />
+                  <circle cx={g.x(hover)} cy={g.y(h.zero)} r="5" fill={C_ZERO} stroke="var(--surface)" strokeWidth="2" />
+                </>
+              ) : g.rate(h) !== null ? (
+                <circle cx={g.x(hover)} cy={g.y(g.rate(h))} r="6" fill={C_RATE} stroke="var(--surface)" strokeWidth="2" />
+              ) : null}
             </g>
           ) : null}
         </svg>
@@ -130,6 +172,7 @@ export default function SearchChart({ days }) {
             <strong>{dayLabel(h.day, true)}</strong>
             <span><i style={{ background: C_TOTAL }} />{t('كل عمليات البحث')}: <b>{h.total}</b></span>
             <span><i style={{ background: C_ZERO }} />{t('بدون نتيجة')}: <b>{h.zero}</b></span>
+            {g.rate(h) !== null ? <span><i style={{ background: C_RATE }} />{t('نسبة النجاح')}: <b>{g.rate(h)}%</b></span> : null}
           </div>
         ) : null}
       </div>

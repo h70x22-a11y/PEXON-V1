@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { can, requirePerm } from '@/lib/auth';
-import { getCategories, getProducts, getSearchStats, getSettings } from '@/lib/db';
+import { addMissing, getCategories, getProducts, getSearchDaily, getSearchProgress, getSearchStats, getSettings, markFixed } from '@/lib/db';
 import { parseSynonyms, searchProducts } from '@/lib/catalog';
 import { saveSynonymsAction } from '@/app/actions';
 import Flash from '@/components/Flash';
@@ -70,6 +70,46 @@ export default async function AdminSearches({ searchParams }) {
   };
   const zeroPct = stats.total ? Math.round((stats.zeroTotal / stats.total) * 100) : 0;
 
+  // ---- تتبع الإنجاز: الكلمات اللي كانت بدون نتيجة وصار لها نتيجة ----
+  const [prog, allTime] = await Promise.all([getSearchProgress(), getSearchStats(365)]);
+  const label = (k) => prog.labels[k] || k;
+  const candidates = new Set([...Object.keys(prog.missing), ...allTime.zero.map((z) => z.key).filter((k) => !prog.fixed[k])]);
+  const toFix = [];
+  const toAdd = [];
+  for (const k of candidates) {
+    if (nowCount(label(k)) > 0) toFix.push(k);
+    else if (!prog.missing[k]) toAdd.push(k);
+  }
+  if (toFix.length || toAdd.length) {
+    await Promise.all([markFixed(toFix), addMissing(toAdd)]);
+    const now = new Date().toISOString();
+    for (const k of toFix) {
+      delete prog.missing[k];
+      if (!prog.fixed[k]) prog.fixed[k] = now;
+    }
+    for (const k of toAdd) prog.missing[k] = now;
+  }
+  const fixedList = Object.entries(prog.fixed)
+    .map(([k, d]) => ({ key: k, label: label(k), date: d, missed: Number(prog.missed[k]) || 0 }))
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+  const missingCount = Object.keys(prog.missing).length;
+  const fixedCount = fixedList.length;
+  const fixPct = fixedCount + missingCount ? Math.round((fixedCount / (fixedCount + missingCount)) * 100) : 0;
+  const recovered = fixedList.reduce((s, x) => s + x.missed, 0);
+
+  // نسبة البحث الناجح في الفترة مقارنة بالفترة اللي قبلها
+  const cmpDays = Math.min(days === 1 ? 1 : days, 90);
+  const daily = await getSearchDaily(cmpDays * 2);
+  const part = (arr) => {
+    const tot = arr.reduce((s, d) => s + d.total, 0);
+    const zero = arr.reduce((s, d) => s + d.zero, 0);
+    return tot ? Math.round(((tot - zero) / tot) * 100) : null;
+  };
+  const rateNow = part(daily.slice(cmpDays));
+  const ratePrev = part(daily.slice(0, cmpDays));
+  const rateDelta = rateNow !== null && ratePrev !== null ? rateNow - ratePrev : null;
+  const fmtDay = (iso) => new Date(iso).toLocaleDateString(locale, { day: 'numeric', month: 'short', timeZone: 'Asia/Riyadh' });
+
   return (
     <>
       <h1>{t('إحصائيات البحث')}</h1>
@@ -99,6 +139,51 @@ export default async function AdminSearches({ searchParams }) {
         <div className="stat"><b>{stats.unique}</b>{t('كلمة مختلفة')}</div>
         <div className="stat"><b>{stats.zeroTotal}</b>{t('بحث بدون نتيجة (')}{zeroPct}%)</div>
       </div>
+
+      <section className="panel progress-card">
+        <h2>{t('الإنجاز في تحسين البحث')}</h2>
+        <div className="progress-tiles">
+          <div className="ptile">
+            <b>{rateNow === null ? '—' : `${rateNow}%`}</b>
+            <span>{t('نسبة البحث اللي لقى نتيجة')}</span>
+            {rateDelta !== null ? (
+              <em className={rateDelta > 0 ? 'up' : rateDelta < 0 ? 'down' : ''}>
+                {rateDelta > 0 ? '▲' : rateDelta < 0 ? '▼' : '='} {Math.abs(rateDelta)} {t('نقطة عن الفترة السابقة')}
+              </em>
+            ) : (
+              <em>{t('تظهر المقارنة لما يتوفر بحث في الفترة السابقة')}</em>
+            )}
+          </div>
+          <div className="ptile ok">
+            <b>{fixedCount}</b>
+            <span>{t('كلمة كانت بدون نتيجة وصار لها نتيجة')}</span>
+            {recovered ? <em>{t('العملاء بحثوا عنها {n} مرة قبل الحل', { n: recovered })}</em> : null}
+          </div>
+          <div className="ptile warn">
+            <b>{missingCount}</b>
+            <span>{t('كلمة بانتظار الحل')}</span>
+          </div>
+        </div>
+        <div className="pbar" role="progressbar" aria-valuenow={fixPct} aria-valuemin={0} aria-valuemax={100} aria-label={t('نسبة الكلمات اللي تم حلها')}>
+          <div style={{ width: `${fixPct}%` }} />
+        </div>
+        <p className="muted pbar-text">{t('حلّينا {p}% من الكلمات اللي ما كان لها نتيجة', { p: fixPct })}</p>
+        {fixedList.length ? (
+          <details className="fixed-list" open>
+            <summary>{t('آخر الكلمات اللي حليناها')}</summary>
+            <ul>
+              {fixedList.slice(0, 12).map((x) => (
+                <li key={x.key}>
+                  <span className="fixed-check" aria-hidden="true">✓</span>
+                  <bdi><strong>{x.label}</strong></bdi>
+                  <span className="muted">{x.missed ? t('{n} بحث بدون نتيجة قبل', { n: x.missed }) : ''}</span>
+                  <span className="muted fixed-date">{fmtDay(x.date)}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ) : null}
+      </section>
 
       <SearchChart days={days} />
 

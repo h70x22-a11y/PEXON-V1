@@ -673,3 +673,32 @@ html[dir='rtl'] .top-user { padding: 4px 4px 4px 10px; }
 .chart-table { margin-top: 10px; }
 .chart-table summary { cursor: pointer; color: var(--primary); font-weight: 600; font-size: 0.9rem; }
 .chart-table .table-wrap { max-height: 280px; overflow: auto; margin-top: 8px; }
+.chart-tabs { display: inline-flex; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.chart-tabs button { border: 0; background: none; padding: 6px 14px; border-radius: 999px; font: inherit; font-size: 0.88rem; font-weight: 600; color: var(--muted); cursor: pointer; }
+.chart-tabs button.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+.chart-card .chart-legend { margin-top: 10px; }
+
+/* الإنجاز في تحسين البحث */
+.progress-card { margin-bottom: 24px; }
+.progress-card h2 { margin-top: 0; }
+.progress-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.ptile { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; }
+.ptile b { font-size: 2rem; line-height: 1.1; color: var(--ink); }
+.ptile.ok b { color: #16803c; }
+.ptile.warn b { color: #b45309; }
+.ptile span { font-weight: 600; }
+.ptile em { font-style: normal; font-size: 0.85rem; color: var(--muted); }
+.ptile em.up { color: #16803c; font-weight: 700; }
+.ptile em.down { color: #b42318; font-weight: 700; }
+html[data-theme='dark'] .ptile.ok b, html[data-theme='dark'] .ptile em.up { color: #6ce9a6; }
+html[data-theme='dark'] .ptile.warn b { color: #fdb022; }
+html[data-theme='dark'] .ptile em.down { color: #ff8a80; }
+.pbar { height: 12px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; margin-top: 18px; }
+.pbar div { height: 100%; background: #16a34a; border-radius: 999px; transition: width 0.4s; }
+.pbar-text { margin: 6px 0 0; font-size: 0.9rem; }
+.fixed-list { margin-top: 14px; }
+.fixed-list summary { cursor: pointer; font-weight: 700; }
+.fixed-list ul { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+.fixed-list li { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 12px; border-radius: 10px; background: var(--bg); }
+.fixed-check { width: 22px; height: 22px; border-radius: 50%; background: #16a34a; color: #fff; display: grid; place-items: center; font-size: 0.8rem; flex: none; }
+.fixed-date { margin-inline-start: auto; }
