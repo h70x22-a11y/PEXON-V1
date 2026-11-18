@@ -1,10 +1,10 @@
-import { getCategories, getProducts } from '@/lib/db';
+import { getCategories, getProducts, getSettings } from '@/lib/db';
 import { requirePerm } from '@/lib/auth';
 import { addProduct, deleteProduct, updateProduct } from '@/app/actions';
 import Flash from '@/components/Flash';
 import ImageField from '@/components/ImageField';
 import ConfirmButton from '@/components/ConfirmButton';
-import { arabicName, brandOf, searchProducts } from '@/lib/catalog';
+import { arabicName, brandOf, parseSynonyms, searchProducts } from '@/lib/catalog';
 
 function Fields({ product, categories }) {
   return (
@@ -46,6 +46,10 @@ function Fields({ product, categories }) {
         <label>الوصف الكامل</label>
         <textarea name="description" defaultValue={product?.description || ''} maxLength={4000} />
       </div>
+      <div className="field">
+        <label>كلمات البحث (اختياري)</label>
+        <input type="text" name="keywords" defaultValue={product?.keywords || ''} maxLength={300} dir="auto" placeholder="كلمات يكتبها العميل وما هي في اسم المنتج، مثال: كيبل، كيابل، سلك تمديد" />
+      </div>
       <ImageField current={product?.image || ''} label="صورة المنتج" />
       <div className="field">
         <label className="check">
@@ -64,7 +68,7 @@ export default async function AdminProducts({ searchParams }) {
   const nameOf = (id) => categories.find((c) => c.id === id)?.name || 'بدون قسم';
   const q = String(sp?.q || '').trim();
   const cat = String(sp?.cat || '');
-  const filtered = (q ? searchProducts(products, q, categories) : products).filter((p) => !cat || p.categoryId === cat);
+  const filtered = (q ? searchProducts(products, q, categories, parseSynonyms((await getSettings()).searchSynonyms)) : products).filter((p) => !cat || p.categoryId === cat);
   const LIMIT = 40;
   const shown = filtered.slice(0, LIMIT);
 

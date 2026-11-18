@@ -479,3 +479,6 @@ a.stat:hover { border-color: var(--primary); }
 .search-fixed { color: #067647; font-size: 0.85rem; }
 [data-theme='dark'] .search-fixed { color: #6ce9a6; }
 @media (max-width: 520px) { .search-stats { grid-template-columns: 1fr; } }
+.synonyms-box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; margin: 8px 0 18px; }
+.synonyms-box summary { cursor: pointer; font-weight: 700; }
+.synonyms-box textarea { width: 100%; }

@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { after } from 'next/server';
 import { clientIp } from '@/lib/auth';
 import { logSearch } from '@/lib/searchLog';
-import { getCategories, getProducts } from '@/lib/db';
-import { brandOf, listBrands, searchProducts } from '@/lib/catalog';
+import { getCategories, getProducts, getSettings } from '@/lib/db';
+import { brandOf, listBrands, parseSynonyms, searchProducts } from '@/lib/catalog';
 import { ProductCard } from '@/components/Cards';
 import { getLang, t } from '@/lib/i18n';
 
@@ -18,18 +18,19 @@ export default async function ProductsPage({ searchParams }) {
   const q = String(sp?.q || '').trim();
   const cat = String(sp?.cat || '');
   const brand = String(sp?.brand || '').trim();
-  const [categories, products, lang] = await Promise.all([getCategories(), getProducts(), getLang()]);
+  const [categories, products, lang, settings] = await Promise.all([getCategories(), getProducts(), getLang(), getSettings()]);
+  const synonyms = parseSynonyms(settings.searchSynonyms);
   const tr = t(lang);
   const brands = listBrands(products);
   if (q) {
     const ip = await clientIp();
-    after(() => logSearch(q, ip, { products, categories }));
+    after(() => logSearch(q, ip, { products, categories, synonyms }));
   }
 
   const brandKey = brand.toLowerCase();
   const filtering = Boolean(q || cat || brand);
   const matches = filtering
-    ? (q ? searchProducts(products, q, categories) : products).filter(
+    ? (q ? searchProducts(products, q, categories, synonyms) : products).filter(
         (p) => (!cat || p.categoryId === cat) && (!brand || brandOf(p).toLowerCase() === brandKey)
       )
     : [];

@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { requirePerm } from '@/lib/auth';
-import { getCategories, getProducts, getSearchStats } from '@/lib/db';
-import { searchProducts } from '@/lib/catalog';
+import { getCategories, getProducts, getSearchStats, getSettings } from '@/lib/db';
+import { parseSynonyms, searchProducts } from '@/lib/catalog';
+import { saveSynonymsAction } from '@/app/actions';
+import Flash from '@/components/Flash';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,10 +56,11 @@ export default async function AdminSearches({ searchParams }) {
   await requirePerm('searches');
   const sp = await searchParams;
   const days = PERIODS.some((p) => p.days === Number(sp?.days)) ? Number(sp.days) : 30;
-  const [stats, products, categories] = await Promise.all([getSearchStats(days), getProducts(), getCategories()]);
+  const [stats, products, categories, settings] = await Promise.all([getSearchStats(days), getProducts(), getCategories(), getSettings()]);
+  const synonyms = parseSynonyms(settings.searchSynonyms);
   const cache = new Map();
   const nowCount = (label) => {
-    if (!cache.has(label)) cache.set(label, searchProducts(products, label, categories).length);
+    if (!cache.has(label)) cache.set(label, searchProducts(products, label, categories, synonyms).length);
     return cache.get(label);
   };
   const zeroPct = stats.total ? Math.round((stats.zeroTotal / stats.total) * 100) : 0;
@@ -66,6 +69,17 @@ export default async function AdminSearches({ searchParams }) {
     <>
       <h1>إحصائيات البحث</h1>
       <p className="muted">وش يبحث عنه العملاء في الموقع، والكلمات اللي ما لقوا لها منتج. الكلمات اللي ما لها نتائج تساعدك تعرف وش المنتجات اللي تستاهل تضيفها، أو المرادفات اللي نحتاج نضيفها للبحث.</p>
+
+      <Flash params={sp} okText="تم حفظ الكلمات المرادفة." />
+      <details className="synonyms-box" open={Boolean(sp?.ok || sp?.error)}>
+        <summary>الكلمات المرادفة للبحث</summary>
+        <p className="muted">إذا العميل بحث بكلمة وما لقى نتيجة وهي موجودة عندك باسم ثاني، أضفها هنا. كل سطر مجموعة كلمات بنفس المعنى مفصولة بفاصلة، والبحث بأي كلمة منها يطلّع نتائج الباقي.</p>
+        <p className="muted" style={{ fontSize: '0.88rem' }}>مضافة تلقائياً: كيبل وكيابل وكابل وcable، سويتش ومفتاح، بريكر وقاطع، بايب وماسورة، بوكس وعلبة، وغيرها.</p>
+        <form action={saveSynonymsAction}>
+          <textarea name="searchSynonyms" defaultValue={settings.searchSynonyms || ''} maxLength={5000} dir="auto" placeholder={'لمبة، لمبات، اضاءة، سبوت\nسلك تمديد، توصيلة، مشترك'} style={{ minHeight: 140 }} />
+          <button className="btn" type="submit" style={{ marginTop: 10 }}>حفظ</button>
+        </form>
+      </details>
 
       <div className="period-tabs" role="tablist">
         {PERIODS.map((p) => (

@@ -334,6 +334,7 @@ function productFields(formData) {
     description: text(formData, 'description', 4000),
     price: text(formData, 'price', 40),
     brand: text(formData, 'brand', 80),
+    keywords: text(formData, 'keywords', 300),
     featured: Boolean(formData.get('featured')),
   };
 }
@@ -521,4 +522,12 @@ export async function sendMessage(formData) {
     }
   }
   redirect(error ? `/contact?error=${encodeURIComponent(error)}` : '/contact?ok=1');
+}
+
+// ---------- مرادفات البحث ----------
+export async function saveSynonymsAction(formData) {
+  await run('/admin/searches', async () => {
+    const current = await getSettings();
+    await saveSettings({ ...current, searchSynonyms: text(formData, 'searchSynonyms', 5000) });
+  });
 }
