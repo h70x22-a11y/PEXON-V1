@@ -19,9 +19,12 @@ export default async function LoginPage({ searchParams }) {
         </div>
       ) : null}
       {sp?.error === 'locked' ? (
-        <div className="flash err">{t('محاولات دخول خاطئة كثيرة. حاول مرة ثانية بعد 15 دقيقة.')}</div>
+        <div className="flash err">{t('محاولات دخول خاطئة كثيرة. حاول مرة ثانية بعد 5 دقائق.')}</div>
       ) : sp?.error ? (
-        <div className="flash err">{t('اسم المستخدم أو كلمة المرور غير صحيحة.')}</div>
+        <div className="flash err">
+          {t('اسم المستخدم أو كلمة المرور غير صحيحة.')}
+          {Number(sp.left) > 0 ? <div style={{ fontWeight: 400, marginTop: 4 }}>{t('بقي لك {n} محاولات قبل القفل المؤقت.', { n: Number(sp.left) })}</div> : null}
+        </div>
       ) : null}
       <form action={login} className="auth-fields">
         <p className="auth-hint">{t('ادخل باسم المستخدم وكلمة المرور')}</p>

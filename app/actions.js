@@ -96,14 +96,17 @@ async function resolveImage(formData, previous = '') {
 }
 
 // ---------- الدخول ----------
-const MAX_ATTEMPTS = 5;
-const LOCK_SECONDS = 15 * 60;
+const MAX_ATTEMPTS = 5; // لكل مستخدم من نفس الشبكة
+const MAX_IP_ATTEMPTS = 20; // لكل الشبكة مهما تغير اسم المستخدم
+const LOCK_SECONDS = 5 * 60;
 
 export async function login(formData) {
   const username = String(formData.get('username') || '').trim().toLowerCase();
   const password = String(formData.get('password') || '');
-  const key = `login-fail:${await clientIp()}`;
-  if ((await getCounter(key)) >= MAX_ATTEMPTS) redirect('/admin/login?error=locked');
+  const ip = await clientIp();
+  const key = `login-fail:${ip}:${username.slice(0, 40)}`;
+  const ipKey = `login-fail-ip:${ip}`;
+  if ((await getCounter(key)) >= MAX_ATTEMPTS || (await getCounter(ipKey)) >= MAX_IP_ATTEMPTS) redirect('/admin/login?error=locked');
   await new Promise((r) => setTimeout(r, 600));
 
   if (username === OWNER_USERNAME && checkOwnerPassword(password)) {
@@ -118,7 +121,9 @@ export async function login(formData) {
     redirect(user.mustChangePassword ? '/admin/set-password' : '/admin');
   }
   const n = await hitCounter(key, LOCK_SECONDS);
-  redirect(n >= MAX_ATTEMPTS ? '/admin/login?error=locked' : '/admin/login?error=1');
+  const nIp = await hitCounter(ipKey, LOCK_SECONDS);
+  if (n >= MAX_ATTEMPTS || nIp >= MAX_IP_ATTEMPTS) redirect('/admin/login?error=locked');
+  redirect(`/admin/login?error=1&left=${Math.max(0, MAX_ATTEMPTS - n)}`);
 }
 
 export async function logout() {
