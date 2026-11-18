@@ -22,6 +22,7 @@ export default async function AdminLayout({ children }) {
         {show('settings') ? <Link href="/admin/settings">إعدادات الموقع</Link> : null}
         {show('users') ? <Link href="/admin/users">المستخدمين والصلاحيات</Link> : null}
         <div className="spacer" />
+        {session.owner ? <Link href="/admin/developer">‹/› المطوّر</Link> : null}
         <Link href="/admin/account" className="side-user">👤 {session.name}</Link>
         <a href="/" target="_blank" rel="noopener noreferrer">عرض الموقع ↗</a>
         <form action={logout}>

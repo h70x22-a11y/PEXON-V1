@@ -482,3 +482,22 @@ a.stat:hover { border-color: var(--primary); }
 .synonyms-box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; margin: 8px 0 18px; }
 .synonyms-box summary { cursor: pointer; font-weight: 700; }
 .synonyms-box textarea { width: 100%; }
+
+/* لوحة المطوّر */
+.dev { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+.dev-files { flex: 1 1 260px; max-width: 340px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; }
+.dev-files input { width: 100%; margin-bottom: 8px; }
+.dev-list { max-height: 640px; overflow: auto; display: flex; flex-direction: column; }
+.dev-list button { text-align: left; background: none; border: 0; padding: 6px 8px; border-radius: 6px; font: 0.82rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ink); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dev-list button:hover { background: var(--bg); }
+.dev-list button.on { background: var(--primary); color: #fff; }
+.dev-main { flex: 999 1 520px; min-width: 0; }
+.dev-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.dev-dirty { color: #b54708; font-weight: 600; font-size: 0.9rem; }
+.dev-code { width: 100%; min-height: 560px; font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-radius: 10px; padding: 14px; tab-size: 2; white-space: pre; overflow: auto; resize: vertical; }
+.dev-save { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.dev-save input { flex: 1 1 260px; }
+.dev-empty { padding: 60px 0; text-align: center; background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); }
+.dev-commits { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.dev-commits li { display: flex; gap: 12px; flex-wrap: wrap; align-items: baseline; font-size: 0.9rem; }
+.dev-links { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0 0; }
