@@ -808,7 +808,13 @@ html[data-theme='dark'] .dr-late { color: #ff8a80; }
 @media (max-width: 800px) {
   .top-burger { display: inline-flex; }
   .admin-top, html[dir="rtl"] .admin-top { padding-inline: 10px; gap: 8px; }
-  .admin-top-logo img { width: 112px; height: auto; }
+  .admin-top-logo { padding: 0 4px; }
+  .admin-top-logo img { width: 100px; height: auto; }
+  .admin-top-title { display: none; }
+  .admin-top-tools { gap: 5px; }
+  .top-burger, .top-icon, .top-lang .lang-mini { width: 38px; height: 38px; border-radius: 10px; }
+  .top-avatar-btn .top-avatar { width: 32px; height: 32px; }
+  .admin-shell, .admin, .admin-main { min-width: 0; max-width: 100vw; }
 }
 .top-menu-sep { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 6px; }
 .top-menu-item.danger { color: #b42318; display: flex; align-items: center; gap: 8px; }
