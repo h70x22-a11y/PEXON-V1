@@ -4,6 +4,7 @@ import { can, requireAdmin } from '@/lib/auth';
 import { blobReady, dbReady } from '@/lib/db';
 import { logout } from '@/app/actions';
 import { AdminLangProvider, AdminLangToggle } from '@/components/AdminLang';
+import AdminTopbar from '@/components/AdminTopbar';
 import { adminT } from '@/lib/adminLang';
 
 export async function generateMetadata() {
@@ -25,6 +26,7 @@ export default async function AdminLayout({ children }) {
           <AdminLangToggle lang={lang} />
         </div>
         <Link href="/admin">{t('نظرة عامة')}</Link>
+        <Link href="/admin/inbox">{t('المحادثات')}</Link>
         {show('quotes') ? <Link href="/admin/quotes">{t('طلبات عروض الأسعار')}</Link> : null}
         {show('messages') ? <Link href="/admin/messages">{t('الرسائل')}</Link> : null}
         {show('vendors') ? <Link href="/admin/vendors">{t('الموردين المسجلين')}</Link> : null}
@@ -42,6 +44,7 @@ export default async function AdminLayout({ children }) {
         </form>
       </aside>
       <div className="admin-main">
+        <AdminTopbar name={t(session.name)} title="" />
         {!dbReady ? (
           <div className="flash warn">
             {t('قاعدة البيانات غير مربوطة، فالتعديلات لن تُحفظ. من Vercel افتح Storage واربط Upstash Redis بالمشروع ثم أعد النشر.')}
