@@ -875,3 +875,18 @@ export async function backupNowAction() {
   }
   redirect(error ? `/admin/backups?error=${encodeURIComponent(error)}` : '/admin/backups?ok=1');
 }
+
+// حذف مفتاح مرور (جهاز) من حساب المستخدم
+export async function removePasskeyAction(formData) {
+  const session = await requireAdmin();
+  const id = text(formData, 'id', 300);
+  const { getPasskeys, savePasskeys, setPasskeyOwner } = await import('@/lib/db');
+  const list = await getPasskeys(session.id);
+  const gone = list.find((k) => k.id === id);
+  if (gone) {
+    await savePasskeys(session.id, list.filter((k) => k.id !== id));
+    await setPasskeyOwner(id, '');
+    await logActivity({ userId: session.id, name: session.name, section: 'security', action: 'delete', what: `حذف مفتاح مرور: ${gone.name}`, ip: await clientIp() });
+  }
+  redirect('/admin/account?ok=1');
+}

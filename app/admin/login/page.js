@@ -3,6 +3,7 @@ import { login } from '@/app/actions';
 import { isAdmin, passwordConfigured } from '@/lib/auth';
 import { adminT } from '@/lib/adminLang';
 import AuthShell from '@/components/AuthShell';
+import PasskeyLogin from '@/components/PasskeyLogin';
 
 export const metadata = { title: 'دخول لوحة التحكم', robots: { index: false } };
 
@@ -37,6 +38,7 @@ export default async function LoginPage({ searchParams }) {
         <a href="/admin/forgot" className="auth-forgot">{t('نسيت كلمة المرور؟')}</a>
         <button className="auth-btn" type="submit">{t('دخول')}</button>
       </form>
+      <PasskeyLogin lang={lang} />
 
     </AuthShell>
   );

@@ -1,7 +1,8 @@
 import { requireAdmin } from '@/lib/auth';
 import { PERMISSIONS } from '@/lib/permissions';
-import { changeOwnPassword, confirm2faAction, disable2faAction, start2faAction } from '@/app/actions';
-import { get2fa, getTemp, setTemp } from '@/lib/db';
+import { changeOwnPassword, confirm2faAction, disable2faAction, removePasskeyAction, start2faAction } from '@/app/actions';
+import PasskeyManager from '@/components/PasskeyManager';
+import { get2fa, getPasskeys, getTemp, setTemp } from '@/lib/db';
 import { otpauthUrl } from '@/lib/totp';
 import QRCode from 'qrcode';
 import Flash from '@/components/Flash';
@@ -17,6 +18,7 @@ export default async function AdminAccount({ searchParams }) {
 
   // التحقق بخطوتين
   const tf = await get2fa(session.id);
+  const passkeys = await getPasskeys(session.id);
   const setup = sp?.setup2fa ? await getTemp(`2fa-setup:${session.id}`) : null;
   const qr = setup ? await QRCode.toDataURL(otpauthUrl(setup.secret, session.username), { margin: 1, width: 220 }) : '';
   let shownCodes = null;
@@ -59,6 +61,31 @@ export default async function AdminAccount({ searchParams }) {
           <button className="btn" type="submit">{t('تغيير كلمة المرور')}</button>
         </form>
       )}
+      <section className="panel twofa" style={{ marginTop: 18, maxWidth: 640 }}>
+        <h2>{t('الدخول بالبصمة أو الوجه')}</h2>
+        <p className="muted">{t('سجّل جهازك مرة وحدة، وبعدها تدخل لوحة التحكم بـ Face ID أو Touch ID أو البصمة بدون كتابة كلمة المرور. البصمة ما تطلع من جهازك أبداً.')}</p>
+        {passkeys.length ? (
+          <ul className="pk-list">
+            {passkeys.map((k) => (
+              <li key={k.id}>
+                <span className="pk-ico" aria-hidden="true">🔑</span>
+                <span className="pk-name">
+                  <strong>{t(k.name)}</strong>
+                  <small className="muted">
+                    {t('أُضيف')} {new Date(k.created).toLocaleDateString(locale, { timeZone: 'Asia/Riyadh' })}
+                    {k.lastUsed ? ` · ${t('آخر استخدام')} ${new Date(k.lastUsed).toLocaleDateString(locale, { timeZone: 'Asia/Riyadh' })}` : ''}
+                  </small>
+                </span>
+                <form action={removePasskeyAction}>
+                  <input type="hidden" name="id" value={k.id} />
+                  <button className="link-btn" type="submit">{t('حذف')}</button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <PasskeyManager />
+      </section>
       <section className="panel twofa" style={{ marginTop: 18, maxWidth: 640 }}>
         <h2>{t('التحقق بخطوتين')}</h2>
         {shownCodes ? (
