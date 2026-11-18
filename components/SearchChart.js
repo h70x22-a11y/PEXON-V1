@@ -12,11 +12,12 @@ const W = 760;
 const H = 260;
 const PAD = { t: 16, r: 16, b: 30, l: 40 };
 
+// أعلى قيمة في المحور: 4 خطوات بأرقام صحيحة مرتبة (1، 2، 5 × 10ⁿ)
 function niceMax(v) {
-  if (v <= 4) return 4;
-  const p = 10 ** Math.floor(Math.log10(v));
-  for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= v) return m * p;
-  return v;
+  const raw = Math.max(1, Math.ceil(v / 4));
+  const p = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 5, 10].map((m) => m * p).find((x) => x >= raw);
+  return step * 4;
 }
 
 export default function SearchChart({ days }) {
@@ -58,7 +59,7 @@ export default function SearchChart({ days }) {
     const y = (v) => PAD.t + ih - (v / max) * ih;
     const path = (key) => series.map((d, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(d[key]).toFixed(1)}`).join(' ');
     const area = n ? `${path('total')} L${x(n - 1).toFixed(1)},${y(0)} L${x(0).toFixed(1)},${y(0)} Z` : '';
-    const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(max * f));
+    const ticks = [0, 1, 2, 3, 4].map((k) => (max / 4) * k);
     const every = Math.max(1, Math.ceil(n / 7));
     return { n, max, x, y, path, area, ticks, every };
   }, [series]);
