@@ -28,7 +28,10 @@ export async function generateMetadata() {
       images: [{ url: '/og.png', width: 1200, height: 630, alt: name }],
     },
     twitter: { card: 'summary_large_image', title: name, description, images: ['/og.png'] },
-    verification: s.googleVerification ? { google: s.googleVerification } : undefined,
+    verification: {
+      ...(s.googleVerification ? { google: s.googleVerification } : {}),
+      ...(s.metaVerification ? { other: { 'facebook-domain-verification': s.metaVerification } } : {}),
+    },
   };
 }
 

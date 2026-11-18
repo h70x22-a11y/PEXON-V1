@@ -129,6 +129,11 @@ export default async function AdminSettings({ searchParams }) {
           <input type="text" name="googleVerification" defaultValue={s.googleVerification} maxLength={200} dir="ltr" placeholder='google-site-verification' />
           <small>{t('من Search Console اختر طريقة "HTML tag" والصق الوسم كامل أو قيمة content فقط.')}</small>
         </div>
+        <div className="field">
+          <label>{t('رمز التحقق من النطاق في Meta (فيسبوك وانستقرام)')}</label>
+          <input type="text" name="metaVerification" defaultValue={s.metaVerification} maxLength={300} dir="ltr" placeholder='facebook-domain-verification' />
+          <small>{t('من Meta Business: الإعدادات ← النطاقات ← طريقة meta-tag. الصق الوسم كامل أو قيمة content فقط.')}</small>
+        </div>
 
         <h2>{t('بيانات التواصل')}</h2>
         <div className="form-grid">
