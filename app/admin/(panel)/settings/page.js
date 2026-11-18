@@ -102,6 +102,27 @@ export default async function AdminSettings({ searchParams }) {
           </div>
         </div>
 
+        <h2>{t('مدة الاحتفاظ بالبيانات')}</h2>
+        <p className="muted">{t('البيانات اللي تتعدى المدة تنحذف تلقائياً كل ليلة بعد النسخة الاحتياطية، وتظهر في سياسة الخصوصية. اكتب 0 لإيقاف الحذف التلقائي.')}</p>
+        <div className="form-grid">
+          <div className="field">
+            <label>{t('رسائل التواصل (بالأشهر)')}</label>
+            <input type="number" name="retainMessages" defaultValue={s.retainMessages ?? 24} min={0} max={120} />
+          </div>
+          <div className="field">
+            <label>{t('طلبات عروض الأسعار (بالأشهر)')}</label>
+            <input type="number" name="retainQuotes" defaultValue={s.retainQuotes ?? 36} min={0} max={120} />
+          </div>
+          <div className="field">
+            <label>{t('تسجيلات الموردين (بالأشهر)')}</label>
+            <input type="number" name="retainVendors" defaultValue={s.retainVendors ?? 36} min={0} max={120} />
+          </div>
+          <div className="field">
+            <label>{t('طلبات البيانات الشخصية المغلقة (بالأشهر)')}</label>
+            <input type="number" name="retainDataRequests" defaultValue={s.retainDataRequests ?? 60} min={0} max={120} />
+          </div>
+        </div>
+
         <h2>{t('محركات البحث')}</h2>
         <div className="field">
           <label>{t('رمز التحقق من Google Search Console')}</label>

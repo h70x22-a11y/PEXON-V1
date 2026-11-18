@@ -22,7 +22,7 @@ export default async function AdminMessages({ searchParams }) {
   const canW = can(session, 'messages:write');
   const canD = can(session, 'messages:delete');
   const sp = await searchParams;
-  const all = (await getMessages()).filter((m) => m.type !== 'vendor' && m.type !== 'quote');
+  const all = (await getMessages()).filter((m) => m.type !== 'vendor' && m.type !== 'quote' && m.type !== 'datarequest');
   const from = cleanDate(sp?.from);
   const to = cleanDate(sp?.to);
   const messages = all.filter(
@@ -32,6 +32,10 @@ export default async function AdminMessages({ searchParams }) {
   return (
     <>
       <h1>{t('الرسائل (')}{all.length})</h1>
+      <div className="status-tabs">
+        <a href="/admin/messages" className="active">{t('رسائل التواصل')}</a>
+        <a href="/admin/messages/requests">{t('طلبات البيانات الشخصية')}</a>
+      </div>
       <Flash params={sp} okText={t('تم الحذف.')} />
       {all.length ? <AdminFilters action="/admin/messages" sp={sp} placeholder={t('الاسم، رقم الجوال، الإيميل، أو نص الرسالة')} /> : null}
       {all.length && !messages.length ? <p className="muted">{t('لا توجد رسائل مطابقة.')}</p> : null}

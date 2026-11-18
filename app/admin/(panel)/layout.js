@@ -31,7 +31,7 @@ export default async function AdminLayout({ children }) {
   const approved = new Set(Object.entries(notSold).filter(([, v]) => v.status === 'approved').map(([k]) => k));
   const pending = {
     quotes: show('quotes') && msgs.some((m) => m.type === 'quote' && (m.status || 'new') === 'new'),
-    messages: show('messages') && msgs.some((m) => m.type !== 'quote' && m.type !== 'vendor' && !m.handled),
+    messages: show('messages') && msgs.some((m) => (m.type !== 'quote' && m.type !== 'vendor' && !m.handled) || (m.type === 'datarequest' && !['done', 'rejected'].includes(m.status))),
     vendors: show('vendors') && msgs.some((m) => m.type === 'vendor' && !m.handled),
     searches:
       show('searches') &&

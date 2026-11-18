@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createBackup } from '@/lib/backup';
+import { applyRetention } from '@/lib/retention';
 import { hitCounter, logActivity } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +19,9 @@ export async function GET(request) {
   try {
     const r = await createBackup('تلقائي (يومي)');
     await logActivity({ userId: 'system', name: 'النظام', section: 'backup', action: 'write', what: `نسخة احتياطية تلقائية (${r.keys} عنصر)` });
-    return NextResponse.json({ ok: true, keys: r.keys });
+    // بعد النسخة الاحتياطية: حذف البيانات اللي انتهت مدة الاحتفاظ بها
+    const removed = await applyRetention();
+    return NextResponse.json({ ok: true, keys: r.keys, removed });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }

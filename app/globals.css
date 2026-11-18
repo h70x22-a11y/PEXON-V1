@@ -106,7 +106,7 @@ a.card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(20, 24,
 .search input { flex: 1; }
 
 /* ---------- النماذج ---------- */
-input[type='text'], input[type='tel'], input[type='email'], input[type='password'], input[type='search'], select, textarea {
+input[type='text'], input[type='tel'], input[type='number'], input[type='email'], input[type='password'], input[type='search'], select, textarea {
   width: 100%; padding: 11px 14px; border: 1.5px solid var(--line); border-radius: 10px;
   font: inherit; background: var(--surface); color: var(--ink);
 }
@@ -801,3 +801,5 @@ html[data-theme='dark'] .dtile-ico { background: rgba(255, 255, 255, 0.06); }
 .pk-hero { width: 104px; height: 104px; border-radius: 50%; background: #eef8ff; display: grid; place-items: center; }
 .pk-offer .auth-hint { line-height: 1.8; }
 .pk-later { color: #5d6673; text-decoration: none; font-weight: 600; }
+.dr-late { color: #b42318; }
+html[data-theme='dark'] .dr-late { color: #ff8a80; }

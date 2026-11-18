@@ -486,6 +486,10 @@ export async function saveSettingsAction(formData) {
     const color = text(formData, 'primaryColor', 7);
     await saveSettings({
       ...current,
+      retainMessages: Math.max(0, Math.min(120, Number(formData.get('retainMessages')) || 0)),
+      retainQuotes: Math.max(0, Math.min(120, Number(formData.get('retainQuotes')) || 0)),
+      retainVendors: Math.max(0, Math.min(120, Number(formData.get('retainVendors')) || 0)),
+      retainDataRequests: Math.max(0, Math.min(120, Number(formData.get('retainDataRequests')) || 0)),
       siteName: text(formData, 'siteName', 80) || current.siteName,
       tagline: text(formData, 'tagline', 160),
       heroTitle: text(formData, 'heroTitle', 160),
@@ -899,4 +903,44 @@ export async function removePasskeyAction(formData) {
     await logActivity({ userId: session.id, name: session.name, section: 'security', action: 'delete', what: `حذف مفتاح مرور: ${gone.name}`, ip: await clientIp() });
   }
   redirect('/admin/account?ok=1');
+}
+
+// ---------- طلبات أصحاب البيانات (نظام حماية البيانات الشخصية) ----------
+const DR_TYPES = ['access', 'correct', 'delete', 'withdraw'];
+export async function submitDataRequest(formData) {
+  if (formData.get('website')) redirect('/data-request?ok=1');
+  const ip = await clientIp();
+  if ((await hitCounter(`dr:${ip}`, 3600)) > 5) redirect(`/data-request?error=${encodeURIComponent('محاولات كثيرة، حاول لاحقاً.')}`);
+  const name = text(formData, 'name', 100);
+  const phone = text(formData, 'phone', 30);
+  const requestType = text(formData, 'requestType', 20);
+  if (formData.get('consent') !== 'yes' || !name || !phone || !DR_TYPES.includes(requestType)) {
+    redirect(`/data-request?error=${encodeURIComponent('فضلاً عبّئ الحقول المطلوبة ووافق على سياسة الخصوصية.')}`);
+  }
+  const now = new Date();
+  await addMessage({
+    id: randomUUID(),
+    type: 'datarequest',
+    name,
+    phone,
+    email: text(formData, 'email', 120),
+    requestType,
+    details: text(formData, 'details', 1500),
+    status: 'new',
+    date: now.toISOString(),
+    due: new Date(now.getTime() + 30 * 86400000).toISOString(),
+  });
+  redirect('/data-request?ok=1');
+}
+
+export async function updateDataRequest(formData) {
+  await run('/admin/messages/requests', async () => {
+    const m = await getMessage(text(formData, 'id', 60));
+    if (!m || m.type !== 'datarequest') throw new Error('الطلب غير موجود.');
+    const status = text(formData, 'status', 20);
+    if (!['new', 'progress', 'done', 'rejected'].includes(status)) throw new Error('حالة غير صحيحة.');
+    const session = await getSession();
+    await saveMessage({ ...m, status, note: text(formData, 'note', 1000), handledBy: session?.name || '', handledAt: new Date().toISOString(), handled: status === 'done' || status === 'rejected' });
+    return `تحديث طلب بيانات شخصية (${m.name}) إلى: ${status}`;
+  }, 'read');
 }

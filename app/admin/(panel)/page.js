@@ -49,7 +49,7 @@ export default async function AdminHome({ searchParams }) {
   const resets = can(session, 'users:write') ? (await getResetRequests()).length : 0;
 
   const quotes = messages.filter((m) => m.type === 'quote');
-  const contacts = messages.filter((m) => m.type !== 'vendor' && m.type !== 'quote');
+  const contacts = messages.filter((m) => m.type !== 'vendor' && m.type !== 'quote' && m.type !== 'datarequest');
   const vendors = messages.filter((m) => m.type === 'vendor');
   const newQuotes = quotes.filter((m) => (m.status || 'new') === 'new').length;
   const openMsgs = contacts.filter((m) => !m.handled).length;

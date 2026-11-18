@@ -8,6 +8,18 @@ export async function generateMetadata() {
 
 const UPDATED = { ar: '18 نوفمبر 2026', en: '18 November 2026' };
 
+// مدة الاحتفاظ بصيغة مقروءة (من إعدادات لوحة التحكم)
+function period(n, lang) {
+  const m = Number(n) || 0;
+  if (!m) return lang === 'en' ? 'until no longer needed' : 'حتى انتفاء الحاجة إليها';
+  if (m % 12 === 0) {
+    const y = m / 12;
+    if (lang === 'en') return `${y} year${y > 1 ? 's' : ''}`;
+    return y === 1 ? 'سنة' : y === 2 ? 'سنتان' : `${y} سنوات`;
+  }
+  return lang === 'en' ? `${m} months` : `${m} شهراً`;
+}
+
 // كل قسم: [العنوان، فقرات، جدول اختياري]
 function sections(lang, s) {
   const company = (lang === 'en' ? s.legalNameEn : s.legalName) || s.siteName;
@@ -41,7 +53,7 @@ function sections(lang, s) {
           '• Government or judicial authorities, when required by law or an official request.',
           'If you choose to send a quote request via WhatsApp, the message is handled by WhatsApp under its own privacy policy.',
         ]],
-        ['7. Cross-border data transfer', ['The servers of our hosting and database providers may be located outside the Kingdom of Saudi Arabia. Where personal data is transferred outside the Kingdom, we do so only in the cases and under the controls set out in the Personal Data Protection Law and its regulations, ensuring an adequate level of protection and limiting the transfer to what is necessary.']],
+        ['7. Cross-border data transfer', ['Our website is hosted with Vercel, and its data is stored with Upstash (database) and Vercel Blob (files); their servers may be located outside the Kingdom of Saudi Arabia. Where personal data is transferred outside the Kingdom, we do so only in the cases and under the controls set out in the Personal Data Protection Law and its regulations, ensuring an adequate level of protection and limiting the transfer to what is necessary.']],
         ['8. Cookies and similar technologies', [
           'We do not use advertising or tracking cookies, and we do not use third-party analytics tools on this website. We only use what is necessary for the website to work:',
           '• A cookie that remembers your preferred language.',
@@ -57,20 +69,21 @@ function sections(lang, s) {
           '• Request correction, completion or update of your personal data.',
           '• Request destruction of your personal data when it is no longer needed.',
           '• Withdraw your consent to processing at any time.',
-          'To exercise any of these rights, contact us using the details below. We will respond within the period set by law and may ask you to verify your identity. You also have the right to file a complaint with the Saudi Data & AI Authority (SDAIA).',
+          'To exercise any of these rights, submit a request through the "Your data request" page (linked at the bottom of every page) or contact us using the details below. We will respond within 30 days of receiving the request, and may ask you to verify your identity. You also have the right to file a complaint with the Saudi Data & AI Authority (SDAIA).',
         ]],
         ['11. Data retention', [
           'We keep personal data only for as long as needed for the purposes described in this notice, or as required by applicable law. When it is no longer needed, it is securely deleted or anonymized. The retention periods are:',
         ], [
           ['Record type', 'Retention period'],
-          ['Inquiries and contact messages', 'Until the inquiry is resolved + 2 years'],
-          ['Quote requests', 'Date of request + 3 years, or longer if they become part of a contract or transaction'],
-          ['Vendor registrations', 'Duration of the vendor relationship + 3 years, or 3 years from registration if no dealings take place'],
+          ['Inquiries and contact messages', `${period(s.retainMessages ?? 24, 'en')} from the date the inquiry is handled, then deleted automatically`],
+          ['Quote requests', `${period(s.retainQuotes ?? 36, 'en')} from the last update of the request, then deleted automatically (longer if part of a contract or transaction)`],
+          ['Vendor registrations', `${period(s.retainVendors ?? 36, 'en')} from registration or the last dealing, then deleted automatically`],
+          ['Personal data requests', `${period(s.retainDataRequests ?? 60, 'en')} after the request is closed, as evidence of compliance`],
           ['Contracts, invoices and accounting records', 'As required by applicable laws'],
           ['Technical website records', 'As set by the hosting provider, for security and operation purposes'],
         ]],
-        ['12. Data security', ['We protect your data with appropriate technical and organizational measures, including: encrypting all communication with the website (HTTPS); restricting access to submitted data to authorized staff only through a password-protected dashboard; and protecting the website\'s forms against misuse.']],
-        ['13. Personal data breach notification', ['If a breach of personal data occurs, we will take the necessary measures to contain it and limit its impact, notify the competent authority within the periods set by law, and notify you without undue delay if the breach is likely to cause you harm, explaining what happened and the steps you can take.']],
+        ['12. Data security', ['We protect your data with appropriate technical and organizational measures, including: encrypting all communication with the website (HTTPS); restricting access to submitted data to authorized staff only, by role and permission, through a dashboard protected by strong passwords with two-step verification and fingerprint/face sign-in options; logging every access and change; encrypted daily backups; automatic deletion of data once its retention period ends; and protecting the website\'s forms against misuse.']],
+        ['13. Personal data breach notification', ['If a breach of personal data occurs, we will take the necessary measures to contain it and limit its impact, notify the Saudi Data & AI Authority (SDAIA) within 72 hours of becoming aware of it as required by law, and notify you without undue delay if the breach is likely to cause you harm, explaining what happened and the steps you can take.']],
         ['14. Changes to this notice', ['We may update this notice from time to time to reflect changes in our practices or legal requirements. The latest version is always published on this page with its update date, and we will highlight material changes on the website.']],
         ['15. Children', ['This website is directed at businesses and adult individuals, and is not intended for children under 18. We do not knowingly collect personal data from children; if we learn that we have, we will delete it.']],
         ['16. Contact us', [`For any question about this notice or to exercise your rights, contact the person responsible for personal data protection at ${s.siteName}${email ? ` by email at ${email}` : ''}${phone ? `, by phone at ${phone}` : ''}, or through the contact page.`]],
@@ -101,7 +114,7 @@ function sections(lang, s) {
         '• الجهات الحكومية أو القضائية، متى ما تطلّب النظام ذلك أو بناءً على طلب رسمي.',
         'وإذا اخترت إرسال طلب عرض السعر عبر واتساب، فتتم معالجة الرسالة لدى واتساب وفق سياسة الخصوصية الخاصة به.',
       ]],
-      ['٧. نقل البيانات عبر الحدود', ['قد تكون خوادم مزودي خدمات الاستضافة وقاعدة البيانات خارج المملكة العربية السعودية. وعند نقل بيانات شخصية خارج المملكة، فإننا نلتزم بالحالات والضوابط المنصوص عليها في نظام حماية البيانات الشخصية ولوائحه، بما يضمن مستوى حماية مناسباً، ونقتصر على الحد الأدنى من البيانات اللازمة.']],
+      ['٧. نقل البيانات عبر الحدود', ['يُستضاف موقعنا لدى Vercel، وتُحفظ بياناته لدى Upstash (قاعدة البيانات) وVercel Blob (الملفات)، وقد تكون خوادمهم خارج المملكة العربية السعودية. وعند نقل بيانات شخصية خارج المملكة، فإننا نلتزم بالحالات والضوابط المنصوص عليها في نظام حماية البيانات الشخصية ولوائحه، بما يضمن مستوى حماية مناسباً، ونقتصر على الحد الأدنى من البيانات اللازمة.']],
       ['٨. ملفات تعريف الارتباط والتقنيات المشابهة', [
         'لا نستخدم ملفات تعريف ارتباط إعلانية أو تتبّعية، ولا نستخدم أدوات تحليل من جهات خارجية في هذا الموقع. ونستخدم فقط ما يلزم لعمل الموقع:',
         '• ملف تعريف ارتباط يحفظ لغة العرض المفضلة لديك.',
@@ -117,20 +130,21 @@ function sections(lang, s) {
         '• طلب تصحيح بياناتك الشخصية أو إكمالها أو تحديثها.',
         '• طلب إتلاف بياناتك الشخصية متى ما انتفت الحاجة إليها.',
         '• سحب موافقتك على المعالجة في أي وقت.',
-        'ولممارسة أي من هذه الحقوق، تواصل معنا عبر البيانات الموضحة أدناه، وسنرد خلال المدة المحددة نظاماً، وقد نطلب التحقق من هويتك. كما يحق لك تقديم شكوى إلى الهيئة السعودية للبيانات والذكاء الاصطناعي (سدايا).',
+        'ولممارسة أي من هذه الحقوق، قدّم طلبك عبر صفحة "طلب يخص بياناتك" (الرابط موجود أسفل كل صفحة)، أو تواصل معنا عبر البيانات الموضحة أدناه. وسنرد خلال 30 يوماً من استلام الطلب، وقد نطلب التحقق من هويتك. كما يحق لك تقديم شكوى إلى الهيئة السعودية للبيانات والذكاء الاصطناعي (سدايا).',
       ]],
       ['١١. الاحتفاظ بالبيانات', [
         'نحتفظ بالبيانات الشخصية فقط للمدة اللازمة لتحقيق الأغراض الموضحة في هذا الإشعار، أو للمدة التي تتطلبها الأنظمة المعمول بها. وعند انتفاء الحاجة إليها، تُحذف بشكل آمن أو تُخفى هويتها. وفيما يلي مدد الاحتفاظ:',
       ], [
         ['نوع السجل', 'مدة الاحتفاظ'],
-        ['الاستفسارات ورسائل التواصل', 'حتى انتهاء الاستفسار + سنتان'],
-        ['طلبات عروض الأسعار', 'تاريخ الطلب + ٣ سنوات، أو أكثر إذا أصبحت جزءاً من عقد أو معاملة'],
-        ['تسجيلات الموردين', 'مدة التعامل مع المورد + ٣ سنوات، أو ٣ سنوات من التسجيل إذا لم يتم التعامل'],
+        ['الاستفسارات ورسائل التواصل', `${period(s.retainMessages ?? 24, 'ar')} من تاريخ معالجة الاستفسار، ثم تُحذف تلقائياً`],
+        ['طلبات عروض الأسعار', `${period(s.retainQuotes ?? 36, 'ar')} من آخر تحديث للطلب، ثم تُحذف تلقائياً (أو أكثر إذا أصبحت جزءاً من عقد أو معاملة)`],
+        ['تسجيلات الموردين', `${period(s.retainVendors ?? 36, 'ar')} من التسجيل أو آخر تعامل، ثم تُحذف تلقائياً`],
+        ['طلبات البيانات الشخصية', `${period(s.retainDataRequests ?? 60, 'ar')} بعد إغلاق الطلب، لإثبات الالتزام`],
         ['العقود والفواتير والسجلات المحاسبية', 'وفق ما تتطلبه الأنظمة المعمول بها'],
         ['السجلات التقنية للموقع', 'وفق ما يحدده مزود الاستضافة لأغراض الأمان والتشغيل'],
       ]],
-      ['١٢. أمن البيانات', ['نحمي بياناتك بتدابير تقنية وتنظيمية مناسبة، منها: تشفير كل الاتصال بالموقع (HTTPS)، وقصر الوصول إلى البيانات المرسلة على الموظفين المخوّلين فقط عبر لوحة تحكم محمية بكلمة مرور، وحماية نماذج الموقع من إساءة الاستخدام.']],
-      ['١٣. الإخطار بخرق البيانات الشخصية', ['في حال وقوع خرق للبيانات الشخصية، سنتخذ الإجراءات اللازمة لاحتوائه والحد من آثاره، ونُخطر الجهة المختصة خلال المدد المحددة نظاماً، ونُخطرك دون تأخير إذا كان الخرق قد يُلحق بك ضرراً، مع توضيح ما حدث والإجراءات التي يمكنك اتخاذها.']],
+      ['١٢. أمن البيانات', ['نحمي بياناتك بتدابير تقنية وتنظيمية مناسبة، منها: تشفير كل الاتصال بالموقع (HTTPS)، وقصر الوصول إلى البيانات على الموظفين المخوّلين فقط وحسب صلاحياتهم، عبر لوحة تحكم محمية بكلمات مرور قوية مع التحقق بخطوتين وخيار الدخول بالبصمة أو الوجه، وتسجيل كل وصول وتعديل، ونسخ احتياطية يومية مشفّرة، والحذف التلقائي للبيانات عند انتهاء مدة الاحتفاظ بها، وحماية نماذج الموقع من إساءة الاستخدام.']],
+      ['١٣. الإخطار بخرق البيانات الشخصية', ['في حال وقوع خرق للبيانات الشخصية، سنتخذ الإجراءات اللازمة لاحتوائه والحد من آثاره، ونُخطر الهيئة السعودية للبيانات والذكاء الاصطناعي (سدايا) خلال 72 ساعة من العلم به وفق ما يتطلبه النظام، ونُخطرك دون تأخير إذا كان الخرق قد يُلحق بك ضرراً، مع توضيح ما حدث والإجراءات التي يمكنك اتخاذها.']],
       ['١٤. التغييرات على هذا الإشعار', ['قد نحدّث هذا الإشعار من وقت لآخر لمواكبة التغييرات في ممارساتنا أو المتطلبات النظامية. وتُنشر النسخة المحدثة دائماً في هذه الصفحة مع تاريخ التحديث، وسننبّه إلى التغييرات الجوهرية عبر الموقع.']],
       ['١٥. الأطفال', ['هذا الموقع موجّه للمنشآت والأفراد البالغين، وليس موجهاً لمن هم دون ١٨ عاماً. ولا نجمع عن علمٍ بيانات شخصية من الأطفال، وإذا تبيّن لنا ذلك فسنحذفها.']],
       ['١٦. التواصل معنا', [`لأي استفسار حول هذا الإشعار أو لممارسة حقوقك، تواصل مع المسؤول عن حماية البيانات الشخصية في ${s.siteName}${email ? ` عبر البريد الإلكتروني ${email}` : ''}${phone ? `، أو الهاتف ${phone}` : ''}، أو من خلال صفحة تواصل معنا.`]],
