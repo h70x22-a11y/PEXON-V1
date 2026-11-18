@@ -5,6 +5,7 @@ import Flash from '@/components/Flash';
 import ImageField from '@/components/ImageField';
 import ConfirmButton from '@/components/ConfirmButton';
 import { arabicName, brandOf, parseSynonyms, searchProducts } from '@/lib/catalog';
+import { UNITS } from '@/lib/quotes';
 import { adminT } from '@/lib/adminLang';
 
 function Fields({ t, product, categories }) {
@@ -37,6 +38,11 @@ function Fields({ t, product, categories }) {
         <div className="field">
           <label>{t('العلامة التجارية')}</label>
           <input type="text" name="brand" defaultValue={product ? brandOf(product) : ''} maxLength={80} dir="auto" placeholder={t('مثال: Legrand')} />
+        </div>
+        <div className="field">
+          <label>{t('الوحدة')}</label>
+          <input type="text" name="unit" list="units" defaultValue={product?.unit || 'حبة'} maxLength={20} />
+          <datalist id="units">{UNITS.map((u) => <option key={u} value={u} />)}</datalist>
         </div>
         <div className="field">
           <label>{t('السعر (اختياري)')}</label>

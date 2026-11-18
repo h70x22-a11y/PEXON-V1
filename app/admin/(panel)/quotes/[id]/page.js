@@ -36,6 +36,11 @@ export default async function AdminQuote({ params, searchParams }) {
         <span className="status-pill" style={{ background: st.color, fontSize: '0.95rem', padding: '4px 16px' }}>{t(st.ar)}</span>
       </div>
       <Flash params={sp} okText={t('تم تحديث الحالة.')} />
+      {q.token ? (
+        <p style={{ margin: '0 0 14px' }}>
+          <a className="btn small" href={`/q/${q.token}`} target="_blank" rel="noopener noreferrer">{t('فتح مستند الطلب / PDF')}</a>
+        </p>
+      ) : null}
 
       <div className="panel">
         <h2>{t('تحديث الحالة')}</h2>
@@ -61,7 +66,11 @@ export default async function AdminQuote({ params, searchParams }) {
       <div className="panel" style={{ marginTop: 18 }}>
         <h2>{t('بيانات العميل')}</h2>
         <ul className="vendor-info">
-          <li><span>{t('الاسم:')}</span> {q.name}</li>
+          {q.source === 'whatsapp' && !q.name ? (
+            <li><span>{t('المصدر:')}</span> {t('واتساب: بيانات العميل في محادثة الواتساب اللي وصلت فيها هذا الطلب.')}</li>
+          ) : (
+            <li><span>{t('الاسم:')}</span> {q.name}</li>
+          )}
           {q.company ? <li><span>{t('الشركة:')}</span> {q.company}</li> : null}
           {q.phone ? (
             <li>
@@ -80,7 +89,7 @@ export default async function AdminQuote({ params, searchParams }) {
         <div className="table-wrap">
           <table className="quote-table">
             <thead>
-              <tr><th>#</th><th>{t('المنتج')}</th><th>{t('الكمية')}</th></tr>
+              <tr><th>#</th><th>{t('المنتج')}</th><th>{t('رمز الصنف')}</th><th>{t('الوحدة')}</th><th>{t('الكمية')}</th></tr>
             </thead>
             <tbody>
               {(q.items || []).map((it, n) => (
@@ -90,6 +99,8 @@ export default async function AdminQuote({ params, searchParams }) {
                     {it.id ? <a href={`/product/${it.id}`} target="_blank" rel="noopener noreferrer">{it.name}</a> : it.name}
                     {it.short ? <div className="muted" style={{ fontSize: '0.85rem' }}>{it.short}</div> : null}
                   </td>
+                  <td dir="ltr">{it.sku || '—'}</td>
+                  <td>{it.unit ? t(it.unit) : t('حبة')}</td>
                   <td>{it.qty}</td>
                 </tr>
               ))}

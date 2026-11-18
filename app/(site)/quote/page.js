@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getSettings } from '@/lib/db';
 import { getLang, t } from '@/lib/i18n';
-import { submitQuote } from '@/app/actions';
+import { createWhatsappQuote, submitQuote } from '@/app/actions';
 import QuoteCart from '@/components/QuoteCart';
 
 export async function generateMetadata() {
@@ -39,6 +39,9 @@ export default async function QuotePage() {
     error: tr.quoteError,
     needDetails: tr.needDetails,
     waIntro: tr.waIntro,
+    waNumber: tr.waNumber,
+    waCount: tr.waCount,
+    waDoc: tr.waDoc,
   };
   return (
     <>
@@ -51,7 +54,7 @@ export default async function QuotePage() {
       </div>
       <section className="section" style={{ paddingTop: 32 }}>
         <div className="container">
-          <QuoteCart labels={labels} whatsapp={s.whatsapp} submitQuote={submitQuote} />
+          <QuoteCart labels={labels} whatsapp={s.whatsapp} submitQuote={submitQuote} createWhatsappQuote={createWhatsappQuote} />
         </div>
       </section>
     </>

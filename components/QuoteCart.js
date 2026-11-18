@@ -8,7 +8,7 @@ import Consent from '@/components/Consent';
 import { clearCart, onCartChange, readCart, removeFromCart, setQty } from '@/lib/cart';
 import { track } from '@/lib/pixel';
 
-export default function QuoteCart({ labels, whatsapp, submitQuote }) {
+export default function QuoteCart({ labels, whatsapp, submitQuote, createWhatsappQuote }) {
   const [items, setItems] = useState(null);
   const [form, setForm] = useState({ name: '', phone: '', email: '', company: '', notes: '', website: '' });
   const [status, setStatus] = useState({ type: '', text: '' });
@@ -57,14 +57,30 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
     }
   }
 
-  function sendWhatsapp() {
-    const lines = [labels.waIntro, ''];
-    items.forEach((i, n) => {
-      lines.push(`${n + 1}. ${i.name}${i.short ? ` (${i.short})` : ''} × ${i.qty}`);
-    });
+  async function sendWhatsapp() {
+    if (busy) return;
+    // نفتح النافذة فوراً (عشان المتصفح ما يمنعها) ونحدد الرابط بعد ما يتجهز الطلب
+    const win = window.open('', '_blank');
+    setBusy(true);
+    let text;
+    try {
+      const res = createWhatsappQuote ? await createWhatsappQuote({ items: items.map((i) => ({ id: i.id, qty: i.qty })) }) : null;
+      if (res?.ok) {
+        text = [labels.waIntro, '', `${labels.waNumber} ${res.number}`.trim(), `${labels.waCount}: ${items.length}`, '', `${labels.waDoc}:`, res.url].join('\n');
+      }
+    } catch {}
+    if (!text) {
+      const lines = [labels.waIntro, ''];
+      items.forEach((i, n) => lines.push(`${n + 1}. ${i.name}${i.short ? ` (${i.short})` : ''} × ${i.qty}`));
+      text = lines.join('\n');
+    }
     track('Contact', { content_name: 'quote_request_whatsapp', num_items: items.length });
-    window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank', 'noopener');
+    const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`;
+    if (win && !win.closed) win.location.href = url;
+    else window.location.href = url;
+    setBusy(false);
   }
+
 
   if (items === null) return null;
 

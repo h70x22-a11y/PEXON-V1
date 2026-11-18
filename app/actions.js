@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
-import { randomUUID } from 'crypto';
+import { randomUUID, randomBytes } from 'crypto';
 import {
   OWNER_USERNAME,
   checkOwnerPassword,
@@ -25,7 +25,7 @@ import { newSecret, recoveryCodes, verifyTotp } from '@/lib/totp';
 import { createHash } from 'crypto';
 import { VENDOR_ACTIVITIES } from '@/lib/vendor';
 import { DEFAULT_COUNTRY, findCountry } from '@/lib/countries';
-import { QUOTE_STATUSES } from '@/lib/quotes';
+import { QUOTE_STATUSES, quoteItem } from '@/lib/quotes';
 import {
   clearCounter,
   getCounter,
@@ -618,6 +618,7 @@ function productFields(formData) {
     price: text(formData, 'price', 40),
     brand: text(formData, 'brand', 80),
     keywords: text(formData, 'keywords', 300),
+    unit: text(formData, 'unit', 20) || 'حبة',
     featured: Boolean(formData.get('featured')),
   };
 }
@@ -729,7 +730,7 @@ export async function submitQuote(input) {
     .map((i) => {
       const p = byId.get(String(i?.id || ''));
       const qty = Math.max(1, Math.min(100000, Math.floor(Number(i?.qty) || 1)));
-      return p ? { id: p.id, name: p.name, short: p.short || '', qty } : null;
+      return p ? quoteItem(p, qty) : null;
     })
     .filter(Boolean);
   if (!items.length) return { error: 'empty' };
@@ -744,6 +745,7 @@ export async function submitQuote(input) {
       number,
       status: 'new',
       source: 'website',
+      token: randomBytes(16).toString('base64url'),
       name,
       phone,
       email: clean(data.email, 120),
@@ -970,4 +972,32 @@ export async function addDataRequestManual(formData) {
     });
     return `إضافة طلب بيانات شخصية وصل بالبريد (${name})`;
   });
+}
+
+// طلب عرض سعر عبر الواتساب: نحفظه ونرجّع رابط مستند الطلب
+export async function createWhatsappQuote(input) {
+  try {
+    const ip = await clientIp();
+    if ((await hitCounter(`wa-quote:${ip}`, 3600)) > 20) return { error: 'limit' };
+    const products = await getProducts();
+    const byId = new Map(products.map((p) => [p.id, p]));
+    const items = (Array.isArray(input?.items) ? input.items : [])
+      .slice(0, 300)
+      .map((i) => {
+        const p = byId.get(String(i?.id || ''));
+        const qty = Math.max(1, Math.min(100000, Math.floor(Number(i?.qty) || 1)));
+        return p ? quoteItem(p, qty) : null;
+      })
+      .filter(Boolean);
+    if (!items.length) return { error: 'empty' };
+    let number = '';
+    try {
+      number = await nextQuoteNumber();
+    } catch {}
+    const token = randomBytes(16).toString('base64url');
+    await addMessage({ id: randomUUID(), type: 'quote', number, status: 'new', source: 'whatsapp', token, name: '', phone: '', items, date: new Date().toISOString() });
+    return { ok: true, number, url: `https://powercore.sa/q/${token}` };
+  } catch {
+    return { error: 'failed' };
+  }
 }

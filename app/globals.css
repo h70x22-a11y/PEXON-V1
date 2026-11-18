@@ -884,3 +884,34 @@ html[data-theme='dark'] .viz-root { --viz-1: #3987e5; --viz-2: #d95926; --viz-3:
 .donut-legend li.hov { background: var(--bg); }
 .donut-legend i { width: 12px; height: 12px; border-radius: 3px; }
 .donut-legend small { color: var(--muted); text-align: end; }
+
+/* مستند طلب عرض السعر */
+.qdoc-page { background: #eef1f4; min-height: 100vh; padding: 24px 12px; color: #14181f; }
+.qdoc-actions { max-width: 900px; margin: 0 auto 12px; display: flex; justify-content: flex-end; }
+.qdoc { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08); }
+.qdoc-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; border-bottom: 3px solid #37b6ff; padding-bottom: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.qdoc-logo { width: 150px; height: auto; }
+.qdoc-title h1 { margin: 0 0 6px; font-size: 1.6rem; }
+.qdoc-meta, .qdoc-cust { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.92rem; color: #4b5563; }
+.qdoc-meta b, .qdoc-cust b { color: #14181f; }
+.qdoc-cust { background: #f5f8fb; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; }
+.qdoc-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.qdoc-table th { background: #14181f; color: #fff; font-weight: 600; padding: 9px 8px; text-align: start; }
+.qdoc-table td { border-bottom: 1px solid #e5e7eb; padding: 9px 8px; vertical-align: top; }
+.qdoc-table tbody tr:nth-child(even) td { background: #fafbfc; }
+.qdoc-table tfoot td { font-weight: 700; background: #f5f8fb; border-bottom: 0; }
+.qdoc-img-col img { width: 48px; height: 48px; object-fit: contain; border-radius: 6px; background: #fff; }
+.qdoc-sku { font-family: ui-monospace, monospace; white-space: nowrap; }
+.qdoc-desc { color: #4b5563; font-size: 0.85rem; max-width: 300px; }
+.qdoc-qty { font-weight: 700; text-align: center; white-space: nowrap; }
+.qdoc-note { background: #fff7e6; border-radius: 10px; padding: 10px 14px; margin-top: 16px; }
+.qdoc-foot { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin-top: 24px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 0.82rem; color: #6b7280; }
+@media (max-width: 640px) { .qdoc { padding: 16px; } .qdoc-img-col { display: none; } .qdoc-table { font-size: 0.8rem; } }
+@media print {
+  @page { size: A4; margin: 12mm; }
+  .no-print, .site-header, footer.site-footer, .consent-bar { display: none !important; }
+  .qdoc-page { background: #fff; padding: 0; }
+  .qdoc { box-shadow: none; padding: 0; max-width: none; }
+  .qdoc-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .qdoc-table tr { break-inside: avoid; }
+}

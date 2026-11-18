@@ -69,7 +69,8 @@ export default async function AdminQuotes({ searchParams }) {
                     <td><Link href={`/admin/quotes/${m.id}`}><bdi>{m.number || t('عرض')}</bdi></Link></td>
                     <td>{formatDate(m.date, locale)}</td>
                     <td>
-                      <Link href={`/admin/quotes/${m.id}`}>{m.name}</Link>
+                      <Link href={`/admin/quotes/${m.id}`}>{m.name || t('عميل عبر الواتساب')}</Link>
+                      {m.source === 'whatsapp' ? <div className="muted" style={{ fontSize: '0.82rem' }}>{t('واتساب')}</div> : null}
                       {m.company ? <div className="muted">{m.company}</div> : null}
                     </td>
                     <td>{m.items?.length || 0}</td>
