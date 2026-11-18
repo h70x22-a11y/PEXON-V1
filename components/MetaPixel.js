@@ -58,7 +58,7 @@ export default function MetaPixel({ pixelId, labels }) {
       </p>
       <div className="consent-actions">
         <button type="button" className="btn" onClick={() => choose('granted')}>{labels.accept}</button>
-        <button type="button" className="btn ghost" onClick={() => choose('denied')}>{labels.decline}</button>
+        <button type="button" className="consent-no" onClick={() => choose('denied')}>{labels.decline}</button>
       </div>
     </div>
   );

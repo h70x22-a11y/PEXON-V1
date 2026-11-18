@@ -1,3 +1,11 @@
+/* شريط موافقة ملفات تعريف الارتباط: صغير في الزاوية */
+.consent-bar { position: fixed; inset-inline-start: 16px; bottom: 16px; z-index: 60; max-width: 360px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12); display: grid; gap: 10px; }
+.consent-bar p { margin: 0; font-size: 0.88rem; line-height: 1.6; }
+.consent-bar a { color: var(--primary); text-decoration: underline; }
+.consent-actions { display: flex; gap: 14px; align-items: center; }
+.consent-actions .btn { padding: 8px 22px; }
+.consent-no { background: none; border: 0; padding: 0; font: inherit; font-size: 0.85rem; color: var(--muted, #6b7280); cursor: pointer; text-decoration: underline; }
+@media (max-width: 600px) { .consent-bar { inset-inline: 12px; bottom: 12px; max-width: none; } }
 :root {
   --primary: #0f4c5c;
   --accent: #f2a541;
