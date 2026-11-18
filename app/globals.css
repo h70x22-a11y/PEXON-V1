@@ -534,8 +534,8 @@ a.stat:hover { border-color: var(--primary); }
 .auth-form h1 { margin: 0 0 10px; font-size: clamp(1.9rem, 3.4vw, 2.6rem); font-weight: 700; }
 .auth-hint { margin: 0 0 6px; color: #5d6673; }
 .auth-fields { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 16px; }
-.auth-input, .auth-form .field input { width: 100%; height: 56px; border: 1px solid #d4dbe3; border-radius: 999px; padding: 0 24px; font: inherit; font-size: 1rem; background: #fff; color: #14181f; }
-.auth-input:focus, .auth-form .field input:focus { outline: none; border-color: #37b6ff; box-shadow: 0 0 0 4px rgba(55, 182, 255, 0.18); }
+.auth-form input.auth-input, .auth-form .field input { width: 100%; height: 56px; border: 1px solid #d4dbe3; border-radius: 999px; padding: 0 24px; font: inherit; font-size: 1rem; background: #fff; color: #14181f; }
+.auth-form input.auth-input:focus, .auth-form .field input:focus { outline: none; border-color: #37b6ff; box-shadow: 0 0 0 4px rgba(55, 182, 255, 0.18); }
 .auth-input[type='password'], .auth-input[autocomplete='username'] { direction: ltr; text-align: start; }
 html[dir='rtl'] .auth-input::placeholder { direction: rtl; }
 .auth-forgot { color: #5d6673; font-weight: 500; margin-top: 2px; }
