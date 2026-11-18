@@ -134,6 +134,11 @@ export default async function AdminSettings({ searchParams }) {
           <input type="text" name="metaVerification" defaultValue={s.metaVerification} maxLength={300} dir="ltr" placeholder='facebook-domain-verification' />
           <small>{t('من Meta Business: الإعدادات ← النطاقات ← طريقة meta-tag. الصق الوسم كامل أو قيمة content فقط.')}</small>
         </div>
+        <div className="field">
+          <label>{t('معرّف Meta Pixel')}</label>
+          <input type="text" name="metaPixelId" defaultValue={s.metaPixelId} maxLength={30} dir="ltr" inputMode="numeric" />
+          <small>{t('يقيس زيارات الموقع والإضافة للسلة وطلبات عروض الأسعار لإعلانات فيسبوك وانستقرام. ما يشتغل إلا لما يوافق الزائر على ملفات تعريف الارتباط. اتركه فاضي لإيقافه.')}</small>
+        </div>
 
         <h2>{t('بيانات التواصل')}</h2>
         <div className="form-grid">

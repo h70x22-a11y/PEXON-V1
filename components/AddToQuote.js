@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FiCheck, FiMinus, FiPlus } from 'react-icons/fi';
 import { addToCart } from '@/lib/cart';
+import { track } from '@/lib/pixel';
 
 export default function AddToQuote({ product, labels, withQty = false }) {
   const [qty, setQty] = useState(1);
@@ -10,6 +11,7 @@ export default function AddToQuote({ product, labels, withQty = false }) {
 
   function add() {
     addToCart(product, withQty ? qty : 1);
+    track('AddToCart', { content_ids: [String(product.id)], content_name: product.name, content_type: 'product' });
     setAdded(true);
     setTimeout(() => setAdded(false), 1600);
   }

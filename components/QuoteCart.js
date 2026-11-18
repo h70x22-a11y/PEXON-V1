@@ -6,6 +6,7 @@ import { FaWhatsapp } from 'react-icons/fa6';
 import { FiMinus, FiPlus, FiTrash2 } from 'react-icons/fi';
 import Consent from '@/components/Consent';
 import { clearCart, onCartChange, readCart, removeFromCart, setQty } from '@/lib/cart';
+import { track } from '@/lib/pixel';
 
 export default function QuoteCart({ labels, whatsapp, submitQuote }) {
   const [items, setItems] = useState(null);
@@ -43,6 +44,7 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
     try {
       const res = await submitQuote({ ...form, consent, items: items.map((i) => ({ id: i.id, qty: i.qty })) });
       if (!res?.ok) throw new Error();
+      track('Lead', { content_name: 'quote_request_site', num_items: items.length });
       clearCart();
       setForm({ name: '', phone: '', email: '', company: '', notes: '', website: '' });
       setShowForm(false);
@@ -60,6 +62,7 @@ export default function QuoteCart({ labels, whatsapp, submitQuote }) {
     items.forEach((i, n) => {
       lines.push(`${n + 1}. ${i.name}${i.short ? ` (${i.short})` : ''} × ${i.qty}`);
     });
+    track('Contact', { content_name: 'quote_request_whatsapp', num_items: items.length });
     window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank', 'noopener');
   }
 

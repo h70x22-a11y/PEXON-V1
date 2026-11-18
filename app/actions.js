@@ -526,6 +526,7 @@ export async function saveSettingsAction(formData) {
       crNumber: text(formData, 'crNumber', 20).replace(/[^0-9]/g, ''),
       vatNumber: text(formData, 'vatNumber', 20).replace(/[^0-9]/g, ''),
       googleVerification: text(formData, 'googleVerification', 200).replace(/^.*content=["']?([^"'\s>]+).*$/i, '$1').replace(/[^A-Za-z0-9_\-]/g, ''),
+      metaPixelId: text(formData, 'metaPixelId', 30).replace(/\D/g, ''),
       metaVerification: (text(formData, 'metaVerification', 300).match(/content=["']([^"']+)["']/)?.[1] || text(formData, 'metaVerification', 300)).trim(),
     });
   });

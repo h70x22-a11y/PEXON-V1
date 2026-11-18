@@ -8,6 +8,8 @@ import ThemeToggle from '@/components/ThemeToggle';
 import LangToggle from '@/components/LangToggle';
 import CartButton from '@/components/CartButton';
 import SearchBox from '@/components/SearchBox';
+import MetaPixel from '@/components/MetaPixel';
+import ConsentLink from '@/components/ConsentLink';
 
 export default async function SiteLayout({ children }) {
   const [s, lang] = await Promise.all([getSettings(), getLang()]);
@@ -59,6 +61,7 @@ export default async function SiteLayout({ children }) {
                 <li><Link href="/vendor-registration">{tr.vendorTitle}</Link></li>
                 <li><Link href="/return-policy">{tr.returnTitle}</Link></li>
                 <li><Link href="/privacy">{tr.privacyTitle}</Link></li>
+                {s.metaPixelId ? <li><ConsentLink label={tr.cookieSettings} /></li> : null}
               </ul>
             </div>
             <div>
@@ -83,6 +86,7 @@ export default async function SiteLayout({ children }) {
           </div>
         </div>
       </footer>
+      <MetaPixel pixelId={s.metaPixelId} labels={{ title: tr.cookieTitle, text: tr.cookieText, more: tr.cookieMore, accept: tr.cookieAccept, decline: tr.cookieDecline }} />
     </>
   );
 }
