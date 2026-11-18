@@ -522,3 +522,11 @@ export async function sendMessage(formData) {
   }
   redirect(error ? `/contact?error=${encodeURIComponent(error)}` : '/contact?ok=1');
 }
+
+// ---------- إحصائيات البحث ----------
+export async function clearSearchesAction() {
+  await run('/admin/searches', async () => {
+    const { clearSearchStats } = await import('@/lib/db');
+    await clearSearchStats();
+  });
+}

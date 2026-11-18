@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { requirePerm } from '@/lib/auth';
 import { getCategories, getProducts, getSearchStats } from '@/lib/db';
 import { searchProducts } from '@/lib/catalog';
+import { clearSearchesAction } from '@/app/actions';
+import ConfirmButton from '@/components/ConfirmButton';
+import Flash from '@/components/Flash';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,7 +67,13 @@ export default async function AdminSearches({ searchParams }) {
 
   return (
     <>
-      <h1>إحصائيات البحث</h1>
+      <div className="section-head" style={{ marginBottom: 12 }}>
+        <h1 style={{ margin: 0 }}>إحصائيات البحث</h1>
+        <form action={clearSearchesAction}>
+          <ConfirmButton message="مسح كل إحصائيات البحث والبدء من جديد؟">مسح الإحصائيات</ConfirmButton>
+        </form>
+      </div>
+      <Flash params={sp} okText="تم مسح الإحصائيات. تبدأ من جديد من الحين." />
       <p className="muted">وش يبحث عنه العملاء في الموقع، والكلمات اللي ما لقوا لها منتج. الكلمات اللي ما لها نتائج تساعدك تعرف وش المنتجات اللي تستاهل تضيفها، أو المرادفات اللي نحتاج نضيفها للبحث.</p>
 
       <div className="period-tabs" role="tablist">
