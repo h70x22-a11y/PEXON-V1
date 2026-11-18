@@ -711,3 +711,9 @@ html[data-theme='dark'] .ptile em.down { color: #ff8a80; }
 .ns-approved li { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 8px 12px; border-radius: 10px; background: var(--bg); }
 .ns-approved li form { margin-inline-start: auto; }
 .note-ico.k-notsold { color: #6b7280; background: #f1f4f7; }
+.admin-side a { display: flex; align-items: center; gap: 8px; }
+.side-dot { width: 9px; height: 9px; border-radius: 50%; background: #37b6ff; box-shadow: 0 0 0 3px rgba(55, 182, 255, 0.25); margin-inline-start: auto; flex: none; }
+.msg.pending { border-inline-start: 4px solid #37b6ff; }
+.msg-actions { display: flex; align-items: center; gap: 10px; margin: 10px 0 6px; flex-wrap: wrap; }
+.row-pending td:first-child { box-shadow: inset 4px 0 0 #37b6ff; }
+html[dir='rtl'] .row-pending td:first-child { box-shadow: inset -4px 0 0 #37b6ff; }

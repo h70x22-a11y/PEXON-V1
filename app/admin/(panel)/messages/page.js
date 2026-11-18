@@ -1,6 +1,6 @@
 import { getMessages } from '@/lib/db';
 import { can, requirePerm } from '@/lib/auth';
-import { deleteMessageAction } from '@/app/actions';
+import { deleteMessageAction, markHandledAction } from '@/app/actions';
 import Flash from '@/components/Flash';
 import AdminFilters from '@/components/AdminFilters';
 import { cleanDate, inRange, matchesRecord } from '@/lib/adminFilters';
@@ -37,7 +37,7 @@ export default async function AdminMessages({ searchParams }) {
       {all.length && !messages.length ? <p className="muted">{t('لا توجد رسائل مطابقة.')}</p> : null}
       <div className="rows">
         {messages.map((m) => (
-          <div className="msg" key={m.id}>
+          <div className={`msg${m.handled ? ' handled' : ' pending'}`} key={m.id}>
             <div className="top">
               <strong>{m.name}</strong>
               <span className="muted">{formatDate(m.date, locale)}</span>
@@ -76,6 +76,15 @@ export default async function AdminMessages({ searchParams }) {
               </table>
             ) : null}
             {m.message ? <p>{m.message}</p> : null}
+            <div className="msg-actions">
+              <form action={markHandledAction}>
+                <input type="hidden" name="id" value={m.id} />
+                <input type="hidden" name="section" value="messages" />
+                <input type="hidden" name="handled" value={m.handled ? '0' : '1'} />
+                <button className={`btn small${m.handled ? ' ghost' : ''}`} type="submit">{m.handled ? t('إرجاع لغير معالجة') : t('تمت المعالجة ✓')}</button>
+              </form>
+              {m.handled ? <span className="muted" style={{ fontSize: '0.82rem' }}>{t('عالجها')} {t(m.handledBy || '')}</span> : null}
+            </div>
             {canD ? (
             <form action={deleteMessageAction}>
               <input type="hidden" name="id" value={m.id} />

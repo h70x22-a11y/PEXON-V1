@@ -537,6 +537,20 @@ export async function deleteVendorAction(formData) {
   }, 'delete');
 }
 
+// تعليم رسالة أو تسجيل مورد كـ "تمت المعالجة" (أو إرجاعه)
+export async function markHandledAction(formData) {
+  const section = text(formData, 'section', 20) === 'vendors' ? 'vendors' : 'messages';
+  const session = await requirePerm(`${section}:read`);
+  const id = text(formData, 'id', 60);
+  const m = await getMessage(id);
+  if (m) {
+    const handled = formData.get('handled') === '1';
+    await saveMessage({ ...m, handled, handledBy: handled ? session.name : '', handledAt: handled ? new Date().toISOString() : '' });
+  }
+  revalidatePath('/admin', 'layout');
+  redirect(`/admin/${section}`);
+}
+
 export async function deleteMessageAction(formData) {
   await run('/admin/messages', async () => {
     await deleteMessage(text(formData, 'id', 60));

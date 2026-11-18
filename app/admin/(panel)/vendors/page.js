@@ -1,6 +1,6 @@
 import { getMessages } from '@/lib/db';
 import { can, requirePerm } from '@/lib/auth';
-import { deleteVendorAction } from '@/app/actions';
+import { deleteVendorAction, markHandledAction } from '@/app/actions';
 import Flash from '@/components/Flash';
 import AdminFilters from '@/components/AdminFilters';
 import { cleanDate, inRange, matchesRecord } from '@/lib/adminFilters';
@@ -72,7 +72,7 @@ export default async function AdminVendors({ searchParams }) {
             </thead>
             <tbody>
               {vendors.map((v) => (
-                <tr key={v.id}>
+                <tr key={v.id} className={v.handled ? '' : 'row-pending'}>
                   <td>{formatDate(v.date, locale)}</td>
                   <td><strong>{v.company}</strong></td>
                   <td><bdi>{v.vendor?.cr}</bdi></td>
@@ -83,6 +83,12 @@ export default async function AdminVendors({ searchParams }) {
                     {v.phone ? <div><a href={`tel:${v.phone}`} dir="ltr">{v.phone}</a></div> : null}
                   </td>
                   <td>
+                    <form action={markHandledAction} style={{ marginBottom: 6 }}>
+                      <input type="hidden" name="id" value={v.id} />
+                      <input type="hidden" name="section" value="vendors" />
+                      <input type="hidden" name="handled" value={v.handled ? '0' : '1'} />
+                      <button className={`btn small${v.handled ? ' ghost' : ''}`} type="submit">{v.handled ? t('إرجاع لغير معالجة') : t('تمت المعالجة ✓')}</button>
+                    </form>
                     {canD ? (
                     <form action={deleteVendorAction}>
                       <input type="hidden" name="id" value={v.id} />

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { can, requireAdmin } from '@/lib/auth';
-import { blobReady, dbReady, getAvatar } from '@/lib/db';
+import { blobReady, dbReady, getAvatar, getChatUnread, getMessages, getNotSold, getResetRequests, getSearchProgress } from '@/lib/db';
 import { logout } from '@/app/actions';
 import { AdminLangProvider, AdminLangToggle } from '@/components/AdminLang';
 import AdminTopbar from '@/components/AdminTopbar';
@@ -19,6 +19,27 @@ export default async function AdminLayout({ children }) {
   if (!session.termsOk) redirect('/admin/terms');
   const show = (perm) => can(session, perm);
   const avatar = await getAvatar(session.id);
+
+  // نقطة سماوية جنب القسم اللي فيه شي يحتاج معالجة، وتختفي بعد المعالجة
+  const [msgs, prog, notSold, resets, chats] = await Promise.all([
+    getMessages(),
+    show('searches') ? getSearchProgress() : null,
+    show('searches') ? getNotSold() : {},
+    can(session, 'users:write') ? getResetRequests() : [],
+    getChatUnread(session.id),
+  ]);
+  const approved = new Set(Object.entries(notSold).filter(([, v]) => v.status === 'approved').map(([k]) => k));
+  const pending = {
+    quotes: show('quotes') && msgs.some((m) => m.type === 'quote' && (m.status || 'new') === 'new'),
+    messages: show('messages') && msgs.some((m) => m.type !== 'quote' && m.type !== 'vendor' && !m.handled),
+    vendors: show('vendors') && msgs.some((m) => m.type === 'vendor' && !m.handled),
+    searches:
+      show('searches') &&
+      (Object.keys(prog?.missing || {}).some((k) => !approved.has(k)) || (session.owner && Object.values(notSold).some((v) => v.status === 'pending'))),
+    users: resets.length > 0,
+    inbox: Object.values(chats).some((n) => n > 0),
+  };
+  const dot = (k) => (pending[k] ? <span className="side-dot" title={t('يحتاج معالجة')} aria-label={t('يحتاج معالجة')} /> : null);
   return (
     <AdminLangProvider lang={lang}>
     <div className="admin-shell" dir={dir} lang={lang}>
@@ -26,15 +47,15 @@ export default async function AdminLayout({ children }) {
     <div className="admin">
       <aside className="admin-side">
         <Link href="/admin">{t('نظرة عامة')}</Link>
-        <Link href="/admin/inbox">{t('المحادثات')}</Link>
-        {show('quotes') ? <Link href="/admin/quotes">{t('طلبات عروض الأسعار')}</Link> : null}
-        {show('messages') ? <Link href="/admin/messages">{t('الرسائل')}</Link> : null}
-        {show('vendors') ? <Link href="/admin/vendors">{t('الموردين المسجلين')}</Link> : null}
+        <Link href="/admin/inbox">{t('المحادثات')}{dot('inbox')}</Link>
+        {show('quotes') ? <Link href="/admin/quotes">{t('طلبات عروض الأسعار')}{dot('quotes')}</Link> : null}
+        {show('messages') ? <Link href="/admin/messages">{t('الرسائل')}{dot('messages')}</Link> : null}
+        {show('vendors') ? <Link href="/admin/vendors">{t('الموردين المسجلين')}{dot('vendors')}</Link> : null}
         {show('products') ? <Link href="/admin/products">{t('المنتجات')}</Link> : null}
         {show('categories') ? <Link href="/admin/categories">{t('الأقسام')}</Link> : null}
-        {show('searches') ? <Link href="/admin/searches">{t('إحصائيات البحث')}</Link> : null}
+        {show('searches') ? <Link href="/admin/searches">{t('إحصائيات البحث')}{dot('searches')}</Link> : null}
         {show('settings') ? <Link href="/admin/settings">{t('إعدادات الموقع')}</Link> : null}
-        {show('users') ? <Link href="/admin/users">{t('المستخدمين والصلاحيات')}</Link> : null}
+        {show('users') ? <Link href="/admin/users">{t('المستخدمين والصلاحيات')}{dot('users')}</Link> : null}
         <div className="spacer" />
         {session.owner ? <Link href="/admin/developer">{t('‹/› المطوّر')}</Link> : null}
         <a href="/" target="_blank" rel="noopener noreferrer">{t('عرض الموقع ↗')}</a>
