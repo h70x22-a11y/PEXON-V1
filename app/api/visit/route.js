@@ -9,6 +9,9 @@ const BOT = /bot|crawl|spider|slurp|facebookexternalhit|preview|lighthouse|headl
 function classify(ref, utm) {
   const u = String(utm || '').toLowerCase().trim();
   if (u) {
+    if (/^(qr|print)/.test(u)) return 'qr';
+    if (/^(maps|gbp|gmb)/.test(u)) return 'maps';
+    if (/youtube|^yt$/.test(u)) return 'youtube';
     if (/^(fb|facebook|meta)/.test(u)) return 'facebook';
     if (/^(ig|insta)/.test(u)) return 'instagram';
     if (/^(google|gads|adwords)/.test(u)) return 'google-ads';
@@ -27,6 +30,7 @@ function classify(ref, utm) {
     return 'direct';
   }
   if (!host || /(^|\.)powercore\.sa$|vercel\.app$/.test(host)) return 'direct';
+  if (/maps\.google|google\.[a-z.]+$/.test(host) && /maps/.test(ref)) return 'maps';
   if (/google\./.test(host)) return 'google';
   if (/bing\.|duckduckgo|yahoo|yandex/.test(host)) return 'search-other';
   if (/instagram/.test(host)) return 'instagram';

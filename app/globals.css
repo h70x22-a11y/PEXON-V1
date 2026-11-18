@@ -852,3 +852,10 @@ html[data-theme='dark'] .top-menu-item.danger { color: #ff8a80; }
 .vbar-top small { font-weight: 400; color: var(--muted); }
 .vbar-track { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
 .vbar-track i { display: block; height: 100%; border-radius: 999px; background: #1c8fd6; }
+.tlinks { display: grid; gap: 8px; }
+.tlink { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(0, 1.2fr) auto auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; }
+.tlink-info { display: grid; gap: 2px; min-width: 0; }
+.tlink-info small { font-size: 0.8rem; }
+.tlink code { font-size: 0.85rem; background: var(--bg); padding: 4px 8px; border-radius: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tlink-n { min-width: 34px; text-align: center; font-weight: 700; color: var(--primary); }
+@media (max-width: 640px) { .tlink { grid-template-columns: 1fr auto; } .tlink code { grid-column: 1 / -1; order: 3; } }

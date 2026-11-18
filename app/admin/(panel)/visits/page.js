@@ -4,6 +4,8 @@ import { getCategories, getProducts, getVisitStats } from '@/lib/db';
 import { pick } from '@/lib/i18n';
 import LineChart from '@/components/LineChart';
 import { adminT } from '@/lib/adminLang';
+import { TRACK_LINKS } from '@/lib/trackLinks';
+import CopyButton from '@/components/CopyButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +31,8 @@ const SOURCES = {
   linkedin: 'لينكدإن',
   youtube: 'يوتيوب',
   email: 'البريد الإلكتروني',
+  maps: 'قوقل ماب',
+  qr: 'رمز QR والمطبوعات',
   campaign: 'حملات أخرى',
   other: 'مواقع أخرى',
 };
@@ -151,6 +155,27 @@ export default async function VisitsPage({ searchParams }) {
         ) : (
           <p className="muted">{t('ما فيه بيانات للحين.')}</p>
         )}
+      </section>
+      <section className="panel" id="links">
+        <h2>{t('روابط التتبع')}</h2>
+        <p className="muted">{t('استخدم الرابط الخاص بكل منصة بدل رابط الموقع العادي، عشان تعرف بالضبط من وين جاء الزائر. كلها تفتح الصفحة الرئيسية.')}</p>
+        <div className="tlinks">
+          {TRACK_LINKS.map((l) => {
+            const url = `https://powercore.sa/go/${l.key}`;
+            const n = (stats.sources.find(([k]) => k === l.key) || [])[1] || 0;
+            return (
+              <div className="tlink" key={l.key}>
+                <div className="tlink-info">
+                  <strong>{t(l.label)}</strong>
+                  <small className="muted">{t(l.where)}</small>
+                </div>
+                <code dir="ltr">{url.replace('https://', '')}</code>
+                <span className="tlink-n" title={t('زيارات هذي الفترة')}>{n}</span>
+                <CopyButton text={url} label={t('نسخ')} done={t('تم النسخ')} />
+              </div>
+            );
+          })}
+        </div>
       </section>
     </>
   );
