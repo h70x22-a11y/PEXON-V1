@@ -18,7 +18,9 @@ export default async function LoginPage({ searchParams }) {
           {t('لم تُضبط كلمة المرور بعد. أضف المتغير ADMIN_PASSWORD من إعدادات المشروع في Vercel ثم أعد النشر.')}
         </div>
       ) : null}
-      {sp?.error === 'locked' ? (
+      {sp?.error === 'expired' ? (
+        <div className="flash warn">{t('انتهت مهلة التحقق، سجّل دخولك من جديد.')}</div>
+      ) : sp?.error === 'locked' ? (
         <div className="flash err">{t('محاولات دخول خاطئة كثيرة. حاول مرة ثانية بعد 5 دقائق.')}</div>
       ) : sp?.error ? (
         <div className="flash err">

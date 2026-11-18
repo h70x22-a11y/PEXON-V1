@@ -6,6 +6,9 @@ import { randomUUID } from 'crypto';
 import {
   OWNER_USERNAME,
   checkOwnerPassword,
+  clearPending2fa,
+  getPending2fa,
+  setPending2fa,
   clearSession,
   clientIp,
   getSession,
@@ -17,6 +20,8 @@ import {
 } from '@/lib/auth';
 import { ALL_PERMS, normalizePerms } from '@/lib/permissions';
 import { TERMS_VERSION } from '@/lib/terms';
+import { newSecret, recoveryCodes, verifyTotp } from '@/lib/totp';
+import { createHash } from 'crypto';
 import { VENDOR_ACTIVITIES } from '@/lib/vendor';
 import { DEFAULT_COUNTRY, findCountry } from '@/lib/countries';
 import { QUOTE_STATUSES } from '@/lib/quotes';
@@ -28,6 +33,11 @@ import {
   saveRoles,
   getResetRequests,
   saveResetRequests,
+  logActivity,
+  get2fa,
+  set2fa,
+  getTemp,
+  setTemp,
   getNotSold,
   setNotSold,
   hitCounter,
@@ -62,13 +72,38 @@ const text = (formData, key, max = 500) => String(formData.get(key) || '').trim(
 
 // ينفذ العملية ثم يرجع للصفحة برسالة نجاح أو خطأ
 // الصلاحية المطلوبة تؤخذ من المسار: /admin/<الصلاحية>/...
+const SECTION_AR = {
+  quotes: 'طلبات عروض الأسعار',
+  messages: 'الرسائل',
+  vendors: 'الموردين',
+  products: 'المنتجات',
+  categories: 'الأقسام',
+  searches: 'إحصائيات البحث',
+  settings: 'إعدادات الموقع',
+  users: 'المستخدمين والمناصب',
+};
+const ACTION_AR = { write: 'إضافة/تعديل', delete: 'حذف', read: 'تحديث' };
+
 async function run(path, fn, action = 'write') {
-  await requirePerm(`${path.split('/')[2]}:${action}`);
+  const section = path.split('/')[2];
+  const session = await requirePerm(`${section}:${action}`);
   let error = '';
+  let what = '';
   try {
-    await fn();
+    const res = await fn();
+    if (typeof res === 'string') what = res;
   } catch (e) {
     error = e?.message || 'حدث خطأ غير متوقع';
+  }
+  if (!error) {
+    await logActivity({
+      userId: session.id,
+      name: session.name,
+      section,
+      action,
+      what: what || `${ACTION_AR[action] || action} في ${SECTION_AR[section] || section}`,
+      ip: await clientIp(),
+    });
   }
   revalidatePath('/', 'layout');
   redirect(error ? `${path}?error=${encodeURIComponent(error)}` : `${path}?ok=1`);
@@ -114,15 +149,26 @@ export async function login(formData) {
 
   if (username === OWNER_USERNAME && checkOwnerPassword(password)) {
     await clearCounter(key);
+    if (await needs2fa('owner')) {
+      await setPending2fa('owner', '1');
+      redirect('/admin/verify');
+    }
     await setSession('owner', '1');
+    await logActivity({ userId: 'owner', name: 'المالك', section: 'login', action: 'login', what: 'تسجيل دخول', ip });
     redirect('/admin');
   }
   const user = (await getUsers()).find((u) => u.username === username);
   if (user && user.active && verifyPassword(password, user.passwordHash)) {
     await clearCounter(key);
+    if (await needs2fa(user.id)) {
+      await setPending2fa(user.id, String(user.sessionVersion));
+      redirect('/admin/verify');
+    }
     await setSession(user.id, String(user.sessionVersion));
+    await logActivity({ userId: user.id, name: user.name, section: 'login', action: 'login', what: 'تسجيل دخول', ip });
     redirect(user.mustChangePassword ? '/admin/set-password' : '/admin');
   }
+  await logActivity({ userId: '', name: username.slice(0, 30), section: 'login', action: 'fail', what: 'محاولة دخول فاشلة', ip });
   const n = await hitCounter(key, LOCK_SECONDS);
   const nIp = await hitCounter(ipKey, LOCK_SECONDS);
   if (n >= MAX_ATTEMPTS || nIp >= MAX_IP_ATTEMPTS) redirect('/admin/login?error=locked');
@@ -172,6 +218,7 @@ export async function addUser(formData) {
       created: new Date().toISOString(),
     });
     await saveUsers(users);
+    return `إضافة مستخدم: ${name} (${username})`;
   });
 }
 
@@ -198,6 +245,7 @@ export async function updateUser(formData) {
     // تغيير كلمة المرور أو الإيقاف يسجّل خروج المستخدم من كل أجهزته
     if (password || (wasActive && !user.active)) user.sessionVersion = (user.sessionVersion || 1) + 1;
     await saveUsers(users);
+    return `تعديل المستخدم: ${name}${password ? ' (كلمة مرور مؤقتة جديدة)' : ''}${wasActive && !user.active ? ' (إيقاف الحساب)' : ''}`;
   });
 }
 
@@ -205,7 +253,9 @@ export async function deleteUser(formData) {
   await run('/admin/users', async () => {
     const id = text(formData, 'id', 60);
     const users = await getUsers();
+    const gone = users.find((u) => u.id === id);
     await saveUsers(users.filter((u) => u.id !== id));
+    return `حذف المستخدم: ${gone?.name || id}`;
   }, 'delete');
 }
 
@@ -240,6 +290,81 @@ export async function deleteRoleAction(formData) {
     if (n) throw new Error('لا يمكن حذف منصب مرتبط بمستخدمين. انقلهم لمنصب ثاني أولاً.');
     await saveRoles((await getRoles()).filter((r) => r.id !== id));
   }, 'delete');
+}
+
+// ---------- التحقق بخطوتين ----------
+async function needs2fa(id) {
+  if (id === 'owner' && process.env.ADMIN_2FA_OFF === '1') return false; // مخرج طوارئ للمالك من Vercel
+  const t = await get2fa(id);
+  return Boolean(t?.enabled);
+}
+
+const hashCode = (c) => createHash('sha256').update(String(c).toUpperCase().replace(/[^A-Z0-9]/g, '')).digest('hex');
+
+export async function verify2faAction(formData) {
+  const pending = await getPending2fa();
+  if (!pending) redirect('/admin/login?error=expired');
+  const tries = await hitCounter(`2fa-fail:${pending.id}`, 300);
+  if (tries > 6) {
+    await clearPending2fa();
+    redirect('/admin/login?error=locked');
+  }
+  const code = String(formData.get('code') || '').trim();
+  const t = await get2fa(pending.id);
+  let ok = t?.enabled && verifyTotp(t.secret, code);
+  if (!ok && t?.recovery?.length) {
+    const h = hashCode(code);
+    if (t.recovery.includes(h)) {
+      ok = true;
+      await set2fa(pending.id, { ...t, recovery: t.recovery.filter((x) => x !== h) });
+    }
+  }
+  if (!ok) redirect(`/admin/verify?error=${encodeURIComponent('الرمز غير صحيح.')}`);
+  await clearCounter(`2fa-fail:${pending.id}`);
+  await clearPending2fa();
+  await setSession(pending.id, pending.version);
+  const users = pending.id === 'owner' ? [] : await getUsers();
+  const user = users.find((u) => u.id === pending.id);
+  await logActivity({ userId: pending.id, name: user?.name || 'المالك', section: 'login', action: 'login', what: 'تسجيل دخول (بالتحقق بخطوتين)', ip: await clientIp() });
+  redirect(user?.mustChangePassword ? '/admin/set-password' : '/admin');
+}
+
+export async function start2faAction() {
+  const session = await requireAdmin();
+  await setTemp(`2fa-setup:${session.id}`, { secret: newSecret() }, 900);
+  redirect('/admin/account?setup2fa=1');
+}
+
+export async function confirm2faAction(formData) {
+  const session = await requireAdmin();
+  const setup = await getTemp(`2fa-setup:${session.id}`);
+  if (!setup) redirect(`/admin/account?error=${encodeURIComponent('انتهت مهلة الإعداد، ابدأ من جديد.')}`);
+  if (!verifyTotp(setup.secret, formData.get('code'))) redirect(`/admin/account?setup2fa=1&error=${encodeURIComponent('الرمز غير صحيح.')}`);
+  const codes = recoveryCodes();
+  await set2fa(session.id, { enabled: true, secret: setup.secret, recovery: codes.map(hashCode), since: new Date().toISOString() });
+  await setTemp(`2fa-setup:${session.id}`, null);
+  await setTemp(`2fa-show:${session.id}`, codes, 600);
+  await logActivity({ userId: session.id, name: session.name, section: 'security', action: 'write', what: 'تفعيل التحقق بخطوتين', ip: await clientIp() });
+  redirect('/admin/account?codes=1');
+}
+
+export async function disable2faAction(formData) {
+  const session = await requireAdmin();
+  const t = await get2fa(session.id);
+  if (!t?.enabled || !verifyTotp(t.secret, formData.get('code'))) redirect(`/admin/account?error=${encodeURIComponent('الرمز غير صحيح.')}`);
+  await set2fa(session.id, null);
+  await logActivity({ userId: session.id, name: session.name, section: 'security', action: 'delete', what: 'إيقاف التحقق بخطوتين', ip: await clientIp() });
+  redirect('/admin/account?ok=1');
+}
+
+// المالك يقدر يلغي التحقق بخطوتين لموظف ضاع جواله
+export async function reset2faForUser(formData) {
+  return run('/admin/users', async () => {
+    const id = text(formData, 'id', 60);
+    await set2fa(id, null);
+    const u = (await getUsers()).find((x) => x.id === id);
+    return `إلغاء التحقق بخطوتين للمستخدم: ${u?.name || id}`;
+  });
 }
 
 // ---------- كلمة المرور أول دخول ----------
@@ -345,6 +470,7 @@ export async function changeOwnPassword(formData) {
 
 // ---------- الإعدادات ----------
 export async function saveSettingsAction(formData) {
+  // يُسجَّل في سجل النشاط عن طريق run
   await run('/admin/settings', async () => {
     const current = await getSettings();
     const color = text(formData, 'primaryColor', 7);
@@ -430,6 +556,7 @@ export async function addCategory(formData) {
       image: await resolveImage(formData),
     });
     await saveCategories(list);
+    return `إضافة قسم: ${name}`;
   });
 }
 
@@ -445,6 +572,7 @@ export async function updateCategory(formData) {
     item.description = text(formData, 'description', 400);
     item.image = await resolveImage(formData, item.image);
     await saveCategories(list);
+    return `تعديل القسم: ${name}`;
   });
 }
 
@@ -456,7 +584,9 @@ export async function deleteCategory(formData) {
       throw new Error('لا يمكن حذف قسم فيه منتجات. احذف منتجاته أو انقلها أولاً.');
     }
     const list = await getCategories();
+    const gone = list.find((c) => c.id === id);
     await saveCategories(list.filter((c) => c.id !== id));
+    return `حذف القسم: ${gone?.name || id}`;
   }, 'delete');
 }
 
@@ -483,6 +613,7 @@ export async function addProduct(formData) {
     const list = await getProducts();
     list.unshift({ id: randomUUID(), ...fields, image: await resolveImage(formData) });
     await saveProducts(list);
+    return `إضافة منتج: ${fields.name}`;
   });
 }
 
@@ -494,8 +625,11 @@ export async function updateProduct(formData) {
     const list = await getProducts();
     const item = list.find((p) => p.id === id);
     if (!item) throw new Error('المنتج غير موجود.');
+    const before = { ...item };
     Object.assign(item, fields, { image: await resolveImage(formData, item.image) });
     await saveProducts(list);
+    const changed = ['name', 'price', 'categoryId', 'short', 'description', 'brand', 'keywords', 'featured', 'image'].filter((k) => String(before[k] ?? '') !== String(item[k] ?? ''));
+    return `تعديل المنتج: ${fields.name}${changed.length ? ` (${changed.join('، ')})` : ''}`;
   });
 }
 
@@ -503,7 +637,9 @@ export async function deleteProduct(formData) {
   await run('/admin/products', async () => {
     const id = text(formData, 'id', 60);
     const list = await getProducts();
+    const gone = list.find((p) => p.id === id);
     await saveProducts(list.filter((p) => p.id !== id));
+    return `حذف المنتج: ${gone?.name || id}`;
   }, 'delete');
 }
 
@@ -522,12 +658,15 @@ export async function updateQuoteStatus(formData) {
     quote.updated = new Date().toISOString();
     if (!quote.number) quote.number = await nextQuoteNumber();
     await saveMessage(quote);
+    return `تحديث حالة الطلب ${quote.number} إلى: ${QUOTE_STATUSES.find((st) => st.key === status)?.ar || status}`;
   });
 }
 
 export async function deleteQuoteAction(formData) {
   await run('/admin/quotes', async () => {
+    const m = await getMessage(text(formData, 'id', 60));
     await deleteMessage(text(formData, 'id', 60));
+    return `حذف طلب عرض السعر ${m?.number || ''} (${m?.name || ''})`;
   }, 'delete');
 }
 
@@ -720,4 +859,19 @@ export async function decideNotSoldAction(formData) {
   }
   revalidatePath('/admin/searches');
   redirect(back.startsWith('/admin/searches') ? back : '/admin/searches');
+}
+
+// ---------- النسخ الاحتياطي اليدوي (للمالك) ----------
+export async function backupNowAction() {
+  const session = await requireAdmin();
+  if (!session.owner) redirect('/admin?denied=1');
+  let error = '';
+  try {
+    const { createBackup } = await import('@/lib/backup');
+    const r = await createBackup(session.name);
+    await logActivity({ userId: session.id, name: session.name, section: 'backup', action: 'write', what: `نسخة احتياطية يدوية (${r.keys} عنصر)`, ip: await clientIp() });
+  } catch (e) {
+    error = e?.message || 'حدث خطأ غير متوقع';
+  }
+  redirect(error ? `/admin/backups?error=${encodeURIComponent(error)}` : '/admin/backups?ok=1');
 }

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { can, requirePerm } from '@/lib/auth';
-import { getResetRequests, getRoles, getUsers } from '@/lib/db';
-import { addUser, deleteUser, resolveResetAction, updateUser } from '@/app/actions';
+import { get2fa, getResetRequests, getRoles, getUsers } from '@/lib/db';
+import { addUser, deleteUser, reset2faForUser, resolveResetAction, updateUser } from '@/app/actions';
 import Flash from '@/components/Flash';
 import TempPassword from '@/components/TempPassword';
 import ConfirmButton from '@/components/ConfirmButton';
@@ -27,6 +27,7 @@ export default async function AdminUsers({ searchParams }) {
   const session = await requirePerm('users');
   const sp = await searchParams;
   const [users, roles, resets] = await Promise.all([getUsers(), getRoles(), getResetRequests()]);
+  const twofa = Object.fromEntries(await Promise.all(users.map(async (u) => [u.id, Boolean((await get2fa(u.id))?.enabled)])));
   const roleName = (u) => roles.find((r) => r.id === u.roleId)?.name || t('بدون منصب');
   const canW = can(session, 'users:write');
   const canD = can(session, 'users:delete');
@@ -112,6 +113,7 @@ export default async function AdminUsers({ searchParams }) {
               <span className="muted" dir="ltr" style={{ fontWeight: 400 }}>{u.username}</span>
               {!u.active ? <span className="badge" style={{ background: '#9aa3af', color: '#fff' }}>{t('موقوف')}</span> : null}
               {u.active && u.mustChangePassword ? <span className="badge">{t('بانتظار أول دخول')}</span> : null}
+              {twofa[u.id] ? <span className="badge" style={{ background: '#e7f6ec', color: '#17623a' }}>🔒 {t('تحقق بخطوتين')}</span> : null}
               {u.termsAccepted?.version === TERMS_VERSION ? (
                 <span className="muted" style={{ fontWeight: 400, fontSize: '0.82rem' }} title={u.termsAccepted.date}>
                   ✓ {t('وافق على الشروط')} {new Date(u.termsAccepted.date).toLocaleDateString(locale, { timeZone: 'Asia/Riyadh' })}
@@ -145,6 +147,12 @@ export default async function AdminUsers({ searchParams }) {
                   </div>
                 ) : null}
               </form>
+              {canW && twofa[u.id] ? (
+                <form action={reset2faForUser} style={{ marginTop: 12 }}>
+                  <input type="hidden" name="id" value={u.id} />
+                  <button className="btn ghost small" type="submit">{t('إلغاء التحقق بخطوتين (ضاع جواله)')}</button>
+                </form>
+              ) : null}
               {canD ? (
                 <form action={deleteUser} style={{ marginTop: 12 }}>
                   <input type="hidden" name="id" value={u.id} />

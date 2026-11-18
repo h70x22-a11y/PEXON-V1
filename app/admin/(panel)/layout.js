@@ -55,6 +55,8 @@ export default async function AdminLayout({ children }) {
         {show('categories') ? <Link href="/admin/categories">{t('الأقسام')}</Link> : null}
         {show('searches') ? <Link href="/admin/searches">{t('إحصائيات البحث')}{dot('searches')}</Link> : null}
         {show('settings') ? <Link href="/admin/settings">{t('إعدادات الموقع')}</Link> : null}
+        {show('audit') ? <Link href="/admin/activity">{t('سجل النشاط')}</Link> : null}
+        {session.owner ? <Link href="/admin/backups">{t('النسخ الاحتياطية')}</Link> : null}
         {show('users') ? <Link href="/admin/users">{t('المستخدمين والصلاحيات')}{dot('users')}</Link> : null}
         <div className="spacer" />
         {session.owner ? <Link href="/admin/developer">{t('‹/› المطوّر')}</Link> : null}
