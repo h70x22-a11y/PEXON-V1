@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { can, requireAdmin } from '@/lib/auth';
 import { blobReady, dbReady, getAvatar, getChatUnread, getMessages, getNotSold, getResetRequests, getSearchProgress } from '@/lib/db';
-import { logout } from '@/app/actions';
 import { AdminLangProvider, AdminLangToggle } from '@/components/AdminLang';
 import AdminTopbar from '@/components/AdminTopbar';
 import { adminT } from '@/lib/adminLang';
@@ -61,9 +60,6 @@ export default async function AdminLayout({ children }) {
         <div className="spacer" />
         {session.owner ? <Link href="/admin/developer">{t('‹/› المطوّر')}</Link> : null}
         <a href="/" target="_blank" rel="noopener noreferrer">{t('عرض الموقع ↗')}</a>
-        <form action={logout}>
-          <button type="submit">{t('تسجيل الخروج')}</button>
-        </form>
       </aside>
       <div className="admin-main">
         {!dbReady ? (

@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FiBell, FiMail, FiFileText, FiMessageSquare, FiTruck, FiKey, FiSlash, FiShield } from 'react-icons/fi';
+import { usePathname } from 'next/navigation';
+import { logout } from '@/app/actions';
+import { FiBell, FiMail, FiFileText, FiMessageSquare, FiTruck, FiKey, FiSlash, FiShield, FiMenu, FiX, FiLogOut } from 'react-icons/fi';
 import { useAdminT } from '@/components/AdminLang';
 
 const ICONS = { quote: FiFileText, message: FiMessageSquare, vendor: FiTruck, reset: FiKey, notsold: FiSlash, datarequest: FiShield };
@@ -41,6 +43,14 @@ export default function AdminTopbar({ name, title, avatar: initialAvatar = '', l
   const [data, setData] = useState({ items: [], unread: 0, chats: 0 });
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [side, setSide] = useState(false);
+  const pathname = usePathname();
+  // قائمة الأقسام في الجوال: تنقفل تلقائياً عند الانتقال لصفحة ثانية
+  useEffect(() => { setSide(false); }, [pathname]);
+  useEffect(() => {
+    const shell = document.querySelector('.admin-shell');
+    if (shell) shell.classList.toggle('side-open', side);
+  }, [side]);
   const [avatar, setAvatar] = useState(initialAvatar);
   const [uploading, setUploading] = useState(false);
   const [err, setErr] = useState('');
@@ -114,6 +124,9 @@ export default function AdminTopbar({ name, title, avatar: initialAvatar = '', l
 
   return (
     <header className="admin-top">
+      <button type="button" className="top-burger" onClick={() => setSide((v) => !v)} aria-label={t('القائمة')} aria-expanded={side}>
+        {side ? <FiX aria-hidden="true" /> : <FiMenu aria-hidden="true" />}
+      </button>
       <Link href="/admin" className="admin-top-logo"><img src="/logo.png" alt="PEXON" width={150} height={40} /></Link>
       <div className="admin-top-title">{title}</div>
       <div className="admin-top-tools">
@@ -167,6 +180,9 @@ export default function AdminTopbar({ name, title, avatar: initialAvatar = '', l
                 <button type="button" className="top-menu-item" onClick={removeAvatar}>{t('إزالة الصورة')}</button>
               ) : null}
               <Link href="/admin/account" className="top-menu-item" onClick={() => setMenu(false)}>{t('حسابي')}</Link>
+              <form action={logout} className="top-menu-sep">
+                <button type="submit" className="top-menu-item danger"><FiLogOut aria-hidden="true" /> {t('تسجيل الخروج')}</button>
+              </form>
               {err ? <p className="top-menu-err">{t(err)}</p> : null}
               <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
             </div>

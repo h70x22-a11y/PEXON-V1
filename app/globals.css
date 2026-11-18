@@ -173,9 +173,8 @@ label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem
 .login-box { width: min(400px, 92%); margin: 12vh auto; }
 @media (max-width: 800px) {
   .admin { grid-template-columns: 1fr; }
-  .admin-side { flex-direction: row; flex-wrap: wrap; padding: 12px; }
-  .admin-side .title { width: 100%; padding-bottom: 6px; }
-  .admin-side a, .admin-side button { width: auto; }
+  .admin-side { display: none; padding: 8px 12px 14px; }
+  .admin-shell.side-open .admin-side { display: flex; }
   .admin-side .spacer { display: none; }
 }
 
@@ -803,3 +802,14 @@ html[data-theme='dark'] .dtile-ico { background: rgba(255, 255, 255, 0.06); }
 .pk-later { color: #5d6673; text-decoration: none; font-weight: 600; }
 .dr-late { color: #b42318; }
 html[data-theme='dark'] .dr-late { color: #ff8a80; }
+
+/* زر القائمة (هامبرقر) يظهر في الجوال فقط */
+.top-burger { display: none; width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font-size: 1.3rem; align-items: center; justify-content: center; cursor: pointer; flex: 0 0 auto; }
+@media (max-width: 800px) {
+  .top-burger { display: inline-flex; }
+  .admin-top, html[dir="rtl"] .admin-top { padding-inline: 10px; gap: 8px; }
+  .admin-top-logo img { width: 112px; height: auto; }
+}
+.top-menu-sep { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 6px; }
+.top-menu-item.danger { color: #b42318; display: flex; align-items: center; gap: 8px; }
+html[data-theme='dark'] .top-menu-item.danger { color: #ff8a80; }
