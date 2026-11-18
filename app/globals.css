@@ -503,3 +503,8 @@ a.stat:hover { border-color: var(--primary); }
 .dev-links { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0 0; }
 .login-lang { text-align: center; margin-top: 14px; }
 .login-lang button { background: none; border: 0; color: var(--primary); font: inherit; font-weight: 600; cursor: pointer; }
+.admin-side .title { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.admin-side .title .lang-mini, .login-lang .lang-mini { width: 34px; height: 34px; padding: 0; display: inline-grid; place-items: center; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.08); color: #fff; font: 700 1rem/1 inherit; font-family: inherit; cursor: pointer; flex: none; }
+.admin-side .title .lang-mini:hover { background: var(--primary); border-color: var(--primary); }
+.login-lang .lang-mini { border-color: var(--line); background: var(--surface); color: var(--primary); }
+@media (max-width: 800px) { .admin-side .title { width: 100%; } }

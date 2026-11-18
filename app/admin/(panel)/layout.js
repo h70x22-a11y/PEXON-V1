@@ -18,7 +18,10 @@ export default async function AdminLayout({ children }) {
     <AdminLangProvider lang={lang}>
     <div className="admin" dir={dir} lang={lang}>
       <aside className="admin-side">
-        <div className="title">{t('لوحة التحكم')}</div>
+        <div className="title">
+          <span>{t('لوحة التحكم')}</span>
+          <AdminLangToggle lang={lang} />
+        </div>
         <Link href="/admin">{t('نظرة عامة')}</Link>
         {show('quotes') ? <Link href="/admin/quotes">{t('طلبات عروض الأسعار')}</Link> : null}
         {show('messages') ? <Link href="/admin/messages">{t('الرسائل')}</Link> : null}
@@ -32,7 +35,6 @@ export default async function AdminLayout({ children }) {
         {session.owner ? <Link href="/admin/developer">{t('‹/› المطوّر')}</Link> : null}
         <Link href="/admin/account" className="side-user">👤 {t(session.name)}</Link>
         <a href="/" target="_blank" rel="noopener noreferrer">{t('عرض الموقع ↗')}</a>
-        <AdminLangToggle lang={lang} />
         <form action={logout}>
           <button type="submit">{t('تسجيل الخروج')}</button>
         </form>

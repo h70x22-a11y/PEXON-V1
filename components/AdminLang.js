@@ -20,8 +20,15 @@ export function AdminLangToggle({ lang }) {
     window.location.reload();
   }
   return (
-    <button type="button" onClick={toggle} lang={lang === 'en' ? 'ar' : 'en'}>
-      🌐 {lang === 'en' ? 'العربية' : 'English'}
+    <button
+      type="button"
+      className="lang-mini"
+      onClick={toggle}
+      lang={lang === 'en' ? 'ar' : 'en'}
+      aria-label={lang === 'en' ? 'العربية' : 'English'}
+      title={lang === 'en' ? 'العربية' : 'English'}
+    >
+      {lang === 'en' ? 'ع' : 'E'}
     </button>
   );
 }
