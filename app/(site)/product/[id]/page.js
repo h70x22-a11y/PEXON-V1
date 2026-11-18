@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getCategories, getProducts, getSettings } from '@/lib/db';
+import { getCategories, getProducts } from '@/lib/db';
 import { getLang, productDescription, productPrice, productShort, t } from '@/lib/i18n';
 import AddToQuote from '@/components/AddToQuote';
 import SmartImage from '@/components/SmartImage';
@@ -31,12 +31,11 @@ export async function generateMetadata({ params }) {
 
 export default async function ProductPage({ params }) {
   const { id } = await params;
-  const [s, categories, products, lang] = await Promise.all([getSettings(), getCategories(), getProducts(), getLang()]);
+  const [categories, products, lang] = await Promise.all([getCategories(), getProducts(), getLang()]);
   const tr = t(lang);
   const product = products.find((p) => p.id === id);
   if (!product) notFound();
   const category = categories.find((c) => c.id === product.categoryId);
-  const waText = encodeURIComponent(tr.waMessage(product.name));
 
   const sku = skuFrom(product.short);
   const ld = {
@@ -84,16 +83,6 @@ export default async function ProductPage({ params }) {
               product={{ id: product.id, name: displayName(product, lang), short: productShort(product, lang), image: product.image }}
               labels={{ add: tr.addToQuote, added: tr.added, qty: tr.qty }}
             />
-            <div className="actions">
-              <Link className="btn ghost" href="/quote">
-                {tr.quoteCart} {tr.arrow}
-              </Link>
-              {s.whatsapp ? (
-                <a className="btn ghost" href={`https://wa.me/${s.whatsapp}?text=${waText}`} target="_blank" rel="noopener noreferrer">
-                  {tr.orderWhatsapp}
-                </a>
-              ) : null}
-            </div>
           </div>
         </div>
       </section>
