@@ -2,11 +2,16 @@ import Link from 'next/link';
 import { productPrice, productShort, t } from '@/lib/i18n';
 import AddToQuote from '@/components/AddToQuote';
 import { displayName } from '@/lib/catalog';
+import SmartImage from '@/components/SmartImage';
 
-function Thumb({ image, name }) {
+function Thumb({ image, name, priority = false }) {
   return (
     <div className="thumb">
-      {image ? <img src={image} alt={name} loading="lazy" /> : <span className="letter">{(name || '؟').trim().charAt(0)}</span>}
+      {image ? (
+        <SmartImage src={image} alt={name} sizes="(max-width: 600px) 50vw, (max-width: 1100px) 33vw, 270px" priority={priority} />
+      ) : (
+        <span className="letter">{(name || '؟').trim().charAt(0)}</span>
+      )}
     </div>
   );
 }
@@ -25,7 +30,7 @@ export function CategoryCard({ category, count, lang = 'ar' }) {
   );
 }
 
-export function ProductCard({ product, lang = 'ar' }) {
+export function ProductCard({ product, lang = 'ar', priority = false }) {
   const tr = t(lang);
   const short = productShort(product, lang);
   const price = productPrice(product, lang);
@@ -33,7 +38,7 @@ export function ProductCard({ product, lang = 'ar' }) {
   return (
     <div className="card product-card">
       <Link href={`/product/${product.id}`} className="card-link">
-        <Thumb image={product.image} name={product.name} />
+        <Thumb image={product.image} name={product.name} priority={priority} />
         <div className="body">
           <h3>{title}</h3>
           {title !== product.name ? <p className="en-name" dir="ltr">{product.name}</p> : null}

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getCategories, getProducts, getSettings } from '@/lib/db';
 import { getLang, productDescription, productPrice, productShort, t } from '@/lib/i18n';
 import AddToQuote from '@/components/AddToQuote';
+import SmartImage from '@/components/SmartImage';
 import JsonLd from '@/components/JsonLd';
 import { arabicName, brandOf, displayName } from '@/lib/catalog';
 import { SITE_URL } from '@/lib/site';
@@ -69,7 +70,7 @@ export default async function ProductPage({ params }) {
         <div className="container product">
           <div className="photo">
             {product.image ? (
-              <img src={product.image} alt={product.name} />
+              <SmartImage src={product.image} alt={displayName(product, lang)} sizes="(max-width: 760px) 92vw, 540px" priority fit="contain" />
             ) : (
               <span className="muted">{tr.noImage}</span>
             )}

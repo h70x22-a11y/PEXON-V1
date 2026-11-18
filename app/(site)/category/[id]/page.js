@@ -34,6 +34,14 @@ export default async function CategoryPage({ params, searchParams }) {
   const filters = Object.fromEntries(FILTER_KEYS.map((k) => [k, String(sp?.[k] || '')]));
   const active = FILTER_KEYS.some((k) => filters[k]);
   const items = active ? applyFacets(all, filters) : all;
+  const PAGE = 24;
+  const show = Math.max(PAGE, Math.min(items.length, Number(sp?.show) || PAGE));
+  const visible = items.slice(0, show);
+  const moreHref = (() => {
+    const qs = new URLSearchParams(Object.entries(filters).filter(([, v]) => v));
+    qs.set('show', String(show + PAGE));
+    return `/category/${id}?${qs.toString()}`;
+  })();
   const facets = buildFacets(all, lang);
   const hrefWith = (key, value) => {
     const next = { ...filters, [key]: filters[key] === value ? '' : value };
@@ -81,7 +89,17 @@ export default async function CategoryPage({ params, searchParams }) {
             </div>
           ) : null}
           {items.length ? (
-            <div className="grid">{items.map((p) => <ProductCard key={p.id} product={p} lang={lang} />)}</div>
+            <>
+              <div className="grid">
+                {visible.map((p, i) => <ProductCard key={p.id} product={p} lang={lang} priority={i < 4} />)}
+              </div>
+              {items.length > show ? (
+                <div className="load-more">
+                  <Link href={moreHref} className="btn ghost" scroll={false}>{tr.loadMore(items.length - show)}</Link>
+                  <span className="muted">{tr.showing(show, items.length)}</span>
+                </div>
+              ) : null}
+            </>
           ) : (
             <p className="muted">{active ? tr.noMatch : tr.emptyCategory}</p>
           )}
