@@ -819,3 +819,9 @@ html[data-theme='dark'] .dr-late { color: #ff8a80; }
 .top-menu-sep { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 6px; }
 .top-menu-item.danger { color: #b42318; display: flex; align-items: center; gap: 8px; }
 html[data-theme='dark'] .top-menu-item.danger { color: #ff8a80; }
+
+/* رموز أقسام الشريط الجانبي */
+.admin-side a { display: flex; align-items: center; gap: 10px; }
+.admin-side .side-ic { flex: none; font-size: 1.2rem; opacity: 0.85; }
+.admin-side a:hover .side-ic { opacity: 1; }
+.admin-side .side-dot { margin-inline-start: auto; }
