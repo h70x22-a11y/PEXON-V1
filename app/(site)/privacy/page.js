@@ -8,6 +8,11 @@ export async function generateMetadata() {
 
 const UPDATED = { ar: '18 نوفمبر 2026', en: '18 November 2026' };
 
+// [[نص]] داخل الفقرة يصير رابط لنموذج طلبات البيانات
+function withLinks(p) {
+  return p.split(/\[\[(.+?)\]\]/).map((part, i) => (i % 2 ? <Link key={i} href="/data-request">{part}</Link> : part));
+}
+
 // مدة الاحتفاظ بصيغة مقروءة (من إعدادات لوحة التحكم)
 function period(n, lang) {
   const m = Number(n) || 0;
@@ -69,7 +74,7 @@ function sections(lang, s) {
           '• Request correction, completion or update of your personal data.',
           '• Request destruction of your personal data when it is no longer needed.',
           '• Withdraw your consent to processing at any time.',
-          'To exercise any of these rights, submit a request through the "Your data request" page (linked at the bottom of every page) or contact us using the details below. We will respond within 30 days of receiving the request, and may ask you to verify your identity. You also have the right to file a complaint with the Saudi Data & AI Authority (SDAIA).',
+          `To exercise any of these rights, email your request to ${email || 'us'} stating your name, mobile number and the type of request, or use the [[personal data request form]]. We will respond within 30 days of receiving the request, and may ask you to verify your identity. You also have the right to file a complaint with the Saudi Data & AI Authority (SDAIA).',
         ]],
         ['11. Data retention', [
           'We keep personal data only for as long as needed for the purposes described in this notice, or as required by applicable law. When it is no longer needed, it is securely deleted or anonymized. The retention periods are:',
@@ -130,7 +135,7 @@ function sections(lang, s) {
         '• طلب تصحيح بياناتك الشخصية أو إكمالها أو تحديثها.',
         '• طلب إتلاف بياناتك الشخصية متى ما انتفت الحاجة إليها.',
         '• سحب موافقتك على المعالجة في أي وقت.',
-        'ولممارسة أي من هذه الحقوق، قدّم طلبك عبر صفحة "طلب يخص بياناتك" (الرابط موجود أسفل كل صفحة)، أو تواصل معنا عبر البيانات الموضحة أدناه. وسنرد خلال 30 يوماً من استلام الطلب، وقد نطلب التحقق من هويتك. كما يحق لك تقديم شكوى إلى الهيئة السعودية للبيانات والذكاء الاصطناعي (سدايا).',
+        `ولممارسة أي من هذه الحقوق، أرسل طلبك إلى البريد الإلكتروني ${email || 'الموضح أدناه'} موضحاً اسمك ورقم جوالك ونوع الطلب، أو عبر [[نموذج طلبات البيانات الشخصية]]. وسنرد خلال 30 يوماً من استلام الطلب، وقد نطلب التحقق من هويتك. كما يحق لك تقديم شكوى إلى الهيئة السعودية للبيانات والذكاء الاصطناعي (سدايا).`,
       ]],
       ['١١. الاحتفاظ بالبيانات', [
         'نحتفظ بالبيانات الشخصية فقط للمدة اللازمة لتحقيق الأغراض الموضحة في هذا الإشعار، أو للمدة التي تتطلبها الأنظمة المعمول بها. وعند انتفاء الحاجة إليها، تُحذف بشكل آمن أو تُخفى هويتها. وفيما يلي مدد الاحتفاظ:',
@@ -174,7 +179,7 @@ export default async function PrivacyPage() {
                 <summary>{title}</summary>
                 <div className="inner">
                   {paras.map((p) => (
-                    <p key={p}>{p}</p>
+                    <p key={p}>{withLinks(p)}</p>
                   ))}
                   {table ? (
                     <div className="table-wrap">

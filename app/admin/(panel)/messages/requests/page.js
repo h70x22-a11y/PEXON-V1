@@ -1,6 +1,6 @@
 import { can, requirePerm } from '@/lib/auth';
 import { getMessages } from '@/lib/db';
-import { updateDataRequest } from '@/app/actions';
+import { updateDataRequest, addDataRequestManual } from '@/app/actions';
 import Flash from '@/components/Flash';
 import { adminT } from '@/lib/adminLang';
 
@@ -24,6 +24,25 @@ export default async function DataRequestsPage({ searchParams }) {
       </div>
       <p className="muted" style={{ marginTop: 0 }}>{t('طلبات العملاء للاطلاع على بياناتهم أو تصحيحها أو حذفها. النظام يلزم بالرد خلال 30 يوماً من تاريخ الطلب. تأكد من هوية مقدّم الطلب قبل التنفيذ.')}</p>
       <Flash params={sp} />
+      <details className="panel" style={{ marginBottom: 16 }}>
+        <summary style={{ cursor: 'pointer', fontWeight: 600 }}>{t('إضافة طلب وصل بالبريد')}</summary>
+        <form action={addDataRequestManual} style={{ marginTop: 12 }}>
+          <div className="form-grid">
+            <div className="field"><label>{t('الاسم')}</label><input type="text" name="name" required maxLength={100} /></div>
+            <div className="field"><label>{t('رقم الجوال')}</label><input type="tel" name="phone" maxLength={30} dir="ltr" /></div>
+            <div className="field"><label>{t('البريد الإلكتروني')}</label><input type="email" name="email" maxLength={120} dir="ltr" /></div>
+            <div className="field"><label>{t('تاريخ استلام الطلب')}</label><input type="date" name="received" required defaultValue={new Date().toISOString().slice(0, 10)} dir="ltr" /></div>
+          </div>
+          <div className="field">
+            <label>{t('نوع الطلب')}</label>
+            <select name="requestType" defaultValue="access">
+              {Object.entries(TYPES).map(([k, v]) => <option key={k} value={k}>{t(v)}</option>)}
+            </select>
+          </div>
+          <div className="field"><label>{t('التفاصيل')}</label><textarea name="details" maxLength={1500} /></div>
+          <button className="btn small" type="submit">{t('إضافة الطلب')}</button>
+        </form>
+      </details>
       {list.length ? (
         <div className="rows">
           {list.map((m) => {
@@ -33,7 +52,7 @@ export default async function DataRequestsPage({ searchParams }) {
             return (
               <div key={m.id} className={`msg${open ? ' pending' : ' handled'}`}>
                 <div className="top">
-                  <strong>{m.name}</strong>
+                  <strong>{m.name}{m.source === 'email' ? <span className="muted" style={{ fontWeight: 400, fontSize: '0.85rem' }}> · {t('وصل بالبريد')}</span> : null}</strong>
                   <span className="status-pill" style={{ background: st.color }}>{t(st.ar)}</span>
                 </div>
                 <div className="muted">
@@ -61,7 +80,7 @@ export default async function DataRequestsPage({ searchParams }) {
           })}
         </div>
       ) : (
-        <p className="muted">{t('ما فيه طلبات للحين. العملاء يرسلونها من رابط "طلب يخص بياناتك" في أسفل الموقع وصفحة سياسة الخصوصية.')}</p>
+        <p className="muted">{t('ما فيه طلبات للحين. العملاء يرسلونها بالبريد أو من النموذج المرتبط في سياسة الخصوصية. الطلبات اللي تجيك بالبريد سجّلها من "إضافة طلب وصل بالبريد".')}</p>
       )}
     </>
   );

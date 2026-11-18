@@ -944,3 +944,27 @@ export async function updateDataRequest(formData) {
     return `تحديث طلب بيانات شخصية (${m.name}) إلى: ${status}`;
   }, 'read');
 }
+
+export async function addDataRequestManual(formData) {
+  await run('/admin/messages/requests', async () => {
+    const name = text(formData, 'name', 100);
+    const requestType = text(formData, 'requestType', 20);
+    if (!name || !DR_TYPES.includes(requestType)) throw new Error('فضلاً عبّئ الاسم ونوع الطلب.');
+    const d = new Date(`${text(formData, 'received', 10)}T12:00:00+03:00`);
+    const date = Number.isNaN(d.getTime()) || d.getTime() > Date.now() ? new Date() : d;
+    await addMessage({
+      id: randomUUID(),
+      type: 'datarequest',
+      source: 'email',
+      name,
+      phone: text(formData, 'phone', 30),
+      email: text(formData, 'email', 120),
+      requestType,
+      details: text(formData, 'details', 1500),
+      status: 'new',
+      date: date.toISOString(),
+      due: new Date(date.getTime() + 30 * 86400000).toISOString(),
+    });
+    return `إضافة طلب بيانات شخصية وصل بالبريد (${name})`;
+  });
+}

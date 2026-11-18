@@ -59,7 +59,6 @@ export default async function SiteLayout({ children }) {
                 <li><Link href="/vendor-registration">{tr.vendorTitle}</Link></li>
                 <li><Link href="/return-policy">{tr.returnTitle}</Link></li>
                 <li><Link href="/privacy">{tr.privacyTitle}</Link></li>
-                <li><Link href="/data-request">{tr.dataRequestTitle}</Link></li>
               </ul>
             </div>
             <div>

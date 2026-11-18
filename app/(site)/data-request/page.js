@@ -37,7 +37,7 @@ const TXT = {
 };
 
 export async function generateMetadata() {
-  return { title: TXT[await getLang()].title };
+  return { title: TXT[await getLang()].title, robots: { index: false } };
 }
 
 export default async function DataRequestPage({ searchParams }) {
