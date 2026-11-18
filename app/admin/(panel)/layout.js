@@ -5,7 +5,10 @@ import { logout } from '@/app/actions';
 import { AdminLangProvider, AdminLangToggle } from '@/components/AdminLang';
 import { adminT } from '@/lib/adminLang';
 
-export const metadata = { title: 'لوحة التحكم', robots: { index: false } };
+export async function generateMetadata() {
+  const { t } = await adminT();
+  return { title: t('لوحة التحكم'), robots: { index: false } };
+}
 
 export default async function AdminLayout({ children }) {
   const { t, lang, locale, dir } = await adminT();
