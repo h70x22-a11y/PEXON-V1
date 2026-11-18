@@ -17,7 +17,7 @@ export default async function AdminHome({ searchParams }) {
 
   return (
     <>
-      <h1>{t('أهلاً')} {t(session.name)}</h1>
+      <h1>{t('لوحة التحكم')}</h1>
       {sp?.denied ? <div className="flash warn">{t('ما عندك صلاحية على هذا القسم. تواصل مع المدير.')}</div> : null}
       {sp?.welcome ? <div className="flash ok">{t('تم حفظ كلمة المرور الجديدة. أهلاً بك!')}</div> : null}
       {resets ? (

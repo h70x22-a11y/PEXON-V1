@@ -21,7 +21,7 @@ export default async function AdminLayout({ children }) {
   return (
     <AdminLangProvider lang={lang}>
     <div className="admin-shell" dir={dir} lang={lang}>
-    <AdminTopbar name={t(session.name)} title={t('لوحة التحكم')} avatar={avatar} langToggle={<AdminLangToggle lang={lang} />} />
+    <AdminTopbar name={t(session.name)} title="" avatar={avatar} langToggle={<AdminLangToggle lang={lang} />} />
     <div className="admin">
       <aside className="admin-side">
         <Link href="/admin">{t('نظرة عامة')}</Link>
