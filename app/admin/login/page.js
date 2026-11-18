@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { login } from '@/app/actions';
 import { isAdmin, passwordConfigured } from '@/lib/auth';
 import { adminT } from '@/lib/adminLang';
-import { AdminLangToggle } from '@/components/AdminLang';
+import AuthShell from '@/components/AuthShell';
 
 export const metadata = { title: 'دخول لوحة التحكم', robots: { index: false } };
 
@@ -12,8 +12,7 @@ export default async function LoginPage({ searchParams }) {
   if (await isAdmin()) redirect('/admin');
 
   return (
-    <div className="login-box panel" dir={dir} lang={lang}>
-      <h1 style={{ fontSize: '1.4rem' }}>{t('لوحة التحكم')}</h1>
+    <AuthShell lang={lang} dir={dir} t={t} title={t('تسجيل الدخول')}>
       {!passwordConfigured ? (
         <div className="flash warn">
           {t('لم تُضبط كلمة المرور بعد. أضف المتغير ADMIN_PASSWORD من إعدادات المشروع في Vercel ثم أعد النشر.')}
@@ -24,19 +23,16 @@ export default async function LoginPage({ searchParams }) {
       ) : sp?.error ? (
         <div className="flash err">{t('اسم المستخدم أو كلمة المرور غير صحيحة.')}</div>
       ) : null}
-      <form action={login}>
-        <div className="field">
-          <label htmlFor="username">{t('اسم المستخدم')}</label>
-          <input id="username" type="text" name="username" required autoFocus dir="ltr" autoComplete="username" autoCapitalize="none" spellCheck={false} />
-        </div>
-        <div className="field">
-          <label htmlFor="password">{t('كلمة المرور')}</label>
-          <input id="password" type="password" name="password" required dir="ltr" autoComplete="current-password" />
-        </div>
-        <button className="btn" type="submit" style={{ width: '100%' }}>{t('دخول')}</button>
+      <form action={login} className="auth-fields">
+        <p className="auth-hint">{t('ادخل باسم المستخدم وكلمة المرور')}</p>
+        <label htmlFor="username" className="sr-only">{t('اسم المستخدم')}</label>
+        <input id="username" className="auth-input" type="text" name="username" required autoFocus autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder={t('اسم المستخدم')} />
+        <label htmlFor="password" className="sr-only">{t('كلمة المرور')}</label>
+        <input id="password" className="auth-input" type="password" name="password" required autoComplete="current-password" placeholder={t('كلمة المرور')} />
+        <a href="/admin/forgot" className="auth-forgot">{t('نسيت كلمة المرور؟')}</a>
+        <button className="auth-btn" type="submit">{t('دخول')}</button>
       </form>
-      <p style={{ textAlign: 'center', margin: '14px 0 0' }}><a href="/admin/forgot">{t('نسيت كلمة المرور؟')}</a></p>
-      <div className="login-lang"><AdminLangToggle lang={lang} /></div>
-    </div>
+
+    </AuthShell>
   );
 }

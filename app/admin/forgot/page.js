@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { requestPasswordReset } from '@/app/actions';
 import { adminT } from '@/lib/adminLang';
-import { AdminLangToggle } from '@/components/AdminLang';
+import AuthShell from '@/components/AuthShell';
 
 export const metadata = { robots: { index: false } };
 
@@ -10,8 +10,7 @@ export default async function ForgotPage({ searchParams }) {
   const sp = await searchParams;
 
   return (
-    <div className="login-box panel" dir={dir} lang={lang}>
-      <h1 style={{ fontSize: '1.4rem' }}>{t('نسيت كلمة المرور')}</h1>
+    <AuthShell lang={lang} dir={dir} t={t} title={t('نسيت كلمة المرور')}>
       {sp?.sent ? (
         <>
           <div className="flash ok">{t('وصل طلبك للمدير. بيعطيك كلمة مرور مؤقتة، وأول ما تدخل فيها تختار كلمة مرور جديدة.')}</div>
@@ -34,7 +33,6 @@ export default async function ForgotPage({ searchParams }) {
           <p style={{ textAlign: 'center', marginTop: 12 }}><Link href="/admin/login">{t('رجوع لتسجيل الدخول')}</Link></p>
         </>
       )}
-      <div className="login-lang"><AdminLangToggle lang={lang} /></div>
-    </div>
+    </AuthShell>
   );
 }

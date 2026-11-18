@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { setFirstPassword, logout } from '@/app/actions';
 import { adminT } from '@/lib/adminLang';
-import { AdminLangToggle } from '@/components/AdminLang';
+import AuthShell from '@/components/AuthShell';
 
 export const metadata = { robots: { index: false } };
 
@@ -13,8 +13,7 @@ export default async function SetPasswordPage({ searchParams }) {
   const sp = await searchParams;
 
   return (
-    <div className="login-box panel" dir={dir} lang={lang}>
-      <h1 style={{ fontSize: '1.4rem' }}>{t('أهلاً')} {session.name}</h1>
+    <AuthShell lang={lang} dir={dir} t={t} title={`${t('أهلاً')} ${session.name}`}>
       <p className="muted">{t('هذي أول مرة تدخل بكلمة المرور المؤقتة. اختر كلمة مرور جديدة خاصة فيك، وأعد كتابتها للتأكيد.')}</p>
       {sp?.error ? <div className="flash err">{t(String(sp.error))}</div> : null}
       <form action={setFirstPassword}>
@@ -32,7 +31,6 @@ export default async function SetPasswordPage({ searchParams }) {
       <form action={logout} style={{ textAlign: 'center', marginTop: 12 }}>
         <button type="submit" className="link-btn">{t('تسجيل الخروج')}</button>
       </form>
-      <div className="login-lang"><AdminLangToggle lang={lang} /></div>
-    </div>
+    </AuthShell>
   );
 }
