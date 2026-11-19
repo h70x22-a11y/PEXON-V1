@@ -1,3 +1,4 @@
+import PushPrompt from '@/components/PushPrompt';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { can, requireAdmin } from '@/lib/auth';
@@ -78,6 +79,7 @@ export default async function AdminLayout({ children }) {
       </div>
     </div>
     </div>
+    <PushPrompt lang={lang} />
     </AdminLangProvider>
   );
 }

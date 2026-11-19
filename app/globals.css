@@ -933,3 +933,13 @@ html[data-theme='dark'] .viz-root { --viz-1: #3987e5; --viz-2: #d95926; --viz-3:
 .app-install-close { position: absolute; top: 8px; inset-inline-end: 8px; border: 0; background: none; color: #8a94a3; cursor: pointer; font-size: 1.1rem; display: inline-flex; }
 .app-install-link { margin: 0 0 8px; font-size: 0.88rem; color: #5d6673; padding-inline-end: 20px; }
 .app-install-link bdi { font-weight: 700; color: #0670b3; }
+
+/* نافذة الموافقة على الإشعارات (بعد الدخول من الجوال) */
+.push-modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; background: rgba(7, 23, 34, 0.55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.push-modal-card { width: min(360px, 100%); background: #fff; color: #1d2733; border-radius: 24px; padding: 28px 22px 18px; text-align: center; box-shadow: 0 30px 80px rgba(7, 23, 34, 0.3); }
+.push-modal-ico { width: 64px; height: 64px; margin: 0 auto 12px; border-radius: 50%; display: grid; place-items: center; background: #e9f6ff; color: #1c9fe8; font-size: 2rem; }
+.push-modal-card h2 { margin: 0 0 8px; font-size: 1.3rem; }
+.push-modal-card p { margin: 0 0 20px; color: #5d6673; line-height: 1.7; }
+.push-modal-allow { width: 100%; height: 52px; border: 0; border-radius: 999px; background: #37b6ff; color: #fff; font: inherit; font-weight: 700; font-size: 1.05rem; cursor: pointer; }
+.push-modal-later { width: 100%; height: 44px; margin-top: 6px; border: 0; background: none; color: #8a94a3; font: inherit; cursor: pointer; }
+.push-modal button:disabled { opacity: 0.6; }

@@ -1,15 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { TbBell, TbBellOff, TbSend } from 'react-icons/tb';
-
-const toKey = (b64) => {
-  const s = (b64 + '='.repeat((4 - (b64.length % 4)) % 4)).replace(/-/g, '+').replace(/_/g, '/');
-  return Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-};
-
-async function reg() {
-  return (await navigator.serviceWorker.getRegistration('/admin')) || navigator.serviceWorker.register('/admin-sw.js', { scope: '/admin' });
-}
+import { currentSub, disablePush, enablePush } from '@/lib/pushClient';
 
 // تفعيل إشعارات الجوال لهذا الجهاز
 export default function PushSettings({ lang = 'ar' }) {
@@ -27,9 +19,7 @@ export default function PushSettings({ lang = 'ar' }) {
         return;
       }
       if (Notification.permission === 'denied') return setState('denied');
-      const r = await reg();
-      const sub = await r.pushManager.getSubscription();
-      setState(sub ? 'on' : 'off');
+      setState((await currentSub()) ? 'on' : 'off');
     })().catch(() => setState('unsupported'));
   }, []);
 
@@ -37,17 +27,11 @@ export default function PushSettings({ lang = 'ar' }) {
     setBusy(true);
     setMsg('');
     try {
-      const perm = await Notification.requestPermission();
+      const perm = await enablePush();
       if (perm !== 'granted') {
         setState(perm === 'denied' ? 'denied' : 'off');
         return;
       }
-      const { publicKey } = await fetch('/api/admin/push').then((r) => r.json());
-      const r = await reg();
-      await navigator.serviceWorker.ready;
-      const sub = (await r.pushManager.getSubscription()) || (await r.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: toKey(publicKey) }));
-      const res = await fetch('/api/admin/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub.toJSON() }) });
-      if (!res.ok) throw new Error();
       setState('on');
       setMsg(en ? 'Notifications enabled on this device.' : 'تم تفعيل الإشعارات على هذا الجهاز.');
     } catch {
@@ -60,12 +44,7 @@ export default function PushSettings({ lang = 'ar' }) {
   const disable = async () => {
     setBusy(true);
     try {
-      const r = await reg();
-      const sub = await r.pushManager.getSubscription();
-      if (sub) {
-        await fetch('/api/admin/push', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint }) });
-        await sub.unsubscribe();
-      }
+      await disablePush();
       setState('off');
       setMsg('');
     } finally {
