@@ -2,11 +2,10 @@ import { notFound } from 'next/navigation';
 import { getMessages, getSettings } from '@/lib/db';
 import { skuOf, shortWithoutSku } from '@/lib/quotes';
 import PrintButton from '@/components/PrintButton';
+import FitToWidth from '@/components/FitToWidth';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'طلب عرض سعر', robots: { index: false, follow: false } };
-// على الجوال: الصفحة تفتح بعرض ورقة A4 كاملة مصغّرة مثل ملف PDF (نفس ترتيب الكمبيوتر) ويقدر العميل يكبّر
-export const viewport = { width: 860 };
 
 // مستند طلب عرض السعر (يفتح من رابط الواتساب ويتحفظ PDF)
 export default async function QuoteDoc({ params }) {
@@ -23,6 +22,7 @@ export default async function QuoteDoc({ params }) {
       <div className="qdoc-actions no-print">
         <PrintButton label="تحميل PDF / طباعة" />
       </div>
+      <FitToWidth selector=".qdoc" width={858} />
       <article className="qdoc">
         <header className="qdoc-head">
           <img src="/logo.png" alt="PEXON" className="qdoc-logo" />
