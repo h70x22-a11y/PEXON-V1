@@ -4,6 +4,7 @@ import { isAdmin, passwordConfigured } from '@/lib/auth';
 import { adminT } from '@/lib/adminLang';
 import AuthShell from '@/components/AuthShell';
 import PasskeyLogin from '@/components/PasskeyLogin';
+import InstallApp from '@/components/InstallApp';
 
 export const metadata = { title: 'دخول لوحة التحكم', robots: { index: false } };
 
@@ -39,6 +40,7 @@ export default async function LoginPage({ searchParams }) {
         <button className="auth-btn" type="submit">{t('دخول')}</button>
       </form>
       <PasskeyLogin lang={lang} />
+      <InstallApp lang={lang} />
 
     </AuthShell>
   );
