@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { clientIp } from '@/lib/auth';
-import { getPasskeys, logActivity, savePasskeys, setPasskeyOwner } from '@/lib/db';
+import { getPasskeys, logActivity, savePasskeys, passkeyOwner, setPasskeyOwner } from '@/lib/db';
 import { b64url, verifyRegistration } from '@/lib/webauthn';
 import { challengeOf, newChallenge, rp, takeChallenge } from '@/lib/passkeyServer';
 
@@ -41,6 +41,8 @@ export async function POST(request) {
   try {
     const { rpId, origin } = await rp();
     const cred = verifyRegistration({ response: resp, challenge, origin, rpId });
+    const owner = await passkeyOwner(cred.id);
+    if (owner && owner !== s.id) return NextResponse.json({ error: 'تعذر التسجيل.' }, { status: 400 });
     const list = await getPasskeys(s.id);
     const name = String(body?.name || '').trim().slice(0, 40) || 'جهاز';
     list.push({ ...cred, name, created: new Date().toISOString(), lastUsed: '' });

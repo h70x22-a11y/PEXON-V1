@@ -20,6 +20,7 @@ import {
   verifyPassword,
 } from '@/lib/auth';
 import { ALL_PERMS, normalizePerms } from '@/lib/permissions';
+import { isOwnBlob } from '@/lib/blobHost';
 import { TERMS_VERSION } from '@/lib/terms';
 import { newSecret, recoveryCodes, verifyTotp } from '@/lib/totp';
 import { createHash } from 'crypto';
@@ -91,7 +92,7 @@ async function run(path, fn, action = 'write') {
   let error = '';
   let what = '';
   try {
-    const res = await fn();
+    const res = await fn(session);
     if (typeof res === 'string') what = res;
   } catch (e) {
     error = e?.message || 'حدث خطأ غير متوقع';
@@ -184,6 +185,31 @@ export async function logout() {
 // ---------- المستخدمين والصلاحيات ----------
 const USERNAME_RE = /^[a-z0-9._-]{3,30}$/;
 
+// سقف الصلاحيات: الموظف ما يقدر يعطي (لنفسه أو لغيره) صلاحية ما عنده، ولا يعدّل حساب صلاحياته أعلى منه
+async function rolePerms(roleId) {
+  const role = (await getRoles()).find((r) => r.id === roleId);
+  return role ? normalizePerms(role.perms || []) : [];
+}
+async function userPerms(user) {
+  return user.roleId ? rolePerms(user.roleId) : normalizePerms(user.perms || []);
+}
+function withinMine(session, perms, msg = 'ما تقدر تعطي صلاحيات أعلى من صلاحياتك.') {
+  if (session.owner) return;
+  if (perms.some((p) => !session.perms.includes(p))) throw new Error(msg);
+}
+async function guardTarget(session, user) {
+  if (session.owner) return;
+  if (user.id === session.id) throw new Error('ما تقدر تعدّل حسابك من هنا. اطلب من المالك.');
+  withinMine(session, await userPerms(user), 'صلاحيات هذا الحساب أعلى من صلاحياتك.');
+}
+// يحذف مفاتيح الدخول (البصمة/الوجه) عند إعادة تعيين الحساب أو إيقافه
+async function clearPasskeys(userId) {
+  const { getPasskeys, savePasskeys, setPasskeyOwner } = await import('@/lib/db');
+  const list = await getPasskeys(userId);
+  for (const k of list) await setPasskeyOwner(k.id, '');
+  if (list.length) await savePasskeys(userId, []);
+}
+
 function permsFrom(formData) {
   return ALL_PERMS.filter((p) => formData.get(`perm_${p}`));
 }
@@ -196,7 +222,7 @@ async function roleFrom(formData) {
 }
 
 export async function addUser(formData) {
-  await run('/admin/users', async () => {
+  await run('/admin/users', async (session) => {
     const name = text(formData, 'name', 80);
     const username = text(formData, 'username', 30).toLowerCase();
     const password = String(formData.get('password') || '');
@@ -206,12 +232,14 @@ export async function addUser(formData) {
     if (password.length < 8) throw new Error('كلمة المرور لازم تكون 8 أحرف على الأقل.');
     const users = await getUsers();
     if (users.some((u) => u.username === username)) throw new Error('اسم المستخدم مستخدم من قبل.');
+    const newRole = await roleFrom(formData);
+    withinMine(session, await rolePerms(newRole));
     users.push({
       id: randomUUID(),
       name,
       username,
       passwordHash: hashPassword(password),
-      roleId: await roleFrom(formData),
+      roleId: newRole,
       perms: [],
       mustChangePassword: true,
       active: true,
@@ -224,17 +252,19 @@ export async function addUser(formData) {
 }
 
 export async function updateUser(formData) {
-  await run('/admin/users', async () => {
+  await run('/admin/users', async (session) => {
     const id = text(formData, 'id', 60);
     const users = await getUsers();
     const user = users.find((u) => u.id === id);
     if (!user) throw new Error('المستخدم غير موجود.');
+    await guardTarget(session, user);
     const name = text(formData, 'name', 80);
     if (!name) throw new Error('اسم الموظف مطلوب.');
     const password = String(formData.get('password') || '');
     const wasActive = user.active;
     user.name = name;
     const roleId = await roleFrom(formData);
+    withinMine(session, await rolePerms(roleId));
     user.roleId = roleId;
     user.perms = [];
     user.active = Boolean(formData.get('active'));
@@ -244,17 +274,24 @@ export async function updateUser(formData) {
       user.mustChangePassword = true; // كلمة مؤقتة: يغيرها الموظف أول ما يدخل
     }
     // تغيير كلمة المرور أو الإيقاف يسجّل خروج المستخدم من كل أجهزته
-    if (password || (wasActive && !user.active)) user.sessionVersion = (user.sessionVersion || 1) + 1;
+    if (password || (wasActive && !user.active)) {
+      user.sessionVersion = (user.sessionVersion || 1) + 1;
+      await clearPasskeys(user.id);
+    }
     await saveUsers(users);
     return `تعديل المستخدم: ${name}${password ? ' (كلمة مرور مؤقتة جديدة)' : ''}${wasActive && !user.active ? ' (إيقاف الحساب)' : ''}`;
   });
 }
 
 export async function deleteUser(formData) {
-  await run('/admin/users', async () => {
+  await run('/admin/users', async (session) => {
     const id = text(formData, 'id', 60);
     const users = await getUsers();
     const gone = users.find((u) => u.id === id);
+    if (gone) {
+      await guardTarget(session, gone);
+      await clearPasskeys(gone.id);
+    }
     await saveUsers(users.filter((u) => u.id !== id));
     return `حذف المستخدم: ${gone?.name || id}`;
   }, 'delete');
@@ -264,15 +301,17 @@ export async function deleteUser(formData) {
 export async function saveRoleAction(formData) {
   const id = text(formData, 'id', 60);
   let newId = '';
-  await run('/admin/users/roles', async () => {
+  await run('/admin/users/roles', async (session) => {
     const name = text(formData, 'name', 60);
     if (!name) throw new Error('اسم المنصب مطلوب.');
     const perms = normalizePerms(permsFrom(formData));
+    withinMine(session, perms);
     const roles = await getRoles();
     if (roles.some((r) => r.name === name && r.id !== id)) throw new Error('فيه منصب بنفس الاسم.');
     if (id) {
       const role = roles.find((r) => r.id === id);
       if (!role) throw new Error('المنصب غير موجود.');
+      withinMine(session, normalizePerms(role.perms || []), 'صلاحيات هذا المنصب أعلى من صلاحياتك.');
       role.name = name;
       role.perms = perms;
     } else {
@@ -284,8 +323,9 @@ export async function saveRoleAction(formData) {
 }
 
 export async function deleteRoleAction(formData) {
-  await run('/admin/users/roles', async () => {
+  await run('/admin/users/roles', async (session) => {
     const id = text(formData, 'id', 60);
+    withinMine(session, await rolePerms(id), 'صلاحيات هذا المنصب أعلى من صلاحياتك.');
     const users = await getUsers();
     const n = users.filter((u) => u.roleId === id).length;
     if (n) throw new Error('لا يمكن حذف منصب مرتبط بمستخدمين. انقلهم لمنصب ثاني أولاً.');
@@ -369,10 +409,12 @@ export async function disable2faAction(formData) {
 
 // المالك يقدر يلغي التحقق بخطوتين لموظف ضاع جواله
 export async function reset2faForUser(formData) {
-  return run('/admin/users', async () => {
+  return run('/admin/users', async (session) => {
     const id = text(formData, 'id', 60);
-    await set2fa(id, null);
     const u = (await getUsers()).find((x) => x.id === id);
+    if (!u) throw new Error('المستخدم غير موجود.');
+    await guardTarget(session, u);
+    await set2fa(id, null);
     return `إلغاء التحقق بخطوتين للمستخدم: ${u?.name || id}`;
   });
 }
@@ -435,7 +477,7 @@ export async function requestPasswordReset(formData) {
 }
 
 export async function resolveResetAction(formData) {
-  await run('/admin/users', async () => {
+  await run('/admin/users', async (session) => {
     const reqId = text(formData, 'reqId', 60);
     const password = String(formData.get('password') || '');
     const list = await getResetRequests();
@@ -446,9 +488,11 @@ export async function resolveResetAction(formData) {
       const users = await getUsers();
       const user = users.find((u) => u.id === req.userId);
       if (!user) throw new Error('المستخدم غير موجود.');
+      await guardTarget(session, user);
       user.passwordHash = hashPassword(password);
       user.mustChangePassword = true;
       user.sessionVersion = (user.sessionVersion || 1) + 1;
+      await clearPasskeys(user.id);
       await saveUsers(users);
     }
     await saveResetRequests(list.filter((r) => r.id !== reqId));
@@ -543,7 +587,7 @@ export async function saveCatalogAction(url) {
   } catch {
     return { error: 'رابط غير صالح.' };
   }
-  if (u.protocol !== 'https:' || !u.hostname.endsWith('.public.blob.vercel-storage.com') || !u.pathname.toLowerCase().endsWith('.pdf')) {
+  if (!isOwnBlob(u.href) || !u.pathname.toLowerCase().endsWith('.pdf')) {
     return { error: 'رابط غير صالح.' };
   }
   const current = await getSettings();
@@ -714,6 +758,14 @@ export async function deleteMessageAction(formData) {
   }, 'delete');
 }
 
+// حد للنماذج العامة: لكل جهاز بالساعة، وحد إجمالي باليوم (يحمي من الإغراق برسائل مزعجة)
+async function formLimited(name, perHour) {
+  const ip = await clientIp();
+  if ((await hitCounter(`rl:${name}:${ip}`, 3600)) > perHour) return true;
+  const day = new Date().toISOString().slice(0, 10);
+  return (await hitCounter(`rl:forms:${day}`, 86400)) > 400;
+}
+
 // طلب عرض سعر لعدة منتجات (من سلة الموقع)
 export async function submitQuote(input) {
   const data = input && typeof input === 'object' ? input : {};
@@ -734,6 +786,7 @@ export async function submitQuote(input) {
     })
     .filter(Boolean);
   if (!items.length) return { error: 'empty' };
+  if (await formLimited('quote', 10)) return { error: 'failed' };
   try {
     let number = '';
     try {
@@ -782,6 +835,7 @@ export async function submitVendor(formData) {
     company && firstName && lastName && cr && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
       VENDOR_ACTIVITIES.some((a) => a.key === activity)
   );
+  if (ok && (await formLimited('vendor', 5))) ok = false;
   if (ok) {
     try {
       await addMessage({
@@ -814,6 +868,8 @@ export async function sendMessage(formData) {
     error = 'فضلاً وافق على سياسة الخصوصية قبل الإرسال.';
   } else if (!name || !phone || !body) {
     error = 'فضلاً عبّئ الاسم ورقم الجوال والرسالة.';
+  } else if (await formLimited('contact', 10)) {
+    error = 'وصلت الحد المسموح من الرسائل. حاول بعد ساعة.';
   } else {
     try {
       await addMessage({
@@ -979,6 +1035,7 @@ export async function createWhatsappQuote(input) {
   try {
     const ip = await clientIp();
     if ((await hitCounter(`wa-quote:${ip}`, 3600)) > 20) return { error: 'limit' };
+    if ((await hitCounter(`rl:forms:${new Date().toISOString().slice(0, 10)}`, 86400)) > 400) return { error: 'limit' };
     const products = await getProducts();
     const byId = new Map(products.map((p) => [p.id, p]));
     const items = (Array.isArray(input?.items) ? input.items : [])
