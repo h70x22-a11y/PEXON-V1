@@ -4,10 +4,9 @@ import AppRegister from '@/components/AppRegister';
 export const metadata = {
   manifest: '/admin.webmanifest',
   appleWebApp: { capable: true, title: 'PEXON', statusBarStyle: 'default' },
-  icons: { apple: '/app/apple-180.png' },
 };
 
-export const viewport = { themeColor: '#37b6ff' };
+export const viewport = { themeColor: '#0f2a44' };
 
 export default function AdminRootLayout({ children }) {
   return (

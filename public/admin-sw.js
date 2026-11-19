@@ -1,5 +1,5 @@
 // تطبيق لوحة التحكم: ما نخزّن أي بيانات على الجهاز، بس نعرض صفحة بسيطة لو انقطع الإنترنت
-const OFFLINE = '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PEXON</title><body style="font-family:system-ui;display:grid;place-items:center;min-height:90vh;color:#333;text-align:center"><div><h2>لا يوجد اتصال بالإنترنت</h2><p>تأكد من الاتصال ثم حاول مرة ثانية.</p><button onclick="location.reload()" style="padding:12px 28px;border:0;border-radius:99px;background:#37b6ff;color:#fff;font:inherit">إعادة المحاولة</button></div></body></html>';
+const OFFLINE = '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PEXON</title><body style="font-family:system-ui;display:grid;place-items:center;min-height:90vh;color:#333;text-align:center"><div><h2>لا يوجد اتصال بالإنترنت</h2><p>تأكد من الاتصال ثم حاول مرة ثانية.</p><button onclick="location.reload()" style="padding:12px 28px;border:0;border-radius:99px;background:#0f2a44;color:#fff;font:inherit">إعادة المحاولة</button></div></body></html>';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
