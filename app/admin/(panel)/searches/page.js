@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { can, requirePerm } from '@/lib/auth';
 import { addMissing, getCategories, getNotSold, getProducts, getSearchDaily, getSearchProgress, getSearchStats, getSettings, markFixed } from '@/lib/db';
 import { parseSynonyms, searchProducts } from '@/lib/catalog';
-import { decideNotSoldAction, requestNotSoldAction, saveSynonymsAction } from '@/app/actions';
+import { clearSearchStatsAction, decideNotSoldAction, requestNotSoldAction, saveSynonymsAction } from '@/app/actions';
 import Flash from '@/components/Flash';
 import SearchChart from '@/components/SearchChart';
 import { adminT } from '@/lib/adminLang';
@@ -277,6 +277,19 @@ export default async function AdminSearches({ searchParams }) {
               </li>
             ))}
           </ul>
+        </details>
+      ) : null}
+      {sp?.cleared ? <div className="flash ok" style={{ marginTop: 16 }}>{t('تم مسح إحصائيات البحث.')}</div> : null}
+      {session.owner ? (
+        <details className="synonyms-box" style={{ marginTop: 24 }}>
+          <summary>{t('مسح إحصائيات البحث')}</summary>
+          <p className="muted">{t('يمسح كل كلمات البحث (بنتيجة وبدون نتيجة) وأرقامها. الكلمات المرادفة ما تنمسح. المسح نهائي.')}</p>
+          <form action={clearSearchStatsAction}>
+            <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input type="checkbox" name="confirm" value="yes" required /> {t('متأكد، امسح كل الإحصائيات')}
+            </label>
+            <button className="btn danger" type="submit" style={{ marginTop: 10 }}>{t('مسح')}</button>
+          </form>
         </details>
       ) : null}
     </>

@@ -897,6 +897,18 @@ export async function sendMessage(formData) {
   redirect(error ? `/contact?error=${encodeURIComponent(error)}` : '/contact?ok=1');
 }
 
+// ---------- مسح إحصائيات البحث (للمالك فقط) ----------
+export async function clearSearchStatsAction(formData) {
+  const session = await requireAdmin();
+  if (!session.owner) redirect('/admin/searches');
+  if (formData.get('confirm') !== 'yes') redirect(`/admin/searches?error=${encodeURIComponent('أكّد المسح أولاً.')}`);
+  const { clearSearchData } = await import('@/lib/db');
+  const n = await clearSearchData();
+  await logActivity({ userId: session.id, name: session.name, section: 'searches', action: 'delete', what: `مسح إحصائيات البحث (${n} عنصر)`, ip: await clientIp() });
+  revalidatePath('/admin/searches');
+  redirect('/admin/searches?cleared=1');
+}
+
 // ---------- مرادفات البحث ----------
 export async function saveSynonymsAction(formData) {
   await run('/admin/searches', async () => {
