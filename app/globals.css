@@ -906,12 +906,14 @@ html[data-theme='dark'] .viz-root { --viz-1: #3987e5; --viz-2: #d95926; --viz-3:
 .qdoc-qty { font-weight: 700; text-align: center; white-space: nowrap; }
 .qdoc-note { background: #fff7e6; border-radius: 10px; padding: 10px 14px; margin-top: 16px; }
 .qdoc-foot { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin-top: 24px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 0.82rem; color: #6b7280; }
-@media (max-width: 640px) { .qdoc { padding: 16px; } .qdoc-img-col { display: none; } .qdoc-table { font-size: 0.8rem; } }
+.qdoc-page { min-width: 820px; }
+.qdoc { width: 794px; }
 @media print {
   @page { size: A4; margin: 12mm; }
   .no-print, .site-header, footer.site-footer, .consent-bar { display: none !important; }
   .qdoc-page { background: #fff; padding: 0; }
-  .qdoc { box-shadow: none; padding: 0; max-width: none; }
+  .qdoc { box-shadow: none; padding: 0; max-width: none; width: auto; }
+  .qdoc-page { min-width: 0; }
   .qdoc-table th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .qdoc-table tr { break-inside: avoid; }
 }

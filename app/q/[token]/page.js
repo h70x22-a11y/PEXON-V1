@@ -5,6 +5,8 @@ import PrintButton from '@/components/PrintButton';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'طلب عرض سعر', robots: { index: false, follow: false } };
+// على الجوال: الصفحة تفتح بعرض ورقة A4 كاملة مصغّرة مثل ملف PDF (نفس ترتيب الكمبيوتر) ويقدر العميل يكبّر
+export const viewport = { width: 860 };
 
 // مستند طلب عرض السعر (يفتح من رابط الواتساب ويتحفظ PDF)
 export default async function QuoteDoc({ params }) {
