@@ -72,6 +72,15 @@ const link = (formData, key) => {
 
 const text = (formData, key, max = 500) => String(formData.get(key) || '').trim().slice(0, max);
 
+// يحفظ الرسالة/الطلب ثم يرسل إشعار للجوال (لو فشل الإشعار ما يأثر على الحفظ)
+async function addMessageAndNotify(message) {
+  await addMessage(message);
+  try {
+    const { pushForMessage } = await import('@/lib/push');
+    await pushForMessage(message);
+  } catch {}
+}
+
 // ينفذ العملية ثم يرجع للصفحة برسالة نجاح أو خطأ
 // الصلاحية المطلوبة تؤخذ من المسار: /admin/<الصلاحية>/...
 const SECTION_AR = {
@@ -792,7 +801,7 @@ export async function submitQuote(input) {
     try {
       number = await nextQuoteNumber();
     } catch {}
-    await addMessage({
+    await addMessageAndNotify({
       id: randomUUID(),
       type: 'quote',
       number,
@@ -838,7 +847,7 @@ export async function submitVendor(formData) {
   if (ok && (await formLimited('vendor', 5))) ok = false;
   if (ok) {
     try {
-      await addMessage({
+      await addMessageAndNotify({
         id: randomUUID(),
         type: 'vendor',
         name: `${firstName} ${lastName}`,
@@ -872,7 +881,7 @@ export async function sendMessage(formData) {
     error = 'وصلت الحد المسموح من الرسائل. حاول بعد ساعة.';
   } else {
     try {
-      await addMessage({
+      await addMessageAndNotify({
         id: randomUUID(),
         name,
         phone,
@@ -979,7 +988,7 @@ export async function submitDataRequest(formData) {
     redirect(`/data-request?error=${encodeURIComponent('فضلاً عبّئ الحقول المطلوبة ووافق على سياسة الخصوصية.')}`);
   }
   const now = new Date();
-  await addMessage({
+  await addMessageAndNotify({
     id: randomUUID(),
     type: 'datarequest',
     name,
@@ -1013,7 +1022,7 @@ export async function addDataRequestManual(formData) {
     if (!name || !DR_TYPES.includes(requestType)) throw new Error('فضلاً عبّئ الاسم ونوع الطلب.');
     const d = new Date(`${text(formData, 'received', 10)}T12:00:00+03:00`);
     const date = Number.isNaN(d.getTime()) || d.getTime() > Date.now() ? new Date() : d;
-    await addMessage({
+    await addMessageAndNotify({
       id: randomUUID(),
       type: 'datarequest',
       source: 'email',
@@ -1052,7 +1061,7 @@ export async function createWhatsappQuote(input) {
       number = await nextQuoteNumber();
     } catch {}
     const token = randomBytes(16).toString('base64url');
-    await addMessage({ id: randomUUID(), type: 'quote', number, status: 'new', source: 'whatsapp', token, name: '', phone: '', items, date: new Date().toISOString() });
+    await addMessageAndNotify({ id: randomUUID(), type: 'quote', number, status: 'new', source: 'whatsapp', token, name: '', phone: '', items, date: new Date().toISOString() });
     return { ok: true, number, url: `https://powercore.sa/q/${token}` };
   } catch {
     return { error: 'failed' };

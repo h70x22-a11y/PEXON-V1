@@ -5,6 +5,7 @@ import { get2fa, getPasskeys, getTemp, setTemp } from '@/lib/db';
 import { otpauthUrl } from '@/lib/totp';
 import QRCode from 'qrcode';
 import Flash from '@/components/Flash';
+import PushSettings from '@/components/PushSettings';
 import { adminT } from '@/lib/adminLang';
 
 export default async function AdminAccount({ searchParams }) {
@@ -39,6 +40,7 @@ export default async function AdminAccount({ searchParams }) {
           <li><span>{t('الصلاحيات:')}</span> {perms.join(t('، ')) || t('لا يوجد')}</li>
         </ul>
       </div>
+      <PushSettings lang={lang} />
       {session.owner ? (
         <p className="muted">{t('كلمة مرور المالك تتغير من Vercel ← Settings ← Environment Variables ← ADMIN_PASSWORD.')}</p>
       ) : (
