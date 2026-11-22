@@ -16,9 +16,7 @@ const GUIDE_TAG = {
   'ph-earthing-ysystem': ['تأريض', 'Earthing'],
 };
 
-export default async function HomePage({ searchParams }) {
-  const sp = await searchParams;
-  const showGuides = sp?.preview === 'guides';
+export default async function HomePage() {
   const [s, categories, products, lang] = await Promise.all([getSettings(), getCategories(), getProducts(), getLang()]);
   const tr = t(lang);
   const featured = products.filter((p) => p.featured).slice(0, 8);
@@ -169,7 +167,7 @@ export default async function HomePage({ searchParams }) {
         </section>
       ) : null}
 
-      {showGuides ? (
+      {ARTICLES.length ? (
         <section className="section home-guides">
           <div className="container">
             <div className="section-head">
