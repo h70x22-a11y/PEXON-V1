@@ -39,6 +39,7 @@ export default async function ArticlePage({ params }) {
     dateModified: a.date,
     inLanguage: a.lang,
     mainEntityOfPage: `${SITE_URL}/blog/${a.slug}`,
+    citation: a.refs?.length ? a.refs.map((r) => ({ '@type': 'CreativeWork', name: r.t, url: r.u })) : undefined,
     author: { '@type': 'Organization', name: 'PEXON' },
     publisher: { '@type': 'Organization', name: 'PEXON', logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon.png` } },
   };
@@ -71,6 +72,16 @@ export default async function ArticlePage({ params }) {
               )}
             </div>
           ))}
+          {a.refs?.length ? (
+            <div style={{ marginTop: 28 }}>
+              <h2 style={{ fontSize: '1.3rem', margin: '24px 0 8px' }}>{en ? 'References' : 'المصادر والمراجع'}</h2>
+              <ol className="art-refs" dir="ltr">
+                {a.refs.map((r) => (
+                  <li key={r.u}><a href={r.u} target="_blank" rel="noopener noreferrer">{r.t}</a></li>
+                ))}
+              </ol>
+            </div>
+          ) : null}
           <div className="panel" style={{ marginTop: 28 }}>
             <h2 style={{ marginTop: 0, fontSize: '1.15rem' }}>{en ? 'Related products' : 'منتجات ذات علاقة'}</h2>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>

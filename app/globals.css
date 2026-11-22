@@ -966,3 +966,7 @@ html[data-theme='dark'] .viz-root { --viz-1: #3987e5; --viz-2: #d95926; --viz-3:
   .guide-card { flex: 0 0 78%; scroll-snap-align: start; padding: 16px; }
   .guide-card p { -webkit-line-clamp: 2; }
 }
+
+.art-refs { padding-inline-start: 22px; margin: 0; font-size: 0.9rem; line-height: 1.8; text-align: left; }
+.art-refs li { margin-bottom: 6px; }
+.art-refs a { color: var(--primary); word-break: break-word; }
