@@ -747,13 +747,13 @@ html[data-theme='dark'] .dash-hello { background: var(--surface); }
 .dtile-ico.green { background: #e7f6ec; color: #17623a; }
 .dtile-ico.gray { background: #f1f4f7; color: #4b5563; }
 html[data-theme='dark'] .dtile-ico { background: rgba(255, 255, 255, 0.06); }
-.dash-chart { grid-column: span 6; }
-.dash-visits { grid-column: span 12; }
+.dash-visits { grid-column: span 9; }
 .dash-visits .dcard-head > .muted { margin-inline-end: auto; }
+.dash-chart { grid-column: span 6; }
 .dash-donut { grid-column: span 3; }
-.dash-table { grid-column: span 6; }
-.dash-activity { grid-column: span 3; }
 .dash-top { grid-column: span 3; }
+.dash-table { grid-column: span 8; }
+.dash-activity { grid-column: span 4; }
 .donut { width: 170px; height: 170px; display: block; margin: 4px auto 10px; }
 .donut-num { font-size: 34px; font-weight: 700; fill: var(--ink); font-family: inherit; }
 .donut-cap { font-size: 13px; fill: var(--muted); font-family: inherit; }
@@ -778,10 +778,9 @@ html[data-theme='dark'] .dtile-ico { background: rgba(255, 255, 255, 0.06); }
 .tp-name { color: var(--ink); font-weight: 600; font-size: 0.88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tp-meta { font-size: 0.78rem; }
 @media (max-width: 1200px) {
-  .dash-hello, .dash-tiles { grid-column: span 12; grid-row: auto; }
+  .dash-hello, .dash-tiles, .dash-visits, .dash-table { grid-column: span 12; grid-row: auto; }
   .dash-chart { grid-column: span 8; }
   .dash-donut { grid-column: span 4; }
-  .dash-table { grid-column: span 12; }
   .dash-activity, .dash-top { grid-column: span 6; }
 }
 @media (max-width: 760px) { .dash-activity, .dash-top, .dash-chart, .dash-donut { grid-column: span 12; } }

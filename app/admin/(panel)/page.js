@@ -213,6 +213,25 @@ export default async function AdminHome({ searchParams }) {
         ) : null}
 
         {show('quotes') ? (
+          <section className="dcard dash-top">
+            <div className="dcard-head"><h2>{t('أكثر المنتجات طلباً')}</h2></div>
+            {topProducts.length ? (
+              <ul className="top-prod">
+                {topProducts.map((p, i) => (
+                  <li key={p.id || i}>
+                    <span className="rank">{i + 1}</span>
+                    <a href={`/product/${p.id}`} target="_blank" rel="noopener noreferrer" className="tp-name">{p.name}</a>
+                    <span className="muted tp-meta">{t('{n} طلب', { n: p.times })} · {t('كمية {q}', { q: p.qty })}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="muted">{t('تظهر هنا المنتجات الأكثر طلباً في عروض الأسعار.')}</p>
+            )}
+          </section>
+        ) : null}
+
+        {show('quotes') ? (
           <section className="dcard dash-table">
             <div className="dcard-head">
               <h2>{t('آخر طلبات عروض الأسعار')}</h2>
@@ -275,24 +294,6 @@ export default async function AdminHome({ searchParams }) {
           </section>
         ) : null}
 
-        {show('quotes') ? (
-          <section className="dcard dash-top">
-            <div className="dcard-head"><h2>{t('أكثر المنتجات طلباً')}</h2></div>
-            {topProducts.length ? (
-              <ul className="top-prod">
-                {topProducts.map((p, i) => (
-                  <li key={p.id || i}>
-                    <span className="rank">{i + 1}</span>
-                    <a href={`/product/${p.id}`} target="_blank" rel="noopener noreferrer" className="tp-name">{p.name}</a>
-                    <span className="muted tp-meta">{t('{n} طلب', { n: p.times })} · {t('كمية {q}', { q: p.qty })}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="muted">{t('تظهر هنا المنتجات الأكثر طلباً في عروض الأسعار.')}</p>
-            )}
-          </section>
-        ) : null}
       </div>
     </>
   );
