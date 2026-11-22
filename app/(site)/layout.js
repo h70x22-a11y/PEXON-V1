@@ -18,6 +18,7 @@ export default async function SiteLayout({ children }) {
   const links = [
     { href: '/', label: tr.home },
     { href: '/products', label: tr.allProducts },
+    { href: '/blog', label: lang === 'en' ? 'Guides' : 'أدلة فنية' },
     { href: '/#about', label: tr.about },
     { href: '/contact', label: tr.contact },
   ];
