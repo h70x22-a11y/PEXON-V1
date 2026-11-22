@@ -57,9 +57,18 @@ export default async function ArticlePage({ params }) {
           {a.sections.map(([h, paras]) => (
             <div key={h} style={{ marginBottom: 20 }}>
               <h2 style={{ fontSize: '1.3rem', margin: '24px 0 8px' }}>{h}</h2>
-              {paras.map((p) => (
-                <p key={p} style={{ margin: '0 0 10px' }}>{p}</p>
-              ))}
+              {paras.map((p, i) =>
+                typeof p === 'string' ? (
+                  <p key={i} style={{ margin: '0 0 10px' }}>{p}</p>
+                ) : (
+                  <div key={i} className="table-wrap" style={{ margin: '6px 0 14px' }}>
+                    <table className="art-table">
+                      <thead><tr>{p.table[0].map((c) => <th key={c}>{c}</th>)}</tr></thead>
+                      <tbody>{p.table.slice(1).map((r, j) => <tr key={j}>{r.map((c, k) => <td key={k}>{c}</td>)}</tr>)}</tbody>
+                    </table>
+                  </div>
+                )
+              )}
             </div>
           ))}
           <div className="panel" style={{ marginTop: 28 }}>
