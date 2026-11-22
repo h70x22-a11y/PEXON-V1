@@ -4,10 +4,21 @@ import { CategoryCard, ProductCard } from '@/components/Cards';
 import { getLang, pick, t } from '@/lib/i18n';
 import JsonLd from '@/components/JsonLd';
 import { SITE_URL } from '@/lib/site';
+import { ARTICLES, localize } from '@/lib/articles';
 
 export const metadata = { alternates: { canonical: '/' } };
 
-export default async function HomePage() {
+const GUIDE_TAG = {
+  'ph-cables-wires': ['كيابل وأسلاك', 'Cables & wires'],
+  'ph-pvc-conduits': ['مواسير', 'Conduits'],
+  'ph-itcc-1': ['مواسير', 'Conduits'],
+  'ph-ge-general-electric': ['مفاتيح فصل', 'Disconnect switches'],
+  'ph-earthing-ysystem': ['تأريض', 'Earthing'],
+};
+
+export default async function HomePage({ searchParams }) {
+  const sp = await searchParams;
+  const showGuides = sp?.preview === 'guides';
   const [s, categories, products, lang] = await Promise.all([getSettings(), getCategories(), getProducts(), getLang()]);
   const tr = t(lang);
   const featured = products.filter((p) => p.featured).slice(0, 8);
@@ -153,6 +164,30 @@ export default async function HomePage() {
                   <div className="logo-box text" key={item.name} dir="auto">{item.name}</div>
                 )
               )}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {showGuides ? (
+        <section className="section home-guides">
+          <div className="container">
+            <div className="section-head">
+              <h2>{lang === 'en' ? 'Technical guides' : 'أدلة فنية'}</h2>
+              <Link href="/blog">{lang === 'en' ? 'All guides' : 'كل الأدلة'}</Link>
+            </div>
+            <div className="guide-grid">
+              {ARTICLES.slice(0, 3).map((x) => localize(x, lang)).map((a) => {
+                const tag = GUIDE_TAG[a.categories[0]];
+                return (
+                  <Link key={a.slug} href={`/blog/${a.slug}`} className="guide-card">
+                    {tag ? <span className="guide-tag">{lang === 'en' ? tag[1] : tag[0]}</span> : null}
+                    <h3>{a.title}</h3>
+                    <p>{a.description}</p>
+                    <span className="guide-more">{lang === 'en' ? 'Read the guide →' : 'اقرأ الدليل ←'}</span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
