@@ -748,6 +748,8 @@ html[data-theme='dark'] .dash-hello { background: var(--surface); }
 .dtile-ico.gray { background: #f1f4f7; color: #4b5563; }
 html[data-theme='dark'] .dtile-ico { background: rgba(255, 255, 255, 0.06); }
 .dash-chart { grid-column: span 6; }
+.dash-visits { grid-column: span 12; }
+.dash-visits .dcard-head > .muted { margin-inline-end: auto; }
 .dash-donut { grid-column: span 3; }
 .dash-table { grid-column: span 6; }
 .dash-activity { grid-column: span 3; }

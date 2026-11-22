@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { FiFileText, FiMessageSquare, FiTruck, FiBox, FiSearch, FiArrowLeft, FiArrowRight, FiEye } from 'react-icons/fi';
 import { can, requireAdmin } from '@/lib/auth';
-import { getCategories, getMessages, getProducts, getResetRequests, getSearchStats, getNotSold } from '@/lib/db';
+import { getCategories, getMessages, getProducts, getResetRequests, getSearchStats, getNotSold, getVisitStats } from '@/lib/db';
 import { adminT } from '@/lib/adminLang';
 import { QUOTE_STATUSES, statusOf } from '@/lib/quotes';
 import LineChart from '@/components/LineChart';
@@ -46,6 +46,7 @@ export default async function AdminHome({ searchParams }) {
   const [categories, products, messages, notSold] = await Promise.all([getCategories(), getProducts(), getMessages(), show('searches') ? getNotSold() : {}]);
   const excluded = new Set(Object.entries(notSold).filter(([, v]) => v.status === 'approved').map(([k]) => k));
   const searches = show('searches') ? await getSearchStats(30, excluded) : null;
+  const visits = show('searches') ? await getVisitStats(30) : null;
   const resets = can(session, 'users:write') ? (await getResetRequests()).length : 0;
 
   const quotes = messages.filter((m) => m.type === 'quote');
@@ -158,6 +159,24 @@ export default async function AdminHome({ searchParams }) {
             </Link>
           ))}
         </div>
+
+        {visits ? (
+          <section className="dcard dash-visits">
+            <div className="dcard-head">
+              <h2>{t('زيارات الموقع')}</h2>
+              <span className="muted">{t('آخر 30 يوم')} · {t('{n} زيارة', { n: visits.totals.sessions.toLocaleString('en') })}</span>
+              <Link href="/admin/visits" className="dcard-more">{t('التفاصيل')} <Arrow aria-hidden="true" /></Link>
+            </div>
+            <LineChart
+              labels={visits.daily.map((d) => new Date(`${d.day}T12:00:00Z`).toLocaleDateString(locale, { day: 'numeric', month: 'short' }))}
+              series={[
+                { name: 'الزيارات', color: '#1c8fd6', values: visits.daily.map((d) => d.sessions) },
+                { name: 'مشاهدات الصفحات', color: '#e8590c', dashed: true, values: visits.daily.map((d) => d.views) },
+              ]}
+              empty="ما فيه زيارات مسجلة في هذي الفترة."
+            />
+          </section>
+        ) : null}
 
         {show('quotes') ? (
           <section className="dcard dash-chart">
