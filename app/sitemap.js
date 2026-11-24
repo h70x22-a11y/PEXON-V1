@@ -13,6 +13,8 @@ export default async function sitemap() {
     page('/products', 0.9, 'daily'),
     ...categories.map((c) => page(`/category/${c.id}`, 0.8)),
     ...products.map((p) => page(`/product/${p.id}`, 0.7, 'monthly')),
+    page('/cable-supplier-riyadh', 0.8, 'monthly'),
+    page('/en/cable-supplier-riyadh', 0.8, 'monthly'),
     page('/blog', 0.6, 'weekly'),
     ...ARTICLES.map((a) => page(`/blog/${a.slug}`, 0.6, 'monthly')),
     page('/quote', 0.5, 'monthly'),
