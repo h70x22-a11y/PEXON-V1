@@ -23,6 +23,7 @@ export default async function sitemap() {
     ...categories.flatMap((c) => page(`/category/${c.id}`, 0.8)),
     ...products.flatMap((p) => page(`/product/${p.id}`, 0.7, 'monthly')),
     ...page('/cable-supplier-riyadh', 0.8, 'monthly'),
+    ...page('/sockets', 0.8, 'weekly'),
     ...page('/blog', 0.6, 'weekly'),
     ...ARTICLES.flatMap((a) => page(`/blog/${a.slug}`, 0.6, 'monthly')),
     ...page('/quote', 0.5, 'monthly'),

@@ -60,7 +60,8 @@ export default async function SiteLayout({ children }) {
                     </a>
                   </li>
                 ) : null}
-                <li><Link href={lang === 'en' ? '/en/cable-supplier-riyadh' : '/cable-supplier-riyadh'}>{lang === 'en' ? 'Cable supplier in Riyadh' : 'مورد كيابل في الرياض'}</Link></li>
+                <li><Link href={lang === 'en' ? '/en/cable-supplier-riyadh' : '/cable-supplier-riyadh'}>{lang === 'en' ? 'Cables & wires in Riyadh' : 'أسلاك وكيابل كهرباء'}</Link></li>
+                <li><Link href={lang === 'en' ? '/en/sockets' : '/sockets'}>{lang === 'en' ? 'Electrical sockets' : 'أفياش كهرباء'}</Link></li>
                 <li><Link href="/vendor-registration">{tr.vendorTitle}</Link></li>
                 <li><Link href="/return-policy">{tr.returnTitle}</Link></li>
                 <li><Link href="/privacy">{tr.privacyTitle}</Link></li>
