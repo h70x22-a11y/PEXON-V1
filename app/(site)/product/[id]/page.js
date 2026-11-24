@@ -10,6 +10,12 @@ import { SITE_URL } from '@/lib/site';
 
 const skuFrom = (short) => (String(short || '').match(/(?:رقم الصنف|SKU)\s*([\w\-./]+)/) || [])[1] || '';
 
+// فيش منزلي 13 أمبير من سلاسل ليجراند البريطانية (مو غطاء ولا داتا)
+const BS_SERIES = ['ph-legrand-belanko-s', 'ph-legrand-mallia-senses', 'ph-legrand-arteor', 'ph-legrand-mosaic', 'ph-legrand-synergy', 'ph-legrand-antimicrobial', 'ph-legrand-plexo'];
+function isHomeSocket(p) {
+  return BS_SERIES.includes(p.categoryId) && /SOCKET|SCOKET|فيش/i.test(p.name) && !/PLATE|COVER|FRAME|DATA|TEL|TV|RJ|HDMI|USB 1|BOX/i.test(p.name);
+}
+
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const [products, categories, lang] = await Promise.all([getProducts(), getCategories(), getLang()]);
@@ -78,6 +84,12 @@ export default async function ProductPage({ params }) {
             {product.short ? <p style={{ fontSize: '1.1rem', fontWeight: 500 }}>{productShort(product, lang)}</p> : null}
             {product.price ? <p className="price" style={{ fontSize: '1.4rem' }}>{productPrice(product, lang)}</p> : null}
             {product.description ? <p className="desc muted">{productDescription(product, lang)}</p> : null}
+            {isHomeSocket(product) ? (
+              <p className="panel" style={{ fontSize: '.95rem', lineHeight: 1.8, margin: '0 0 16px' }}>
+                {lang === 'en' ? '13A British-standard socket (BS 1363), the type adopted by the Saudi standard SASO 2203. ' : 'فيش 13 أمبير بالنظام البريطاني BS 1363، وهو النوع المعتمد في المواصفة السعودية SASO 2203. '}
+                <Link href={`${lang === 'en' ? '/en' : ''}/blog/saudi-standards-electrical`}>{lang === 'en' ? 'Saudi standards guide' : 'دليل المواصفات السعودية'}</Link>
+              </p>
+            ) : null}
             <AddToQuote
               withQty
               product={{ id: product.id, name: displayName(product, lang), short: productShort(product, lang), image: product.image }}
