@@ -5,7 +5,7 @@ import { can, requireAdmin } from '@/lib/auth';
 import { blobReady, dbReady, getAvatar, getChatUnread, getNavUse, getMessages, getNotSold, getResetRequests, getSearchProgress } from '@/lib/db';
 import { AdminLangProvider, AdminLangToggle } from '@/components/AdminLang';
 import AdminTopbar from '@/components/AdminTopbar';
-import { TbChartPie, TbMessages, TbFileDollar, TbInbox, TbBriefcase, TbPackage, TbLayoutGrid, TbChartBar, TbChartLine, TbSettings, TbHistory, TbCloudUpload, TbUserShield, TbCode, TbWorld } from 'react-icons/tb';
+import { TbChartPie, TbMessages, TbFileDollar, TbInbox, TbBriefcase, TbPackage, TbLayoutGrid, TbChartBar, TbChartLine, TbSettings, TbHistory, TbCloudUpload, TbUserShield, TbCode, TbWorld, TbTrendingUp } from 'react-icons/tb';
 import { adminT } from '@/lib/adminLang';
 import NavTracker from '@/components/NavTracker';
 
@@ -50,6 +50,7 @@ export default async function AdminLayout({ children }) {
     { key: 'messages', href: '/admin/messages', Icon: TbInbox, label: 'الرسائل', ok: show('messages'), dot: 'messages' },
     { key: 'products', href: '/admin/products', Icon: TbPackage, label: 'المنتجات', ok: show('products') },
     { key: 'visits', href: '/admin/visits', Icon: TbChartLine, label: 'الزيارات', ok: show('searches') },
+    { key: 'seo', href: '/admin/seo', Icon: TbTrendingUp, label: 'SEO', ok: show('searches') },
     { key: 'searches', href: '/admin/searches', Icon: TbChartBar, label: 'إحصائيات البحث', ok: show('searches'), dot: 'searches' },
     { key: 'vendors', href: '/admin/vendors', Icon: TbBriefcase, label: 'الموردين المسجلين', ok: show('vendors'), dot: 'vendors' },
     { key: 'categories', href: '/admin/categories', Icon: TbLayoutGrid, label: 'الأقسام', ok: show('categories') },
