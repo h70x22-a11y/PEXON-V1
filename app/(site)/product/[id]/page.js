@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCategories, getProducts } from '@/lib/db';
-import { getLang, productDescription, productPrice, productShort, t } from '@/lib/i18n';
+import { getLang, productDescription, productPrice, productShort, t, langAlternates } from '@/lib/i18n';
 import AddToQuote from '@/components/AddToQuote';
 import SmartImage from '@/components/SmartImage';
 import JsonLd from '@/components/JsonLd';
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
   return {
     title,
     description,
-    alternates: { canonical: `/product/${p.id}` },
+    alternates: await langAlternates(`/product/${p.id}`),
     openGraph: { title, description, url: `/product/${p.id}`, images: p.image ? [{ url: p.image, alt: p.name }] : undefined },
   };
 }

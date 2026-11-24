@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { getCategories, getProducts, getSettings } from '@/lib/db';
 import { CategoryCard, ProductCard } from '@/components/Cards';
-import { getLang, pick, t } from '@/lib/i18n';
+import { getLang, pick, t, langAlternates } from '@/lib/i18n';
 import JsonLd from '@/components/JsonLd';
 import { SITE_URL } from '@/lib/site';
 import { ARTICLES, localize } from '@/lib/articles';
 
-export const metadata = { alternates: { canonical: '/' } };
+export async function generateMetadata() {
+  return { alternates: await langAlternates('/') };
+}
 
 const GUIDE_TAG = {
   'ph-cables-wires': ['كيابل وأسلاك', 'Cables & wires'],

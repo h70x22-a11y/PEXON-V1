@@ -5,10 +5,10 @@ import { logSearch } from '@/lib/searchLog';
 import { getCategories, getProducts, getSettings } from '@/lib/db';
 import { brandOf, listBrands, parseSynonyms, searchProducts } from '@/lib/catalog';
 import { ProductCard } from '@/components/Cards';
-import { getLang, t } from '@/lib/i18n';
+import { getLang, t, langAlternates } from '@/lib/i18n';
 
 export async function generateMetadata() {
-  return { title: t(await getLang()).allProducts, alternates: { canonical: '/products' } };
+  return { title: t(await getLang()).allProducts, alternates: await langAlternates('/products') };
 }
 
 const LIMIT = 96;

@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { ARTICLES, localize } from '@/lib/articles';
-import { getLang, t } from '@/lib/i18n';
+import { getLang, t, langAlternates } from '@/lib/i18n';
 
 export async function generateMetadata() {
   const en = (await getLang()) === 'en';
   return {
     title: en ? 'Technical guides' : 'أدلة ومقالات فنية',
     description: en ? 'Practical guides for choosing electrical materials: disconnect switches, earthing and lightning protection, metal conduits and more.' : 'أدلة عملية لاختيار المواد الكهربائية: مفاتيح الفصل، أنظمة التأريض ومانعات الصواعق، المواسير المعدنية وغيرها.',
-    alternates: { canonical: '/blog' },
+    alternates: await langAlternates('/blog'),
   };
 }
 

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import JsonLd from '@/components/JsonLd';
 import { ARTICLES, articleBySlug, localize } from '@/lib/articles';
 import { getCategories } from '@/lib/db';
-import { getLang, t } from '@/lib/i18n';
+import { getLang, t, langAlternates } from '@/lib/i18n';
 import { SITE_URL } from '@/lib/site';
 
 export function generateStaticParams() {
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }) {
   return {
     title: a.title,
     description: a.description,
-    alternates: { canonical: `/blog/${a.slug}` },
+    alternates: await langAlternates(`/blog/${a.slug}`),
     openGraph: { type: 'article', title: a.title, description: a.description, url: `/blog/${a.slug}` },
   };
 }

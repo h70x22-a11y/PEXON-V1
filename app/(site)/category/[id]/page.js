@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCategories, getProducts } from '@/lib/db';
 import { ProductCard } from '@/components/Cards';
-import { getLang, t } from '@/lib/i18n';
+import { getLang, t, langAlternates } from '@/lib/i18n';
 import { applyFacets, buildFacets } from '@/lib/catalog';
 
 export async function generateMetadata({ params }) {
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }) {
   return {
     title: c.name,
     description,
-    alternates: { canonical: `/category/${c.id}` },
+    alternates: await langAlternates(`/category/${c.id}`),
     openGraph: { title: c.name, description, url: `/category/${c.id}`, images: image ? [{ url: image, alt: c.name }] : undefined },
   };
 }

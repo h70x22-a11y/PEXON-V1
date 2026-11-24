@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getLang, t } from '@/lib/i18n';
+import { getLang, t, langAlternates } from '@/lib/i18n';
 import { SITE_URL } from '@/lib/site';
 
 // صفحة هبوط: مورد كيابل كهرباء في الرياض (عربي على /cable-supplier-riyadh وإنجليزي على /en/cable-supplier-riyadh)
@@ -105,7 +105,7 @@ export async function generateMetadata() {
   return {
     title: c.title,
     description: c.meta,
-    alternates: { canonical: url, languages: { ar: PATH, en: `/en${PATH}`, 'x-default': PATH } },
+    alternates: await langAlternates(PATH),
     openGraph: { title: `${c.title} | PEXON`, description: c.meta, url: `${SITE_URL}${url}`, locale: lang === 'en' ? 'en_US' : 'ar_SA' },
   };
 }
