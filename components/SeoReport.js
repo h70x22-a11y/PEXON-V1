@@ -166,7 +166,7 @@ export default function SeoReport({ data }) {
   return (
     <div className="seo">
       <div className="seo-meta">
-        <span className="muted">{t('البيانات حتى')} {fmtD(data.dataThrough)} · {t('آخر سحب')} {new Date(data.fetchedAt).toLocaleString(locale, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</span>
+        <span className="muted">{t('البيانات حتى')} {fmtD(data.dataThrough)} · {data.incompleteFrom ? <>({t('أرقام')} {fmtD(data.incompleteFrom)} {t('وبعده مبدئية وتكتمل خلال يومين')}) · </> : null}{t('آخر سحب')} {new Date(data.fetchedAt).toLocaleString(locale, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</span>
         <button type="button" className="btn ghost" onClick={refresh} disabled={busy}>{busy ? t('جاري التحديث...') : t('تحديث الحين')}</button>
       </div>
 
