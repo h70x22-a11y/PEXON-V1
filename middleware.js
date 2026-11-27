@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSettings } from '@/lib/db';
+import { getCatalogUrl } from '@/lib/catalogUrl';
 import { isOwnBlob } from '@/lib/blobHost';
 
 // يعرض الكتالوج على رابط الموقع نفسه (powercore.sa/catalog.pdf) بدل رابط التخزين
@@ -17,8 +17,8 @@ export async function middleware(request) {
     res.cookies.set('lang', 'en', { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' });
     return res;
   }
-  const { catalogUrl } = await getSettings();
-  if (isOwnBlob(catalogUrl) && new URL(catalogUrl).pathname.toLowerCase().endsWith('.pdf')) {
+  const catalogUrl = await getCatalogUrl();
+  if (catalogUrl && isOwnBlob(catalogUrl) && new URL(catalogUrl).pathname.toLowerCase().endsWith('.pdf')) {
     const res = NextResponse.rewrite(new URL(catalogUrl));
     res.headers.set('Content-Type', 'application/pdf');
     res.headers.set('X-Content-Type-Options', 'nosniff');
