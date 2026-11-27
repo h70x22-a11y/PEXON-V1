@@ -5,6 +5,10 @@
 ## 1) النقل نفسه
 - [ ] إضافة pexon.sa و www.pexon.sa في Vercel وضبط سجلات DNS للموقع فقط
 - [ ] تحويل دائم 301 من powercore.sa (كل الصفحات) إلى نفس المسار على pexon.sa
+  - يشمل powercore.sa و www.powercore.sa، من إعدادات Domains في Vercel (Redirect to pexon.sa، Permanent)
+  - يحافظ على المسار: powercore.sa/sockets ← pexon.sa/sockets، وروابط /en و /go/ و /q/ كلها
+  - لا يتشال التحويل أبداً (أقل شي سنة)، ولا يتجدد الدومين القديم يخلص
+  - بعد التفعيل: نجرب 5 روابط قديمة ونتأكد إنها تفتح نفس الصفحة على pexon.sa
 - [ ] تغيير `SITE_URL` في `lib/site.js`
 - [ ] تحديث الروابط الثابتة في الكود:
   - `app/actions.js` (رابط عرض السعر `/q/`)
