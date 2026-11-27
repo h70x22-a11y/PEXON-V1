@@ -7,6 +7,15 @@ import SmartImage from '@/components/SmartImage';
 import JsonLd from '@/components/JsonLd';
 import { arabicName, brandOf, displayName } from '@/lib/catalog';
 import { SITE_URL } from '@/lib/site';
+import { hubForProduct } from '@/lib/hubs';
+
+const HUB_LABEL = {
+  '/sockets': ['أفياش كهرباء', 'Electrical sockets'],
+  '/cable-supplier-riyadh': ['أسلاك وكيابل كهرباء', 'Cables & wires'],
+  '/isolators': ['مفاتيح فصل', 'Isolators'],
+  '/floor-boxes': ['علب أرضية', 'Floor boxes'],
+  '/conduits': ['مواسير كهرباء', 'Electrical conduits'],
+};
 
 const skuFrom = (short) => (String(short || '').match(/(?:رقم الصنف|SKU)\s*([\w\-./]+)/) || [])[1] || '';
 
@@ -65,6 +74,7 @@ export default async function ProductPage({ params }) {
         <div className="container">
           <div className="crumbs">
             <Link href="/">{tr.home}</Link> / <Link href="/products">{tr.allProducts}</Link>
+            {hubForProduct(product) ? <> / <Link href={`${lang === 'en' ? '/en' : ''}${hubForProduct(product)}`}>{HUB_LABEL[hubForProduct(product)][lang === 'en' ? 1 : 0]}</Link></> : null}
             {category ? <> / <Link href={`/category/${category.id}`}>{category.name}</Link></> : null}
           </div>
           <h1>{displayName(product, lang)}</h1>

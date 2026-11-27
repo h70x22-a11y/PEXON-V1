@@ -33,7 +33,8 @@ const SECTIONS = [
 const C = {
   ar: {
     title: 'أفياش كهرباء',
-    seo: 'أفياش كهرباء في الرياض | فيش 13 أمبير، USB، خارجي، صناعي',
+    h1: 'أفياش وفيش كهرباء في الرياض',
+    seo: 'أفياش وفيش كهرباء في الرياض | فيش 13 أمبير، USB، خارجي، صناعي',
     meta: 'تشكيلة أفياش كهرباء ليجراند في الرياض: فيش 13 أمبير مفرد ومجوز، أفياش مع USB، أفياش خارجية مقاومة للماء، أفياش صناعية، ومخارج داتا وتلفون. اطلب عرض سعر مع توصيل مجاني داخل الرياض.',
     lead: 'كل أنواع الأفياش في مكان واحد: الفيش المنزلي 13 أمبير، والفيش مع منفذ شحن USB، والأفياش الخارجية والصناعية والأرضية، ومخارج الداتا والتلفون. كلها أصلية من ليجراند، مع توصيل سريع ومجاني داخل الرياض.',
     std: 'الفيش المنزلي المعتمد في السعودية هو فيش 13 أمبير بثلاث فتحات مستطيلة، لأن المواصفة السعودية SASO 2203 مبنية على المواصفة البريطانية BS 1363.',
@@ -109,7 +110,7 @@ export default async function SocketsPage() {
       <div className="page-head">
         <div className="container">
           <div className="crumbs"><Link href={pre || '/'}>{tr.home}</Link> / {c.title}</div>
-          <h1>{c.title}</h1>
+          <h1>{c.h1 || c.title}</h1>
           <p className="muted" style={{ maxWidth: 780, marginTop: 10, lineHeight: 1.9 }}>{c.lead}</p>
           <p className="muted" style={{ maxWidth: 780, marginTop: 6, lineHeight: 1.9 }}>{c.std}</p>
           <nav style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 16 }}>

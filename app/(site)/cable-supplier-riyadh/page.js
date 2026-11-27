@@ -8,6 +8,7 @@ const PATH = '/cable-supplier-riyadh';
 const C = {
   ar: {
     title: 'أسلاك وكيابل كهرباء في الرياض',
+    seo: 'مورد كيابل وأسلاك كهرباء في الرياض | سلك كهرباء وكيبل نحاس',
     meta: 'أسلاك وكيابل كهرباء في الرياض: سلك كهرباء NYA وTHHN، كيبل كهرباء نحاس XLPE، كيابل XLPE ومسلحة، كيابل مقاومة للحريق، كيابل داتا بلدن. توصيل سريع ومجاني داخل الرياض وعرض سعر سريع.',
     crumb: 'أسلاك وكيابل كهرباء',
     lead: 'PEXON مورد أسلاك وكيابل كهرباء في الرياض: نوفر سلك الكهرباء للمباني من 1.5 إلى 16 مم²، وكيبل الكهرباء النحاس للقوى، والكيابل المسلحة والمقاومة للحريق وكيابل الداتا والتحكم، للمقاولين والمصانع والمشاريع والمنازل في الرياض، مع توصيل سريع ومجاني داخل الرياض.',
@@ -53,6 +54,7 @@ const C = {
   },
   en: {
     title: 'Electrical Cable Supplier in Riyadh',
+    seo: 'Electrical Cable & Wire Supplier in Riyadh | PEXON',
     meta: 'Electrical cable supplier in Riyadh: NYA and THHN building wires, XLPE and armoured power cables, fire-resistant cables and Belden data cables. Fast, free delivery within Riyadh and quick quotations.',
     crumb: 'Cable supplier in Riyadh',
     lead: 'PEXON supplies power cables, building wires, armoured, fire-resistant, data and control cables to contractors, factories, projects and homes in Riyadh, with fast, free delivery within Riyadh.',
@@ -103,7 +105,7 @@ export async function generateMetadata() {
   const c = C[lang];
   const url = lang === 'en' ? `/en${PATH}` : PATH;
   return {
-    title: c.title,
+    title: { absolute: c.seo },
     description: c.meta,
     alternates: await langAlternates(PATH),
     openGraph: { title: `${c.title} | PEXON`, description: c.meta, url: `${SITE_URL}${url}`, locale: lang === 'en' ? 'en_US' : 'ar_SA' },

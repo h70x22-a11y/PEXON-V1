@@ -62,6 +62,10 @@ export default async function SiteLayout({ children }) {
                 ) : null}
                 <li><Link href={lang === 'en' ? '/en/cable-supplier-riyadh' : '/cable-supplier-riyadh'}>{lang === 'en' ? 'Cables & wires in Riyadh' : 'أسلاك وكيابل كهرباء'}</Link></li>
                 <li><Link href={lang === 'en' ? '/en/sockets' : '/sockets'}>{lang === 'en' ? 'Electrical sockets' : 'أفياش كهرباء'}</Link></li>
+                <li><Link href={lang === 'en' ? '/en/isolators' : '/isolators'}>{lang === 'en' ? 'Isolators' : 'مفاتيح فصل'}</Link></li>
+                <li><Link href={lang === 'en' ? '/en/floor-boxes' : '/floor-boxes'}>{lang === 'en' ? 'Floor boxes' : 'علب أرضية'}</Link></li>
+                <li><Link href={lang === 'en' ? '/en/conduits' : '/conduits'}>{lang === 'en' ? 'Electrical conduits' : 'مواسير كهرباء'}</Link></li>
+                <li><Link href={lang === 'en' ? '/en/legrand' : '/legrand'}>{lang === 'en' ? 'Legrand' : 'ليجراند'}</Link></li>
                 <li><Link href="/vendor-registration">{tr.vendorTitle}</Link></li>
                 <li><Link href="/return-policy">{tr.returnTitle}</Link></li>
                 <li><Link href="/privacy">{tr.privacyTitle}</Link></li>
