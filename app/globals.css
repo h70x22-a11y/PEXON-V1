@@ -1004,3 +1004,16 @@ html[data-theme='dark'] .viz-root { --viz-1: #3987e5; --viz-2: #d95926; --viz-3:
 .seo-chg.down { color: var(--seo-bad); background: rgba(208,59,59,.1); }
 .seo-chg.same { color: var(--muted); }
 .seo-spark { width: 90px; height: 26px; display: block; }
+
+/* تسوق حسب نوع المنتج */
+.type-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+.type-chips .chip { padding: 10px 18px; }
+.chip.link.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.chip.link.active .muted { color: rgba(255,255,255,.8); }
+@media (max-width: 600px) {
+  .type-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; margin-inline: -16px; padding-inline: 16px; scrollbar-width: none; }
+  .type-chips .chip { flex: none; }
+}
+.pager { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 28px; }
+.pager a { min-width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-weight: 600; }
+.pager a.active { background: var(--primary); border-color: var(--primary); color: #fff; }

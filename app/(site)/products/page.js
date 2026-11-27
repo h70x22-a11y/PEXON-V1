@@ -3,7 +3,7 @@ import { after } from 'next/server';
 import { clientIp } from '@/lib/auth';
 import { logSearch } from '@/lib/searchLog';
 import { getCategories, getProducts, getSettings } from '@/lib/db';
-import { brandOf, listBrands, parseSynonyms, searchProducts } from '@/lib/catalog';
+import { brandOf, listBrands, parseSynonyms, searchProducts, shopType, shopTypeCounts, SHOP_TYPES } from '@/lib/catalog';
 import { ProductCard } from '@/components/Cards';
 import { getLang, t, langAlternates } from '@/lib/i18n';
 
@@ -18,6 +18,8 @@ export default async function ProductsPage({ searchParams }) {
   const q = String(sp?.q || '').trim();
   const cat = String(sp?.cat || '');
   const brand = String(sp?.brand || '').trim();
+  const type = SHOP_TYPES.some((x) => x.key === sp?.type) ? sp.type : '';
+  const page = Math.max(1, parseInt(sp?.page, 10) || 1);
   const [categories, products, lang, settings] = await Promise.all([getCategories(), getProducts(), getLang(), getSettings()]);
   const synonyms = parseSynonyms(settings.searchSynonyms);
   const tr = t(lang);
@@ -28,12 +30,32 @@ export default async function ProductsPage({ searchParams }) {
   }
 
   const brandKey = brand.toLowerCase();
-  const filtering = Boolean(q || cat || brand);
+  const filtering = Boolean(q || cat || brand || type);
   const matches = filtering
     ? (q ? searchProducts(products, q, categories, synonyms) : products).filter(
-        (p) => (!cat || p.categoryId === cat) && (!brand || brandOf(p).toLowerCase() === brandKey)
+        (p) => (!cat || p.categoryId === cat) && (!brand || brandOf(p).toLowerCase() === brandKey) && (!type || shopType(p) === type)
       )
     : [];
+  const types = shopTypeCounts(products);
+  const typeLabel = (k) => { const x = SHOP_TYPES.find((t) => t.key === k); return x ? x[lang === 'en' ? 'en' : 'ar'] : ''; };
+  const pages = Math.ceil(matches.length / LIMIT);
+  const shown = matches.slice((page - 1) * LIMIT, page * LIMIT);
+  const linkWith = (patch) => {
+    const u = new URLSearchParams();
+    const v = { q, cat, brand, type, ...patch };
+    for (const [k, val] of Object.entries(v)) if (val) u.set(k, val);
+    const str = u.toString();
+    return `/products${str ? `?${str}` : ''}`;
+  };
+  const typeChips = (
+    <div className="type-chips" role="list">
+      {types.map((x) => (
+        <Link key={x.key} role="listitem" className={`chip link${type === x.key ? ' active' : ''}`} href={type === x.key ? linkWith({ type: '', page: '' }) : linkWith({ type: x.key, page: '' })} aria-current={type === x.key ? 'true' : undefined}>
+          {x[lang === 'en' ? 'en' : 'ar']} <span className="muted">({x.n})</span>
+        </Link>
+      ))}
+    </div>
+  );
 
   return (
     <>
@@ -62,6 +84,15 @@ export default async function ProductsPage({ searchParams }) {
               </select>
             </div>
             <div className="field">
+              <label htmlFor="type">{lang === 'en' ? 'Product type' : 'نوع المنتج'}</label>
+              <select id="type" name="type" defaultValue={type}>
+                <option value="">{lang === 'en' ? 'All types' : 'كل الأنواع'}</option>
+                {types.map((x) => (
+                  <option key={x.key} value={x.key}>{x[lang === 'en' ? 'en' : 'ar']} ({x.n})</option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
               <label htmlFor="brand">{tr.brand}</label>
               <select id="brand" name="brand" defaultValue={brands.find((b) => b.name.toLowerCase() === brandKey)?.name || ''}>
                 <option value="">{tr.allBrands}</option>
@@ -75,17 +106,20 @@ export default async function ProductsPage({ searchParams }) {
 
           {filtering ? (
             <>
+              {typeChips}
               <div className="section-head">
-                <h2>{tr.results(matches.length)}</h2>
+                <h2>{type && !q ? `${typeLabel(type)} (${matches.length})` : tr.results(matches.length)}</h2>
                 <Link href="/products">{tr.clear}</Link>
               </div>
               {matches.length ? (
                 <>
-                  <div className="grid">{matches.slice(0, LIMIT).map((p) => <ProductCard key={p.id} product={p} lang={lang} />)}</div>
-                  {matches.length > LIMIT ? (
-                    <p className="muted" style={{ marginTop: 20 }}>
-                      {tr.firstN(LIMIT)}
-                    </p>
+                  <div className="grid">{shown.map((p) => <ProductCard key={p.id} product={p} lang={lang} />)}</div>
+                  {pages > 1 ? (
+                    <nav className="pager" aria-label={lang === 'en' ? 'Pages' : 'الصفحات'}>
+                      {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
+                        <Link key={n} href={linkWith({ page: n > 1 ? String(n) : '' })} className={n === page ? 'active' : ''} aria-current={n === page ? 'page' : undefined}>{n}</Link>
+                      ))}
+                    </nav>
                   ) : null}
                 </>
               ) : (
@@ -94,6 +128,12 @@ export default async function ProductsPage({ searchParams }) {
             </>
           ) : (
             <>
+              <div style={{ marginBottom: 40 }}>
+                <div className="section-head">
+                  <h2>{lang === 'en' ? 'Shop by product type' : 'تسوق حسب نوع المنتج'}</h2>
+                </div>
+                {typeChips}
+              </div>
               {brands.length ? (
                 <div style={{ marginBottom: 40 }}>
                   <div className="section-head">
